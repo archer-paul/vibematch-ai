@@ -16,6 +16,7 @@ import Matches from "./pages/Matches";
 import Pricing from "./pages/Pricing";
 import Admin from "./pages/Admin";
 import Leaderboard from "./pages/Leaderboard";
+import Discovery from "./pages/Discovery";
 
 const queryClient = new QueryClient();
 
@@ -80,6 +81,14 @@ const App = () => (
               <ProtectedRoute>
                 <AppLayout>
                   <Leaderboard />
+                </AppLayout>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/discover" element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Discovery />
                 </AppLayout>
               </ProtectedRoute>
             } />
