@@ -10,18 +10,23 @@ import { useAuth } from '@/hooks/useAuth';
 
 interface GhostProfile {
   id: string;
-  full_name: string;
-  platform: 'instagram' | 'tiktok' | 'youtube' | 'linkedin';
-  followers: number;
-  engagement_rate: number;
-  content_categories: string[];
-  ai_compatibility_score: number;
-  bio: string;
-  location?: string;
-  estimated_rate?: string;
-  avatar_url?: string;
-  platform_url?: string;
-  discovered_date: string;
+  discovered_data: {
+    name: string;
+    platform: string;
+    followers: number;
+    engagement_rate: number;
+    niche: string[];
+    bio: string;
+    avatar_url?: string;
+  };
+  compatibility_scores: {
+    overall: number;
+    niche_match: number;
+    audience_alignment: number;
+    content_quality: number;
+  };
+  status: 'discovered' | 'invited' | 'joined';
+  invited_at?: string;
 }
 
 export default function Discovery() {
@@ -30,59 +35,83 @@ export default function Discovery() {
   const [selectedPlatform, setSelectedPlatform] = useState<string>('all');
   const [isScanning, setIsScanning] = useState(false);
 
-  // Fake Ghost Profiles
+  // Fake Ghost Profiles avec la structure correcte
   const ghostProfiles: GhostProfile[] = [
     {
       id: 'ghost-1',
-      full_name: 'Emma Creative',
-      platform: 'instagram',
-      followers: 45000,
-      engagement_rate: 8.5,
-      content_categories: ['Lifestyle', 'Mode', 'Beauté'],
-      ai_compatibility_score: 92,
-      bio: 'Créatrice de contenu lifestyle et mode basée à Paris. Passionnée par la beauté naturelle et les tendances émergentes.',
-      location: 'Paris, France',
-      estimated_rate: '800-1500€',
-      discovered_date: '2024-01-15'
+      discovered_data: {
+        name: 'Emma Creative',
+        platform: 'Instagram',
+        followers: 45000,
+        engagement_rate: 8.5,
+        niche: ['Lifestyle', 'Mode', 'Beauté'],
+        bio: 'Créatrice de contenu lifestyle et mode basée à Paris. Passionnée par la beauté naturelle et les tendances émergentes.',
+        avatar_url: undefined
+      },
+      compatibility_scores: {
+        overall: 92,
+        niche_match: 89,
+        audience_alignment: 94,
+        content_quality: 93
+      },
+      status: 'discovered'
     },
     {
       id: 'ghost-2',
-      full_name: 'TechReviewFR',
-      platform: 'youtube',
-      followers: 125000,
-      engagement_rate: 12.3,
-      content_categories: ['Tech', 'Reviews', 'Gaming'],
-      ai_compatibility_score: 89,
-      bio: 'Reviews tech, tests de gadgets et analyses gaming. Chaîne YouTube francophone spécialisée dans les nouvelles technologies.',
-      location: 'Lyon, France',
-      estimated_rate: '2000-4000€',
-      discovered_date: '2024-01-12'
+      discovered_data: {
+        name: 'TechReviewFR',
+        platform: 'YouTube',
+        followers: 125000,
+        engagement_rate: 12.3,
+        niche: ['Tech', 'Reviews', 'Gaming'],
+        bio: 'Reviews tech, tests de gadgets et analyses gaming. Chaîne YouTube francophone spécialisée dans les nouvelles technologies.',
+        avatar_url: undefined
+      },
+      compatibility_scores: {
+        overall: 89,
+        niche_match: 95,
+        audience_alignment: 87,
+        content_quality: 85
+      },
+      status: 'discovered'
     },
     {
       id: 'ghost-3',
-      full_name: 'FitnessMaxime',
-      platform: 'tiktok',
-      followers: 85000,
-      engagement_rate: 15.2,
-      content_categories: ['Fitness', 'Nutrition', 'Motivation'],
-      ai_compatibility_score: 87,
-      bio: 'Coach sportif et nutritionniste. Contenus fitness, recettes healthy et motivation quotidienne.',
-      location: 'Marseille, France',
-      estimated_rate: '1200-2500€',
-      discovered_date: '2024-01-10'
+      discovered_data: {
+        name: 'FitnessMaxime',
+        platform: 'TikTok',
+        followers: 85000,
+        engagement_rate: 15.2,
+        niche: ['Fitness', 'Nutrition', 'Motivation'],
+        bio: 'Coach sportif et nutritionniste. Contenus fitness, recettes healthy et motivation quotidienne.',
+        avatar_url: undefined
+      },
+      compatibility_scores: {
+        overall: 87,
+        niche_match: 92,
+        audience_alignment: 83,
+        content_quality: 86
+      },
+      status: 'discovered'
     },
     {
       id: 'ghost-4',
-      full_name: 'Sarah Entrepreneur',
-      platform: 'linkedin',
-      followers: 35000,
-      engagement_rate: 6.8,
-      content_categories: ['Business', 'Entrepreneuriat', 'Leadership'],
-      ai_compatibility_score: 85,
-      bio: 'Entrepreneure et consultante en stratégie digitale. Partage son expertise en développement business et leadership.',
-      location: 'Bordeaux, France',
-      estimated_rate: '1500-3000€',
-      discovered_date: '2024-01-08'
+      discovered_data: {
+        name: 'Sarah Entrepreneur',
+        platform: 'LinkedIn',
+        followers: 35000,
+        engagement_rate: 6.8,
+        niche: ['Business', 'Entrepreneuriat', 'Leadership'],
+        bio: 'Entrepreneure et consultante en stratégie digitale. Partage son expertise en développement business et leadership.',
+        avatar_url: undefined
+      },
+      compatibility_scores: {
+        overall: 85,
+        niche_match: 88,
+        audience_alignment: 82,
+        content_quality: 85
+      },
+      status: 'discovered'
     }
   ];
 
@@ -104,9 +133,9 @@ export default function Discovery() {
   };
 
   const filteredProfiles = ghostProfiles.filter(profile => {
-    const matchesSearch = profile.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         profile.content_categories.some(cat => cat.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesPlatform = selectedPlatform === 'all' || profile.platform === selectedPlatform;
+    const matchesSearch = profile.discovered_data.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         profile.discovered_data.niche.some(cat => cat.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesPlatform = selectedPlatform === 'all' || profile.discovered_data.platform.toLowerCase() === selectedPlatform;
     
     return matchesSearch && matchesPlatform;
   });
