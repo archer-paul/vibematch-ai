@@ -141,6 +141,11 @@ All colors MUST be HSL.
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
+  /* 3D perspective for card stack */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
   /* User type specific themes */
   .creator-theme {
     --primary: var(--creator-primary);

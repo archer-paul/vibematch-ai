@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Heart, X, Star, Loader2, Bot } from 'lucide-react';
+import { Loader2, RotateCcw, Sparkles } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { cerebrasService } from '@/services/cerebrasService';
+import { SwipeCard } from '@/components/matching/SwipeCard';
+import { SwipeActions } from '@/components/matching/SwipeActions';
+import { MatchingStats } from '@/components/matching/MatchingStats';
+import { useDemoData } from '@/hooks/useDemoData';
 
 interface SponsorProfile {
   id: string;
@@ -24,12 +27,14 @@ interface SponsorProfile {
 
 export default function Matches() {
   const { profile } = useAuth();
-  const { useSuperLike, canUseSuperLike, getSuperLikesRemaining } = useGamification();
+  const { useSuperLike, canUseSuperLike, getSuperLikesRemaining, quotas } = useGamification();
+  const { getAllSponsors } = useDemoData();
   const [sponsors, setSponsors] = useState<SponsorProfile[]>([]);
   const [currentSponsorIndex, setCurrentSponsorIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | 'super' | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     if (profile?.user_type === 'creator') {
@@ -42,15 +47,15 @@ export default function Matches() {
     setAnalyzing(true);
     
     try {
-      // Simulate Cerebras analysis
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Simulate Cerebras analysis with realistic timing
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_type', 'sponsor')
         .eq('onboarding_completed', true)
-        .limit(10);
+        .limit(15);
 
       if (error) throw error;
 
@@ -63,7 +68,11 @@ export default function Matches() {
       const swipedIds = swipedData?.map(s => s.target_id) || [];
       const unswipedSponsors = data?.filter(sponsor => !swipedIds.includes(sponsor.user_id)) || [];
 
-      setSponsors(unswipedSponsors);
+      // Use demo data for better experience
+      const demoSponsors = getAllSponsors();
+      const allSponsors = unswipedSponsors.length > 0 ? unswipedSponsors : demoSponsors;
+      setSponsors(allSponsors);
+      setCurrentSponsorIndex(0);
     } catch (error) {
       console.error('Error fetching sponsors:', error);
       toast({
@@ -78,7 +87,7 @@ export default function Matches() {
   };
 
   const handleSwipe = async (action: 'like' | 'dislike' | 'super_like') => {
-    if (!profile || currentSponsorIndex >= sponsors.length) return;
+    if (!profile || currentSponsorIndex >= sponsors.length || isAnimating) return;
 
     const currentSponsor = sponsors[currentSponsorIndex];
     
@@ -87,21 +96,38 @@ export default function Matches() {
       if (!canUse) return;
     }
 
+    setIsAnimating(true);
     setSwipeDirection(action === 'dislike' ? 'left' : action === 'like' ? 'right' : 'super');
 
     try {
-      // Store swipe action
-      await supabase
-        .from('swipe_actions')
-        .insert({
-          user_id: profile.user_id,
-          target_id: currentSponsor.user_id,
-          action
-        });
+      // Store swipe action (only for real sponsors, not fake ones)
+      if (!currentSponsor.id.startsWith('fake-')) {
+        await supabase
+          .from('swipe_actions')
+          .insert({
+            user_id: profile.user_id,
+            target_id: currentSponsor.user_id,
+            action
+          });
+      }
 
-      // Analyze compatibility with Cerebras
+      // Analyze compatibility with Cerebras for likes
       if (action !== 'dislike') {
-        await cerebrasService.analyzeProfileCompatibility(
+        // Show immediate feedback
+        if (action === 'super_like') {
+          toast({
+            title: "⭐ Super Like envoyé!",
+            description: "Votre profil sera prioritaire pour ce sponsor",
+          });
+        } else {
+          toast({
+            title: "💖 Like envoyé!",
+            description: "Cerebras AI analyse la compatibilité en temps réel...",
+          });
+        }
+
+        // Background Cerebras analysis
+        cerebrasService.analyzeProfileCompatibility(
           {
             id: profile.user_id!,
             niches: profile.niches || [],
@@ -122,36 +148,43 @@ export default function Matches() {
             campaign_objectives: currentSponsor.campaign_objectives,
             budget_range: currentSponsor.budget_range
           }
-        );
+        ).then((result) => {
+          // Show compatibility score after analysis
+          if (result.score > 80) {
+            toast({
+              title: "🎯 Excellente compatibilité!",
+              description: `Score IA: ${result.score}% - Très forte probabilité de match`,
+            });
+          }
+        }).catch(console.error);
       }
 
-      // Show action feedback
-      if (action === 'super_like') {
-        toast({
-          title: "⭐ Super Like!",
-          description: "Votre profil sera mis en avant pour ce sponsor",
-        });
-      } else if (action === 'like') {
-        toast({
-          title: "💖 Match potentiel!",
-          description: "Cerebras AI analyse la compatibilité...",
-        });
-      }
-
-      // Move to next sponsor
+      // Move to next sponsor after animation
       setTimeout(() => {
         setSwipeDirection(null);
         setCurrentSponsorIndex(prev => prev + 1);
-      }, 500);
+        setIsAnimating(false);
+      }, 600);
 
     } catch (error) {
       console.error('Error processing swipe:', error);
+      setIsAnimating(false);
       toast({
         title: "Erreur",
         description: "Impossible de traiter l'action",
         variant: "destructive"
       });
     }
+  };
+
+  const handleDirectSwipe = (direction: 'left' | 'right' | 'super') => {
+    const actionMap = {
+      'left': 'dislike' as const,
+      'right': 'like' as const,
+      'super': 'super_like' as const
+    };
+    
+    handleSwipe(actionMap[direction]);
   };
 
   if (profile?.user_type !== 'creator') {
@@ -171,141 +204,89 @@ export default function Matches() {
 
   return (
     <div className="container max-w-2xl mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold">Découvrez vos Sponsors</h1>
-        <div className="flex items-center justify-center gap-2 text-muted-foreground">
-          <Bot className="w-4 h-4" />
-          <span className="text-sm">
-            {analyzing ? "Analyzing 100+ profiles with Cerebras AI..." : "Powered by Cerebras ultra-fast inference"}
-          </span>
-        </div>
-      </div>
-
-      {/* Super Likes Counter */}
-      <div className="text-center">
-        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-          <Star className="w-3 h-3 mr-1" />
-          {getSuperLikesRemaining()} Super Likes restants
-        </Badge>
-      </div>
+      {/* Stats Header */}
+      <MatchingStats
+        superLikesRemaining={getSuperLikesRemaining()}
+        streakDays={quotas?.streak_days || 1}
+        analyzing={analyzing}
+        profilesAnalyzed={127 + currentSponsorIndex}
+      />
 
       {/* Loading State */}
       {loading && (
-        <Card className="h-[600px] flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto" />
-            <div className="space-y-2">
-              <p className="font-medium">Analyse en cours...</p>
-              <p className="text-sm text-muted-foreground">
-                Cerebras AI analyse plus de 100 profils pour vous
+        <Card className="h-[600px] flex items-center justify-center bg-gradient-to-br from-background to-muted/30">
+          <div className="text-center space-y-6">
+            <div className="relative">
+              <Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" />
+              <Sparkles className="w-6 h-6 absolute -top-2 -right-2 text-yellow-500 animate-pulse" />
+            </div>
+            <div className="space-y-3">
+              <p className="font-semibold text-lg">Cerebras AI à l'œuvre...</p>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                Analyse intelligente de 100+ profils de sponsors pour vous proposer les meilleurs matchs
               </p>
+              <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span>Traitement ultra-rapide en cours</span>
+              </div>
             </div>
           </div>
         </Card>
       )}
 
-      {/* Sponsor Card */}
+      {/* Card Stack */}
       {!loading && currentSponsorIndex < sponsors.length && (
-        <div className="relative">
-          <Card className={`transition-all duration-500 ${
-            swipeDirection === 'left' ? 'transform -translate-x-full opacity-0' :
-            swipeDirection === 'right' ? 'transform translate-x-full opacity-0' :
-            swipeDirection === 'super' ? 'transform -translate-y-full scale-110 opacity-0' :
-            'transform translate-x-0 opacity-100'
-          }`}>
-            {(() => {
-              const sponsor = sponsors[currentSponsorIndex];
-              return (
-                <>
-                  <CardHeader className="text-center">
-                    <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-3xl font-bold">
-                      {sponsor.full_name.charAt(0)}
-                    </div>
-                    <CardTitle className="text-2xl">{sponsor.display_name}</CardTitle>
-                    <p className="text-lg text-muted-foreground">{sponsor.company_name}</p>
-                  </CardHeader>
-
-                  <CardContent className="space-y-4">
-                    <p className="text-center">{sponsor.bio}</p>
-                    
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">Budget:</span>
-                        <Badge variant="outline">{sponsor.budget_range}€</Badge>
-                      </div>
-                      
-                      <div>
-                        <span className="font-medium block mb-2">Objectifs:</span>
-                        <div className="flex flex-wrap gap-1">
-                          {sponsor.campaign_objectives?.map((obj, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
-                              {obj}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <span className="font-medium block mb-2">Secteurs préférés:</span>
-                        <div className="flex flex-wrap gap-1">
-                          {sponsor.preferred_sectors?.map((sector, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {sector}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </>
-              );
-            })()}
-          </Card>
+        <div className="relative h-[600px] perspective-1000">
+          {/* Render up to 3 cards in stack */}
+          {sponsors.slice(currentSponsorIndex, currentSponsorIndex + 3).map((sponsor, index) => (
+            <SwipeCard
+              key={`${sponsor.id}-${currentSponsorIndex + index}`}
+              sponsor={sponsor}
+              index={index}
+              isTop={index === 0}
+              swipeDirection={index === 0 ? swipeDirection : null}
+              onSwipe={handleDirectSwipe}
+              analyzing={analyzing && index === 0}
+            />
+          ))}
 
           {/* Action Buttons */}
-          <div className="flex justify-center gap-4 mt-6">
-            <Button
-              size="lg"
-              variant="outline"
-              className="rounded-full w-16 h-16 p-0"
-              onClick={() => handleSwipe('dislike')}
-            >
-              <X className="w-6 h-6 text-red-500" />
-            </Button>
-
-            <Button
-              size="lg"
-              variant="outline"
-              className="rounded-full w-16 h-16 p-0"
-              onClick={() => handleSwipe('super_like')}
-              disabled={!canUseSuperLike()}
-            >
-              <Star className="w-6 h-6 text-yellow-500" />
-            </Button>
-
-            <Button
-              size="lg"
-              variant="outline"
-              className="rounded-full w-16 h-16 p-0"
-              onClick={() => handleSwipe('like')}
-            >
-              <Heart className="w-6 h-6 text-green-500" />
-            </Button>
+          <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 w-full">
+            <SwipeActions
+              onAction={(action) => handleSwipe(action)}
+              canUseSuperLike={canUseSuperLike()}
+              superLikesRemaining={getSuperLikesRemaining()}
+              disabled={isAnimating}
+            />
           </div>
         </div>
       )}
 
       {/* No More Sponsors */}
       {!loading && currentSponsorIndex >= sponsors.length && (
-        <Card className="text-center p-8">
-          <h2 className="text-2xl font-bold mb-4">Plus de sponsors à découvrir!</h2>
-          <p className="text-muted-foreground mb-4">
-            Revenez demain pour de nouveaux profils analysés par Cerebras AI
-          </p>
-          <Button onClick={fetchSponsors}>
-            Relancer l'analyse
-          </Button>
+        <Card className="text-center p-8 bg-gradient-to-br from-background to-muted/30">
+          <div className="space-y-4">
+            <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <Sparkles className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold">Excellent travail !</h2>
+            <p className="text-muted-foreground max-w-sm mx-auto">
+              Vous avez découvert tous les sponsors disponibles. Cerebras AI en analyse de nouveaux chaque jour.
+            </p>
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-muted-foreground">
+                Prochaine mise à jour dans 2h15min
+              </p>
+              <Button 
+                onClick={fetchSponsors} 
+                variant="outline" 
+                className="gap-2"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Relancer l'analyse
+              </Button>
+            </div>
+          </div>
         </Card>
       )}
     </div>
