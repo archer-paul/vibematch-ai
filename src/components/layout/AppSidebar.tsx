@@ -20,13 +20,15 @@ import {
   Sparkles,
   Building2,
   UserPlus,
-  MessageSquare
+  MessageSquare,
+  Award
 } from 'lucide-react';
 
 const creatorNavItems = [
   { title: 'Dashboard', url: '/dashboard', icon: Home },
   { title: 'My Profile', url: '/profile', icon: Users },
   { title: 'AI Matches', url: '/matches', icon: Sparkles },
+  { title: 'Leaderboard', url: '/leaderboard', icon: Award },
   { title: 'Campaigns', url: '/campaigns', icon: Target },
   { title: 'Analytics', url: '/analytics', icon: BarChart3 },
   { title: 'Messages', url: '/messages', icon: MessageSquare },
@@ -37,6 +39,7 @@ const sponsorNavItems = [
   { title: 'Company', url: '/profile', icon: Building2 },
   { title: 'Discover', url: '/discover', icon: UserPlus },
   { title: 'AI Matches', url: '/matches', icon: Sparkles },
+  { title: 'Leaderboard', url: '/leaderboard', icon: Award },
   { title: 'Campaigns', url: '/campaigns', icon: Target },
   { title: 'Analytics', url: '/analytics', icon: BarChart3 },
   { title: 'Messages', url: '/messages', icon: MessageSquare },
