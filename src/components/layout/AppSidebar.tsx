@@ -25,11 +25,10 @@ import {
 } from 'lucide-react';
 
 const creatorNavItems = [
+  { title: 'AI Matches', url: '/matches', icon: Sparkles },
   { title: 'Dashboard', url: '/dashboard', icon: Home },
   { title: 'My Profile', url: '/profile', icon: Users },
-  { title: 'AI Matches', url: '/matches', icon: Sparkles },
   { title: 'Leaderboard', url: '/leaderboard', icon: Award },
-  { title: 'Campaigns', url: '/campaigns', icon: Target },
   { title: 'Analytics', url: '/analytics', icon: BarChart3 },
   { title: 'Messages', url: '/messages', icon: MessageSquare },
 ];
@@ -40,7 +39,6 @@ const sponsorNavItems = [
   { title: 'Discover', url: '/discover', icon: UserPlus },
   { title: 'AI Matches', url: '/matches', icon: Sparkles },
   { title: 'Leaderboard', url: '/leaderboard', icon: Award },
-  { title: 'Campaigns', url: '/campaigns', icon: Target },
   { title: 'Analytics', url: '/analytics', icon: BarChart3 },
   { title: 'Messages', url: '/messages', icon: MessageSquare },
 ];
@@ -58,7 +56,7 @@ export function AppSidebar() {
 
   const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? 'bg-primary text-primary-foreground font-medium' : 'hover:bg-accent hover:text-accent-foreground';
+    isActive ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground';
 
   const navItems = profile?.user_type === 'creator' ? creatorNavItems : sponsorNavItems;
   const userTypeLabel = profile?.user_type === 'creator' ? 'Creator' : 'Sponsor';

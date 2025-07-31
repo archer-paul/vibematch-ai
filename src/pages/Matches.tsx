@@ -76,8 +76,8 @@ export default function Matches() {
     } catch (error) {
       console.error('Error fetching sponsors:', error);
       toast({
-        title: "Erreur",
-        description: "Impossible de charger les sponsors",
+        title: "Error",
+        description: "Unable to load sponsors",
         variant: "destructive"
       });
     } finally {
@@ -116,13 +116,13 @@ export default function Matches() {
         // Show immediate feedback
         if (action === 'super_like') {
           toast({
-            title: "⭐ Super Like envoyé!",
-            description: "Votre profil sera prioritaire pour ce sponsor",
+            title: "⭐ Super Like sent!",
+            description: "Your profile will be prioritized for this sponsor",
           });
         } else {
           toast({
-            title: "💖 Like envoyé!",
-            description: "Cerebras AI analyse la compatibilité en temps réel...",
+            title: "💖 Like sent!",
+            description: "Cerebras AI is analyzing compatibility in real-time...",
           });
         }
 
@@ -152,8 +152,8 @@ export default function Matches() {
           // Show compatibility score after analysis
           if (result.score > 80) {
             toast({
-              title: "🎯 Excellente compatibilité!",
-              description: `Score IA: ${result.score}% - Très forte probabilité de match`,
+              title: "🎯 Excellent compatibility!",
+              description: `AI Score: ${result.score}% - Very high match probability`,
             });
           }
         }).catch(console.error);
@@ -170,8 +170,8 @@ export default function Matches() {
       console.error('Error processing swipe:', error);
       setIsAnimating(false);
       toast({
-        title: "Erreur",
-        description: "Impossible de traiter l'action",
+        title: "Error",
+        description: "Unable to process action",
         variant: "destructive"
       });
     }
@@ -192,9 +192,9 @@ export default function Matches() {
       <div className="container max-w-2xl mx-auto p-6">
         <Card>
           <CardContent className="p-8 text-center">
-            <h2 className="text-2xl font-bold mb-4">Accès Créateur Requis</h2>
+            <h2 className="text-2xl font-bold mb-4">Creator Access Required</h2>
             <p className="text-muted-foreground">
-              Cette fonctionnalité est réservée aux créateurs de contenu.
+              This feature is reserved for content creators.
             </p>
           </CardContent>
         </Card>
@@ -221,13 +221,13 @@ export default function Matches() {
               <Sparkles className="w-6 h-6 absolute -top-2 -right-2 text-yellow-500 animate-pulse" />
             </div>
             <div className="space-y-3">
-              <p className="font-semibold text-lg">Cerebras AI à l'œuvre...</p>
+              <p className="font-semibold text-lg">Cerebras AI at work...</p>
               <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                Analyse intelligente de 100+ profils de sponsors pour vous proposer les meilleurs matchs
+                Intelligent analysis of 100+ sponsor profiles to find you the best matches
               </p>
               <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <span>Traitement ultra-rapide en cours</span>
+                <span>Ultra-fast processing in progress</span>
               </div>
             </div>
           </div>
@@ -269,13 +269,13 @@ export default function Matches() {
             <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
               <Sparkles className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-2xl font-bold">Excellent travail !</h2>
+            <h2 className="text-2xl font-bold">Excellent work!</h2>
             <p className="text-muted-foreground max-w-sm mx-auto">
-              Vous avez découvert tous les sponsors disponibles. Cerebras AI en analyse de nouveaux chaque jour.
+              You've discovered all available sponsors. Cerebras AI analyzes new ones daily.
             </p>
             <div className="space-y-3">
               <p className="text-sm font-medium text-muted-foreground">
-                Prochaine mise à jour dans 2h15min
+                Next update in 2h15min
               </p>
               <Button 
                 onClick={fetchSponsors} 
@@ -283,7 +283,7 @@ export default function Matches() {
                 className="gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
-                Relancer l'analyse
+                Restart analysis
               </Button>
             </div>
           </div>

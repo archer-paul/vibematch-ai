@@ -20,15 +20,15 @@ export function MatchingStats({
       {/* Header with AI Status */}
       <div className="text-center space-y-3">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">
-          Découvrez vos Sponsors
+          Discover Your Sponsors
         </h1>
         
         <div className="flex items-center justify-center gap-2 text-muted-foreground">
           <Bot className={`w-4 h-4 ${analyzing ? 'animate-pulse text-blue-500' : ''}`} />
           <span className="text-sm font-medium">
             {analyzing 
-              ? "Cerebras AI analyse 100+ profils..." 
-              : `Powered by Cerebras ultra-fast inference • ${profilesAnalyzed} profils analysés`
+              ? "Cerebras AI analyzing 100+ profiles..." 
+              : `Powered by Cerebras ultra-fast inference • ${profilesAnalyzed} profiles analyzed`
             }
           </span>
         </div>
@@ -54,7 +54,7 @@ export function MatchingStats({
               <Flame className="w-5 h-5 text-orange-600" />
             </div>
             <div className="text-lg font-bold text-orange-700">{streakDays}</div>
-            <div className="text-xs text-orange-600">Jour{streakDays > 1 ? 's' : ''} de suite</div>
+            <div className="text-xs text-orange-600">Day{streakDays > 1 ? 's' : ''} streak</div>
           </CardContent>
         </Card>
 

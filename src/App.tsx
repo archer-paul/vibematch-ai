@@ -17,6 +17,7 @@ import Pricing from "./pages/Pricing";
 import Admin from "./pages/Admin";
 import Leaderboard from "./pages/Leaderboard";
 import Discovery from "./pages/Discovery";
+import Messages from "./pages/Messages";
 
 const queryClient = new QueryClient();
 
@@ -89,6 +90,14 @@ const App = () => (
               <ProtectedRoute>
                 <AppLayout>
                   <Discovery />
+                </AppLayout>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/messages" element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Messages />
                 </AppLayout>
               </ProtectedRoute>
             } />
