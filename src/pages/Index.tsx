@@ -100,15 +100,15 @@ const Index = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
-              <Card key={index} className="text-center glass-card border-white/20 hover:border-white/30 transition-all duration-300">
+              <Card key={index} className="text-center bg-black/20 backdrop-blur-md border border-white/30 hover:border-white/40 hover:bg-black/30 transition-all duration-300 shadow-2xl">
                 <CardHeader>
-                  <div className="w-12 h-12 mx-auto bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-lg flex items-center justify-center backdrop-blur-sm border border-white/10">
+                  <div className="w-12 h-12 mx-auto bg-gradient-to-br from-purple-400/30 to-pink-400/30 rounded-lg flex items-center justify-center backdrop-blur-sm border border-white/20">
                     <feature.icon className="h-6 w-6 text-white" />
                   </div>
-                  <CardTitle className="text-lg text-white">{feature.title}</CardTitle>
+                  <CardTitle className="text-lg text-white font-semibold">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-white/70">{feature.description}</p>
+                  <p className="text-white/90 font-medium">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -164,13 +164,13 @@ const Index = () => {
 
       {/* CTA Section */}
       <section className="relative z-10 container mx-auto px-4 py-20">
-        <Card className="glass-card border-white/20 bg-gradient-to-r from-white/5 via-purple-500/10 to-pink-500/10">
+        <Card className="bg-black/25 backdrop-blur-lg border border-white/30 shadow-2xl bg-gradient-to-r from-black/30 via-purple-500/20 to-pink-500/20">
           <CardContent className="text-center py-12">
             <div className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-bold text-white drop-shadow-lg">
                 Ready to revolutionize your collaborations?
               </h2>
-              <p className="text-xl text-white/80 max-w-2xl mx-auto">
+              <p className="text-xl text-white/90 max-w-2xl mx-auto font-medium">
                 Join the platform that transforms influencer marketing with AI
               </p>
               <Button size="lg" asChild className="text-lg px-8 glass-button text-white border-white/30 hover:border-white/50 bg-gradient-to-r from-purple-500/30 to-pink-500/30 hover:from-purple-500/40 hover:to-pink-500/40">
