@@ -14,13 +14,13 @@ export function FloatingBubbles() {
   useEffect(() => {
     const generateBubbles = () => {
       const newBubbles: Bubble[] = [];
-      for (let i = 0; i < 15; i++) {
+      for (let i = 0; i < 12; i++) {
         newBubbles.push({
           id: i,
-          size: Math.random() * 60 + 20, // 20-80px
+          size: Math.random() * 100 + 40, // 40-140px for more variety
           left: Math.random() * 100, // 0-100%
           top: Math.random() * 100, // 0-100%
-          animationDelay: Math.random() * 6, // 0-6s delay
+          animationDelay: Math.random() * 8, // 0-8s delay for more organic timing
         });
       }
       setBubbles(newBubbles);
