@@ -44,68 +44,76 @@ export function AnimatedTitle() {
       animate="visible"
       className="space-y-4"
     >
-      <motion.h1 className="text-5xl md:text-6xl font-bold text-center">
+      <motion.h1 className="text-5xl md:text-6xl font-bold text-center text-white">
         <motion.span
-          style={{
-            background: `linear-gradient(${gradientPosition}deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)), hsl(var(--primary)))`,
-            backgroundSize: '300% 300%',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            color: 'transparent',
-            filter: 'drop-shadow(0 0 20px hsl(var(--primary) / 0.5))'
-          }}
+          custom={0}
+          variants={wordVariants}
+          className="inline-block mr-4"
         >
-          <motion.span
-            custom={0}
-            variants={wordVariants}
-            className="inline-block mr-4"
+          <motion.span 
+            className="font-extrabold text-blue-400"
+            animate={{ 
+              textShadow: [
+                '0 0 10px #3b82f6',
+                '0 0 20px #3b82f6',
+                '0 0 10px #3b82f6'
+              ]
+            }}
+            transition={{ 
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
           >
-            <span 
-              className="font-extrabold"
-              style={{
-                background: 'linear-gradient(135deg, #3b82f6, #1e40af)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}
-            >
-              AI
-            </span> that connects
-          </motion.span>{' '}
-          <motion.span
-            custom={1}
-            variants={wordVariants}
-            className="inline-block mr-4"
+            AI
+          </motion.span> that connects
+        </motion.span>{' '}
+        <motion.span
+          custom={1}
+          variants={wordVariants}
+          className="inline-block mr-4"
+        >
+          <motion.span 
+            className="font-extrabold text-pink-400"
+            animate={{ 
+              textShadow: [
+                '0 0 10px #ec4899',
+                '0 0 20px #ec4899',
+                '0 0 10px #ec4899'
+              ]
+            }}
+            transition={{ 
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.5
+            }}
           >
-            <span 
-              className="font-extrabold"
-              style={{
-                background: 'linear-gradient(135deg, #ec4899, #be185d)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}
-            >
-              creators
-            </span> and
-          </motion.span>{' '}
-          <motion.span
-            custom={2}
-            variants={wordVariants}
-            className="inline-block"
+            creators
+          </motion.span> and
+        </motion.span>{' '}
+        <motion.span
+          custom={2}
+          variants={wordVariants}
+          className="inline-block"
+        >
+          <motion.span 
+            className="font-extrabold text-purple-400"
+            animate={{ 
+              textShadow: [
+                '0 0 10px #8b5cf6',
+                '0 0 20px #8b5cf6',
+                '0 0 10px #8b5cf6'
+              ]
+            }}
+            transition={{ 
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1
+            }}
           >
-            <span 
-              className="font-extrabold"
-              style={{
-                background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}
-            >
-              sponsors
-            </span>
+            sponsors
           </motion.span>
         </motion.span>
       </motion.h1>

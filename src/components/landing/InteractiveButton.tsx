@@ -40,8 +40,8 @@ export function InteractiveButton({
   };
 
   const baseClasses = variant === 'primary' 
-    ? "glass-button text-white border-white/20 hover:border-white/40 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30"
-    : "glass-button text-white border-white/20 hover:border-white/40 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30";
+    ? "glass-button text-white border-white/20 hover:border-white/40 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 rounded-2xl px-8 py-4 text-lg font-semibold"
+    : "glass-button text-white border-white/20 hover:border-white/40 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30 rounded-2xl px-8 py-4 text-lg font-semibold";
 
   const buttonContent = (
     <motion.div

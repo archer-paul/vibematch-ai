@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { FloatingBubbles } from '@/components/ui/floating-bubbles';
-import { AnimatedBackground } from '@/components/landing/AnimatedBackground';
+import { ParticleBackground } from '@/components/landing/ParticleBackground';
 import { CursorTrail } from '@/components/landing/CursorTrail';
 import { AnimatedTitle } from '@/components/landing/AnimatedTitle';
 import { InteractiveButton } from '@/components/landing/InteractiveButton';
@@ -45,7 +45,7 @@ const Index = () => {
   return (
     <div className="min-h-screen immersive-bg relative overflow-hidden">
       {/* Animated Background Effects */}
-      <AnimatedBackground />
+      <ParticleBackground />
       <ParticleField />
       <CursorTrail />
       <FloatingBubbles />
