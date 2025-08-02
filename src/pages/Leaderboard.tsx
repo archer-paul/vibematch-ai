@@ -33,10 +33,10 @@ export default function Leaderboard() {
     completeChallenge(challengeId);
     
     toast({
-      title: "🎉 Récompense récupérée !",
-      description: `Vous avez reçu ${challenge.reward_value} ${
+      title: "🎉 Reward claimed!",
+      description: `You received ${challenge.reward_value} ${
         challenge.reward_type === 'super_likes' ? 'Super Likes' : 
-        challenge.reward_type === 'streak_bonus' ? 'jours de bonus' : 'badge'
+        challenge.reward_type === 'streak_bonus' ? 'bonus days' : 'badge'
       }`,
     });
   };
@@ -55,7 +55,7 @@ export default function Leaderboard() {
       <div className="container max-w-6xl mx-auto p-6">
         <div className="text-center space-y-4">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p>Chargement des données de gamification...</p>
+          <p>Loading gamification data...</p>
         </div>
       </div>
     );
@@ -66,10 +66,10 @@ export default function Leaderboard() {
       {/* Header */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-          🏆 Centre de Gamification
+          🏆 Gamification Center
         </h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Relevez des défis, déverrouillez des achievements et grimpez dans le classement VibeMatch !
+          Take on challenges, unlock achievements and climb the VibeMatch leaderboard!
         </p>
         <div className="flex items-center justify-center gap-2">
           <Sparkles className="w-4 h-4 text-yellow-500" />
@@ -91,9 +91,9 @@ export default function Leaderboard() {
                 <div>
                   <h2 className="text-xl font-bold">{currentUser.full_name}</h2>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="bg-primary/10 border-primary/30">
-                      Rang #{userRank}
-                    </Badge>
+                <Badge variant="outline" className="bg-primary/10 border-primary/30">
+                  Rank #{userRank}
+                </Badge>
                     <span className="text-sm text-muted-foreground">
                       {currentUser.total_score.toLocaleString()} points
                     </span>
@@ -108,7 +108,7 @@ export default function Leaderboard() {
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-orange-500">{currentUser.streak_days}</div>
-                  <div className="text-xs text-muted-foreground">Jours de suite</div>
+                  <div className="text-xs text-muted-foreground">Streak Days</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-yellow-500">{currentUser.achievements_count}</div>
@@ -125,11 +125,11 @@ export default function Leaderboard() {
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="leaderboard" className="flex items-center gap-2">
             <Trophy className="w-4 h-4" />
-            Classement
+            Leaderboard
           </TabsTrigger>
           <TabsTrigger value="challenges" className="flex items-center gap-2">
             <Target className="w-4 h-4" />
-            Défis
+            Challenges
           </TabsTrigger>
           <TabsTrigger value="achievements" className="flex items-center gap-2">
             <Star className="w-4 h-4" />
@@ -137,17 +137,17 @@ export default function Leaderboard() {
           </TabsTrigger>
           <TabsTrigger value="stats" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
-            Statistiques
+            Statistics
           </TabsTrigger>
         </TabsList>
 
         {/* Leaderboard Tab */}
         <TabsContent value="leaderboard" className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Classements</h2>
+            <h2 className="text-2xl font-bold">Rankings</h2>
             <Button variant="outline" onClick={refetch} className="gap-2">
               <RotateCcw className="w-4 h-4" />
-              Actualiser
+              Refresh
             </Button>
           </div>
           
@@ -156,7 +156,7 @@ export default function Leaderboard() {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Flame className="w-5 h-5 text-purple-500" />
-                Top Créateurs
+                Top Creators
               </h3>
               <div className="space-y-3">
                 {topCreators.map((creator) => (
@@ -190,12 +190,12 @@ export default function Leaderboard() {
 
         {/* Challenges Tab */}
         <TabsContent value="challenges" className="space-y-6">
-          <h2 className="text-2xl font-bold">Défis Actifs</h2>
+          <h2 className="text-2xl font-bold">Active Challenges</h2>
           
           <div className="space-y-8">
             {/* Daily Challenges */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-blue-600">Défis Quotidiens</h3>
+              <h3 className="text-lg font-semibold text-blue-600">Daily Challenges</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 {dailyChallenges.map((challenge) => (
                   <ChallengeCard
@@ -209,7 +209,7 @@ export default function Leaderboard() {
 
             {/* Weekly Challenges */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-purple-600">Défis Hebdomadaires</h3>
+              <h3 className="text-lg font-semibold text-purple-600">Weekly Challenges</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 {weeklyChallenges.map((challenge) => (
                   <ChallengeCard
@@ -223,7 +223,7 @@ export default function Leaderboard() {
 
             {/* Monthly Challenges */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-orange-600">Défis Mensuels</h3>
+              <h3 className="text-lg font-semibold text-orange-600">Monthly Challenges</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 {monthlyChallenges.map((challenge) => (
                   <ChallengeCard
@@ -239,7 +239,7 @@ export default function Leaderboard() {
 
         {/* Achievements Tab */}
         <TabsContent value="achievements" className="space-y-6">
-          <h2 className="text-2xl font-bold">Vos Achievements</h2>
+          <h2 className="text-2xl font-bold">Your Achievements</h2>
           
           {achievements.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -254,9 +254,9 @@ export default function Leaderboard() {
             <Card className="text-center p-8">
               <CardContent>
                 <Trophy className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Aucun achievement débloqué</h3>
+                <h3 className="text-lg font-semibold mb-2">No achievements unlocked</h3>
                 <p className="text-muted-foreground">
-                  Commencez par faire des matches pour débloquer vos premiers achievements !
+                  Start making matches to unlock your first achievements!
                 </p>
               </CardContent>
             </Card>
@@ -265,14 +265,14 @@ export default function Leaderboard() {
 
         {/* Stats Tab */}
         <TabsContent value="stats" className="space-y-6">
-          <h2 className="text-2xl font-bold">Statistiques Globales</h2>
+          <h2 className="text-2xl font-bold">Global Statistics</h2>
           
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardContent className="p-6 text-center">
                 <Users className="w-8 h-8 mx-auto mb-2 text-blue-500" />
                 <div className="text-2xl font-bold">1,247</div>
-                <div className="text-sm text-muted-foreground">Utilisateurs actifs</div>
+                <div className="text-sm text-muted-foreground">Active Users</div>
               </CardContent>
             </Card>
             
@@ -280,7 +280,7 @@ export default function Leaderboard() {
               <CardContent className="p-6 text-center">
                 <Target className="w-8 h-8 mx-auto mb-2 text-green-500" />
                 <div className="text-2xl font-bold">8,932</div>
-                <div className="text-sm text-muted-foreground">Matches totaux</div>
+                <div className="text-sm text-muted-foreground">Total Matches</div>
               </CardContent>
             </Card>
             
@@ -288,7 +288,7 @@ export default function Leaderboard() {
               <CardContent className="p-6 text-center">
                 <Sparkles className="w-8 h-8 mx-auto mb-2 text-purple-500" />
                 <div className="text-2xl font-bold">94.3%</div>
-                <div className="text-sm text-muted-foreground">Précision IA</div>
+                <div className="text-sm text-muted-foreground">AI Accuracy</div>
               </CardContent>
             </Card>
             
@@ -296,7 +296,7 @@ export default function Leaderboard() {
               <CardContent className="p-6 text-center">
                 <Star className="w-8 h-8 mx-auto mb-2 text-yellow-500" />
                 <div className="text-2xl font-bold">2,456</div>
-                <div className="text-sm text-muted-foreground">Achievements débloqués</div>
+                <div className="text-sm text-muted-foreground">Achievements Unlocked</div>
               </CardContent>
             </Card>
           </div>

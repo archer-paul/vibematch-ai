@@ -63,7 +63,7 @@ export function LeaderboardCard({ entry, isCurrentUser = false, showRank = true 
         <div className="absolute top-4 right-4">
           <Badge className="bg-primary text-primary-foreground animate-pulse-glow">
             <Star className="w-3 h-3 mr-1" />
-            Vous
+            You
           </Badge>
         </div>
       )}
@@ -88,11 +88,11 @@ export function LeaderboardCard({ entry, isCurrentUser = false, showRank = true 
             </CardTitle>
             <div className="flex items-center gap-2 mt-1">
               <Badge variant="outline" className={getUserTypeColor(entry.user_type)}>
-                {entry.user_type === 'creator' ? 'Créateur' : 'Sponsor'}
+                {entry.user_type === 'creator' ? 'Creator' : 'Sponsor'}
               </Badge>
               {isCurrentUser && (
                 <Badge variant="secondary" className="text-xs">
-                  Votre profil
+                  Your Profile
                 </Badge>
               )}
             </div>
@@ -106,7 +106,7 @@ export function LeaderboardCard({ entry, isCurrentUser = false, showRank = true 
           <div className="text-3xl font-bold text-primary mb-1">
             {entry.total_score.toLocaleString()}
           </div>
-          <div className="text-sm text-muted-foreground">Points totaux</div>
+          <div className="text-sm text-muted-foreground">Total Points</div>
         </div>
 
         {/* Stats Grid */}
@@ -124,7 +124,7 @@ export function LeaderboardCard({ entry, isCurrentUser = false, showRank = true 
               <Zap className="w-4 h-4 text-orange-500" />
             </div>
             <div className="font-semibold text-lg">{entry.streak_days}</div>
-            <div className="text-xs text-muted-foreground">Jours de suite</div>
+            <div className="text-xs text-muted-foreground">Streak Days</div>
           </div>
           
           <div className="space-y-1">
@@ -147,7 +147,7 @@ export function LeaderboardCard({ entry, isCurrentUser = false, showRank = true 
               }`}></div>
               <span className="font-medium">
                 {entry.total_score > 800 ? 'Excellent' :
-                 entry.total_score > 500 ? 'Bon' : 'En progression'}
+                 entry.total_score > 500 ? 'Good' : 'Progressing'}
               </span>
             </div>
           </div>

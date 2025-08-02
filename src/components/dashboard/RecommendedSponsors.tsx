@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import { SponsorDetailsModal } from '@/components/modals/SponsorDetailsModal';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, X, ExternalLink, Filter, ArrowRight } from 'lucide-react';
+import { Heart, X, ExternalLink, Filter, ArrowRight, CheckCircle2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,15 +69,65 @@ const mockSponsors: Sponsor[] = [
 export function RecommendedSponsors() {
   const [sponsors, setSponsors] = useState(mockSponsors);
   const [filter, setFilter] = useState('all');
+  const [selectedSponsor, setSelectedSponsor] = useState<Sponsor | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [applyingSponsors, setApplyingSponsors] = useState<Set<string>>(new Set());
 
   const handleLike = (sponsorId: string) => {
-    // In a real app, this would trigger the matching algorithm
+    // Add visual feedback and trigger matching
+    const sponsorElement = document.querySelector(`[data-sponsor-id="${sponsorId}"]`);
+    if (sponsorElement) {
+      sponsorElement.classList.add('animate-pulse');
+      setTimeout(() => sponsorElement.classList.remove('animate-pulse'), 500);
+    }
+    
+    // Here you would normally send to backend/matching service
+    alert(`❤️ Liked sponsor! Match probability increased.`);
     console.log('Liked sponsor:', sponsorId);
   };
 
   const handleDislike = (sponsorId: string) => {
-    // Remove from current recommendations
-    setSponsors(prev => prev.filter(s => s.id !== sponsorId));
+    // Add fade out animation then remove
+    const sponsorElement = document.querySelector(`[data-sponsor-id="${sponsorId}"]`);
+    if (sponsorElement) {
+      sponsorElement.classList.add('opacity-50', 'scale-95', 'transition-all', 'duration-300');
+      setTimeout(() => {
+        setSponsors(prev => prev.filter(s => s.id !== sponsorId));
+      }, 300);
+    } else {
+      setSponsors(prev => prev.filter(s => s.id !== sponsorId));
+    }
+  };
+
+  const handleViewDetails = (sponsor: Sponsor) => {
+    setSelectedSponsor(sponsor);
+    setIsModalOpen(true);
+  };
+
+  const handleApply = (sponsorId: string) => {
+    setApplyingSponsors(prev => new Set(prev).add(sponsorId));
+    
+    // Simulate application process
+    setTimeout(() => {
+      // Success animation and feedback
+      const sponsorElement = document.querySelector(`[data-sponsor-id="${sponsorId}"]`);
+      if (sponsorElement) {
+        sponsorElement.classList.add('bg-green-50', 'border-green-200', 'transition-all', 'duration-500');
+      }
+      
+      alert('🎉 Application submitted successfully! The sponsor will review your profile.');
+      
+      // Remove from applying state and optionally from list
+      setTimeout(() => {
+        setApplyingSponsors(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(sponsorId);
+          return newSet;
+        });
+        // Optionally remove applied sponsor from list
+        setSponsors(prev => prev.filter(s => s.id !== sponsorId));
+      }, 1500);
+    }, 2000);
   };
 
   const getScoreColor = (score: number) => {
@@ -132,7 +183,7 @@ export function RecommendedSponsors() {
 
       <CardContent className="space-y-4">
         {filteredSponsors.map((sponsor) => (
-          <Card key={sponsor.id} className="relative overflow-hidden hover:shadow-md transition-shadow">
+          <Card key={sponsor.id} data-sponsor-id={sponsor.id} className="relative overflow-hidden hover:shadow-md transition-shadow">
             <CardContent className="p-4">
               <div className="flex items-start gap-4">
                 <Avatar className="h-12 w-12">
@@ -193,13 +244,31 @@ export function RecommendedSponsors() {
                 </div>
                 
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => alert('Opening sponsor details...')}>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleViewDetails(sponsor)}
+                  >
                     <ExternalLink className="mr-2 h-4 w-4" />
                     View Details
                   </Button>
-                  <Button size="sm" onClick={() => alert('Application submitted successfully!')}>
-                    Apply Now
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                  <Button 
+                    size="sm" 
+                    onClick={() => handleApply(sponsor.id)}
+                    disabled={applyingSponsors.has(sponsor.id)}
+                    className={applyingSponsors.has(sponsor.id) ? 'bg-green-600 hover:bg-green-600' : ''}
+                  >
+                    {applyingSponsors.has(sponsor.id) ? (
+                      <>
+                        <CheckCircle2 className="mr-2 h-4 w-4 animate-spin" />
+                        Applying...
+                      </>
+                    ) : (
+                      <>
+                        Apply Now
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>
@@ -227,6 +296,27 @@ export function RecommendedSponsors() {
           </Button>
         </div>
       </CardContent>
+
+      {/* Sponsor Details Modal */}
+      <SponsorDetailsModal
+        sponsor={selectedSponsor}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedSponsor(null);
+        }}
+        onLike={handleLike}
+        onDislike={(sponsorId) => {
+          handleDislike(sponsorId);
+          setIsModalOpen(false);
+          setSelectedSponsor(null);
+        }}
+        onApply={(sponsorId) => {
+          handleApply(sponsorId);
+          setIsModalOpen(false);
+          setSelectedSponsor(null);
+        }}
+      />
     </Card>
   );
 }

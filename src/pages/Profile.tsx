@@ -22,10 +22,10 @@ export default function Profile() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold">
-          {isCreator ? 'Mon Profil Créateur' : 'Profil Entreprise'}
+          {isCreator ? 'Creator Profile' : 'Company Profile'}
         </h1>
         <p className="text-muted-foreground mt-2">
-          Gérez vos informations et optimisez votre visibilité
+          Manage your information and optimize your visibility
         </p>
       </div>
 
@@ -45,12 +45,12 @@ export default function Profile() {
                 <div className="flex items-center gap-2 mb-2">
                   <h2 className="text-2xl font-bold">{profile.full_name}</h2>
                   <Badge variant={isCreator ? "default" : "secondary"}>
-                    {isCreator ? 'Créateur' : 'Sponsor'}
+                    {isCreator ? 'Creator' : 'Sponsor'}
                   </Badge>
                 </div>
                 
                 <p className="text-muted-foreground">
-                  {profile.bio || 'Aucune description ajoutée'}
+                  {profile.bio || 'No description added'}
                 </p>
                 
                 <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
@@ -61,7 +61,7 @@ export default function Profile() {
                   {isCreator && (
                     <div className="flex items-center gap-1">
                       <Users className="h-4 w-4" />
-                      Créateur de contenu
+                      Content Creator
                     </div>
                   )}
                   {!isCreator && profile.company_name && (
@@ -73,9 +73,9 @@ export default function Profile() {
                 </div>
               </div>
               
-              <Button>
+              <Button onClick={() => alert('Edit profile functionality coming soon!')}>
                 <Edit className="mr-2 h-4 w-4" />
-                Modifier le profil
+                Edit Profile
               </Button>
             </div>
           </div>
@@ -88,17 +88,17 @@ export default function Profile() {
           <>
             <Card>
               <CardHeader>
-                <CardTitle>Réseaux sociaux</CardTitle>
+                <CardTitle>Social Networks</CardTitle>
                 <CardDescription>
-                  Vos plateformes et statistiques
+                  Your platforms and statistics
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-8 text-muted-foreground">
-                  Aucun réseau social configuré.
+                  No social networks configured.
                   <br />
-                  <Button variant="outline" className="mt-2">
-                    Ajouter des réseaux
+                  <Button variant="outline" className="mt-2" onClick={() => alert('Add social networks functionality coming soon!')}>
+                    Add Networks
                   </Button>
                 </div>
               </CardContent>
@@ -106,9 +106,9 @@ export default function Profile() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Catégories de contenu</CardTitle>
+                <CardTitle>Content Categories</CardTitle>
                 <CardDescription>
-                  Vos spécialités et niches
+                  Your specialties and niches
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -122,10 +122,10 @@ export default function Profile() {
                   </div>
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
-                    Aucune catégorie sélectionnée.
+                    No categories selected.
                     <br />
-                    <Button variant="outline" className="mt-2">
-                      Ajouter des catégories
+                    <Button variant="outline" className="mt-2" onClick={() => alert('Add categories functionality coming soon!')}>
+                      Add Categories
                     </Button>
                   </div>
                 )}
@@ -139,28 +139,28 @@ export default function Profile() {
           <>
             <Card>
               <CardHeader>
-                <CardTitle>Informations entreprise</CardTitle>
+                <CardTitle>Company Information</CardTitle>
                 <CardDescription>
-                  Détails de votre organisation
+                  Details of your organization
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium">Entreprise</label>
+                  <label className="text-sm font-medium">Company</label>
                   <p className="text-muted-foreground">
-                    {profile.company_name || 'Non spécifié'}
+                    {profile.company_name || 'Not specified'}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Secteur d'activité</label>
+                  <label className="text-sm font-medium">Industry</label>
                   <p className="text-muted-foreground">
-                    {profile.industry || 'Non spécifié'}
+                    {profile.industry || 'Not specified'}
                   </p>
                 </div>
                 <div>
                   <label className="text-sm font-medium">Budget</label>
                   <p className="text-muted-foreground">
-                    {profile.budget_range || 'Non spécifié'}
+                    {profile.budget_range || 'Not specified'}
                   </p>
                 </div>
               </CardContent>
@@ -168,9 +168,9 @@ export default function Profile() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Objectifs de campagne</CardTitle>
+                <CardTitle>Campaign Objectives</CardTitle>
                 <CardDescription>
-                  Vos priorités marketing
+                  Your marketing priorities
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -184,10 +184,10 @@ export default function Profile() {
                   </div>
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
-                    Aucun objectif défini.
+                    No objectives defined.
                     <br />
-                    <Button variant="outline" className="mt-2">
-                      Définir mes objectifs
+                    <Button variant="outline" className="mt-2" onClick={() => alert('Define objectives functionality coming soon!')}>
+                      Define Objectives
                     </Button>
                   </div>
                 )}
@@ -200,37 +200,37 @@ export default function Profile() {
       {/* Profile Completion */}
       <Card>
         <CardHeader>
-          <CardTitle>Complétion du profil</CardTitle>
+          <CardTitle>Profile Completion</CardTitle>
           <CardDescription>
-            Améliorez votre profil pour de meilleurs matches
+            Improve your profile for better matches
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm">Photo de profil</span>
+                <span className="text-sm">Profile Picture</span>
                 <Badge variant={profile.avatar_url ? "default" : "outline"}>
-                  {profile.avatar_url ? 'Complété' : 'À ajouter'}
+                  {profile.avatar_url ? 'Completed' : 'To add'}
                 </Badge>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm">Biographie</span>
+                <span className="text-sm">Biography</span>
                 <Badge variant={profile.bio ? "default" : "outline"}>
-                  {profile.bio ? 'Complété' : 'À ajouter'}
+                  {profile.bio ? 'Completed' : 'To add'}
                 </Badge>
               </div>
               {isCreator && (
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">Réseaux sociaux</span>
-                  <Badge variant="outline">À ajouter</Badge>
+                  <span className="text-sm">Social Networks</span>
+                  <Badge variant="outline">To add</Badge>
                 </div>
               )}
               {!isCreator && (
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">Infos entreprise</span>
+                  <span className="text-sm">Company Info</span>
                   <Badge variant={profile.company_name ? "default" : "outline"}>
-                    {profile.company_name ? 'Complété' : 'À ajouter'}
+                    {profile.company_name ? 'Completed' : 'To add'}
                   </Badge>
                 </div>
               )}
@@ -239,7 +239,7 @@ export default function Profile() {
           
           <div className="pt-4">
             <div className="text-sm text-muted-foreground mb-2">
-              Progression: 40%
+              Progress: 40%
             </div>
             <div className="w-full bg-secondary rounded-full h-2">
               <div className="bg-primary h-2 rounded-full w-2/5"></div>
