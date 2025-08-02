@@ -28,6 +28,7 @@ export function ParticleBackground() {
   const [elements, setElements] = useState<FloatingElement[]>([]);
   const [connections, setConnections] = useState<Connection[]>([]);
 
+  // Initialize elements once on mount
   useEffect(() => {
     // Company logos
     const logos = [
@@ -57,86 +58,105 @@ export function ParticleBackground() {
         id: `logo-${index}`,
         type: 'logo' as const,
         src,
-        x: 15 + (index % 3) * 30 + Math.random() * 15, // Better distribution
+        x: 15 + (index % 3) * 30 + Math.random() * 15,
         y: 20 + Math.floor(index / 3) * 25 + Math.random() * 15,
-        size: 60, // Larger logos
-        speed: 0.3 + Math.random() * 0.3,
+        size: 60,
+        speed: 0.1 + Math.random() * 0.1, // Reduced speed significantly
         direction: Math.random() * Math.PI * 2
       })),
       ...avatars.map((src, index) => ({
         id: `avatar-${index}`,
         type: 'avatar' as const,
         src,
-        x: 20 + (index % 3) * 25 + Math.random() * 20, // Better distribution
+        x: 20 + (index % 3) * 25 + Math.random() * 20,
         y: 25 + Math.floor(index / 3) * 30 + Math.random() * 20,
-        size: 100, // Much larger avatars
-        speed: 0.2 + Math.random() * 0.3,
+        size: 100,
+        speed: 0.08 + Math.random() * 0.1, // Reduced speed significantly
         direction: Math.random() * Math.PI * 2
       }))
     ];
 
     setElements(initialElements);
+  }, []); // Only run once on mount
 
-    // Create intelligent connections between nearby elements
+  // Separate connection system with stable dependencies
+  useEffect(() => {
+    if (elements.length === 0) return;
+
     const createConnection = () => {
-      const logoElements = elements.filter(el => el.type === 'logo');
-      const avatarElements = elements.filter(el => el.type === 'avatar');
-      
-      if (logoElements.length > 0 && avatarElements.length > 0) {
-        // Find closest pairs for more realistic connections
-        let bestPair = null;
-        let shortestDistance = Infinity;
-        
-        for (const logo of logoElements) {
-          for (const avatar of avatarElements) {
-            const distance = Math.sqrt(
-              Math.pow(logo.x - avatar.x, 2) + Math.pow(logo.y - avatar.y, 2)
-            );
-            
-            // Skip if there's already a connection involving these elements
-            const existsConnection = connections.some(conn => 
-              (conn.from.id === logo.id && conn.to.id === avatar.id) ||
-              (conn.from.id === avatar.id && conn.to.id === logo.id)
-            );
-            
-            if (distance < shortestDistance && !existsConnection && distance < 50) {
-              shortestDistance = distance;
-              bestPair = { logo, avatar };
+      setConnections(prevConnections => {
+        setElements(currentElements => {
+          const logoElements = currentElements.filter(el => el.type === 'logo');
+          const avatarElements = currentElements.filter(el => el.type === 'avatar');
+          
+          if (logoElements.length === 0 || avatarElements.length === 0) {
+            return currentElements;
+          }
+
+          // Find closest pairs for connections
+          let bestPair = null;
+          let shortestDistance = Infinity;
+          
+          for (const logo of logoElements) {
+            for (const avatar of avatarElements) {
+              // Use absolute distance calculation for consistency
+              const distance = Math.sqrt(
+                Math.pow((logo.x - avatar.x) * window.innerWidth / 100, 2) + 
+                Math.pow((logo.y - avatar.y) * window.innerHeight / 100, 2)
+              );
+              
+              // Skip if connection already exists
+              const existsConnection = prevConnections.some(conn => 
+                (conn.from.id === logo.id && conn.to.id === avatar.id) ||
+                (conn.from.id === avatar.id && conn.to.id === logo.id)
+              );
+              
+              // Increased distance threshold for better connections
+              if (distance < shortestDistance && !existsConnection && distance < 400) {
+                shortestDistance = distance;
+                bestPair = { logo, avatar };
+              }
             }
           }
-        }
-        
-        if (bestPair) {
-          const newConnection: Connection = {
-            id: `connection-${Date.now()}`,
-            from: bestPair.logo,
-            to: bestPair.avatar,
-            progress: 0,
-            visible: true,
-            showHeart: false,
-            attractionPhase: false
-          };
           
-          setConnections(prev => [...prev.slice(-2), newConnection]); // Keep max 3 connections
-        }
-      }
+          if (bestPair) {
+            const newConnection: Connection = {
+              id: `connection-${Date.now()}-${Math.random()}`,
+              from: bestPair.logo,
+              to: bestPair.avatar,
+              progress: 0,
+              visible: true,
+              showHeart: false,
+              attractionPhase: false
+            };
+            
+            setConnections(prev => [...prev.slice(-1), newConnection]); // Keep max 2 connections
+          }
+          
+          return currentElements;
+        });
+        return prevConnections;
+      });
     };
 
-    // Create connections less frequently but more intelligently
-    const connectionInterval = setInterval(createConnection, 4000);
+    // Delay first connection and create them less frequently
+    const initialDelay = setTimeout(() => {
+      createConnection();
+      const connectionInterval = setInterval(createConnection, 6000); // Increased interval
+      
+      return () => clearInterval(connectionInterval);
+    }, 2000); // Initial 2-second delay
 
-    return () => {
-      clearInterval(connectionInterval);
-    };
-  }, [elements, connections]);
+    return () => clearTimeout(initialDelay);
+  }, [elements.length]); // Only depend on element count, not the elements themselves
 
   useEffect(() => {
-    // Animate connections with better timing
+    // Animate connections with slower, smoother timing
     const animateConnections = () => {
       setConnections(prev => 
         prev.map(conn => {
-          const newProgress = Math.min(conn.progress + 0.015, 1);
-          const newShowHeart = newProgress >= 0.95 && !conn.showHeart; // Heart only when fully connected
+          const newProgress = Math.min(conn.progress + 0.008, 1); // Slower progress
+          const newShowHeart = newProgress >= 0.95 && !conn.showHeart;
           const newAttractionPhase = newProgress >= 0.7;
           
           return {
@@ -145,65 +165,68 @@ export function ParticleBackground() {
             showHeart: newShowHeart || conn.showHeart,
             attractionPhase: newAttractionPhase
           };
-        }).filter(conn => conn.progress < 2) // Keep connections longer for heart display
+        }).filter(conn => conn.progress < 2)
       );
     };
 
-    const interval = setInterval(animateConnections, 60);
+    const interval = setInterval(animateConnections, 120); // Slower interval
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    // Enhanced floating animation with attraction
+    // Slow, gentle floating animation
     const floatElements = () => {
-      setElements(prev =>
-        prev.map(element => {
-          let newX = element.x;
-          let newY = element.y;
-          
-          // Base floating movement (smaller)
-          const baseMovementX = Math.cos(element.direction + Date.now() * 0.0005 * element.speed) * 0.05;
-          const baseMovementY = Math.sin(element.direction + Date.now() * 0.0005 * element.speed) * 0.05;
-          
-          // Check if element is part of an active connection in attraction phase
-          const activeConnection = connections.find(conn => 
-            conn.attractionPhase && (conn.from.id === element.id || conn.to.id === element.id)
-          );
-          
-          if (activeConnection) {
-            const other = activeConnection.from.id === element.id ? activeConnection.to : activeConnection.from;
-            const dx = other.x - element.x;
-            const dy = other.y - element.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+      setConnections(currentConnections => {
+        setElements(prev =>
+          prev.map(element => {
+            let newX = element.x;
+            let newY = element.y;
             
-            if (distance > 3) {
-              // Stronger attraction force
-              newX += dx * 0.03;
-              newY += dy * 0.03;
+            // Much slower base movement
+            const baseMovementX = Math.cos(element.direction + Date.now() * 0.0001 * element.speed) * 0.015;
+            const baseMovementY = Math.sin(element.direction + Date.now() * 0.0001 * element.speed) * 0.015;
+            
+            // Check for attraction to connected elements
+            const activeConnection = currentConnections.find(conn => 
+              conn.attractionPhase && (conn.from.id === element.id || conn.to.id === element.id)
+            );
+            
+            if (activeConnection) {
+              const other = activeConnection.from.id === element.id ? activeConnection.to : activeConnection.from;
+              const dx = other.x - element.x;
+              const dy = other.y - element.y;
+              const distance = Math.sqrt(dx * dx + dy * dy);
+              
+              if (distance > 2) {
+                // Gentle attraction force
+                newX += dx * 0.015;
+                newY += dy * 0.015;
+              }
+            } else {
+              // Normal gentle floating
+              newX += baseMovementX;
+              newY += baseMovementY;
             }
-          } else {
-            // Normal floating when not in connection
-            newX += baseMovementX;
-            newY += baseMovementY;
-          }
-          
-          // Keep elements within bounds
-          newX = Math.max(5, Math.min(95, newX));
-          newY = Math.max(5, Math.min(95, newY));
-          
-          return {
-            ...element,
-            x: newX,
-            y: newY,
-            direction: element.direction + (Math.random() - 0.5) * 0.01
-          };
-        })
-      );
+            
+            // Keep elements within bounds
+            newX = Math.max(8, Math.min(92, newX));
+            newY = Math.max(8, Math.min(92, newY));
+            
+            return {
+              ...element,
+              x: newX,
+              y: newY,
+              direction: element.direction + (Math.random() - 0.5) * 0.005 // Less random direction change
+            };
+          })
+        );
+        return currentConnections;
+      });
     };
 
-    const interval = setInterval(floatElements, 100);
+    const interval = setInterval(floatElements, 200); // Much slower interval
     return () => clearInterval(interval);
-  }, [connections]);
+  }, []); // No dependencies to prevent constant re-creation
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
@@ -224,8 +247,8 @@ export function ParticleBackground() {
             scale: [0.9, 1.1, 0.9]
           }}
           transition={{
-            rotate: { duration: 25, repeat: Infinity, ease: "linear" },
-            scale: { duration: 5, repeat: Infinity, ease: "easeInOut" }
+            rotate: { duration: 40, repeat: Infinity, ease: "linear" },
+            scale: { duration: 8, repeat: Infinity, ease: "easeInOut" }
           }}
         >
           <div className="w-full h-full flex items-center justify-center">
@@ -256,7 +279,7 @@ export function ParticleBackground() {
             opacity: [0.7, 1, 0.7]
           }}
           transition={{
-            duration: 4 + Math.random() * 2,
+            duration: 6 + Math.random() * 3,
             repeat: Infinity,
             ease: "easeInOut"
           }}
