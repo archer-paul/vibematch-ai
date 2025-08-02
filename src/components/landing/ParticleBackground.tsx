@@ -3,7 +3,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 
 interface FloatingElement {
   id: string;
-  type: 'logo';
+  type: 'logo' | 'avatar';
   src: string;
   x: number;
   y: number;
@@ -13,6 +13,10 @@ interface FloatingElement {
   vx: number;
   vy: number;
   collisionRadius: number;
+  waypoint?: { x: number; y: number };
+  directionChangeTimer: number;
+  gridX: number;
+  gridY: number;
 }
 
 interface ExclusionZone {
@@ -22,15 +26,6 @@ interface ExclusionZone {
   width: number;
   height: number;
   buffer: number;
-}
-
-interface PreferredZone {
-  id: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  attraction: number;
 }
 
 interface Connection {
@@ -45,38 +40,24 @@ interface Connection {
   createdAt: number;
 }
 
+// Remove rigid grid system for more natural movement
+const TARGET_ELEMENTS = 24; // 12 logos + 12 avatars for better density
+
 export function ParticleBackground() {
   const [elements, setElements] = useState<FloatingElement[]>([]);
   const [connections, setConnections] = useState<Connection[]>([]);
   const lastConnectionTime = useRef(0);
   const animationFrameRef = useRef<number>();
-  const connectionDebounce = useRef<{ [key: string]: number }>({});
 
-  // Minimal exclusion zones with smaller areas
+  // Smaller exclusion zones for UI elements
   const getExclusionZones = useCallback((): ExclusionZone[] => [
-    { id: 'header', x: 20, y: 0, width: 60, height: 8, buffer: 1 },
-    { id: 'hero-title', x: 25, y: 20, width: 50, height: 10, buffer: 1 },
-    { id: 'hero-buttons', x: 35, y: 35, width: 30, height: 4, buffer: 1 }
+    { id: 'header', x: 20, y: 0, width: 60, height: 12, buffer: 2 },
+    { id: 'hero-title', x: 25, y: 15, width: 50, height: 15, buffer: 2 },
+    { id: 'hero-buttons', x: 35, y: 32, width: 30, height: 8, buffer: 2 }
   ], []);
 
-  // Balanced preferred zones with weaker attraction
-  const getPreferredZones = useCallback((): PreferredZone[] => [
-    { id: 'left-area', x: 5, y: 20, width: 20, height: 60, attraction: 0.1 },
-    { id: 'right-area', x: 75, y: 20, width: 20, height: 60, attraction: 0.1 },
-    { id: 'center-bottom', x: 30, y: 70, width: 40, height: 25, attraction: 0.15 }
-  ], []);
-
-  // Simple collision detection
-  const checkCollision = useCallback((element1: FloatingElement, element2: FloatingElement): boolean => {
-    const dx = element1.x - element2.x;
-    const dy = element1.y - element2.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    const minDistance = (element1.collisionRadius + element2.collisionRadius) / 20;
-    return distance < minDistance;
-  }, []);
-
-  // Balanced avoidance force to prevent clustering
-  const getAvoidanceForce = useCallback((element: FloatingElement, others: FloatingElement[]) => {
+  // Reduced repulsion force to allow closer proximity
+  const getRepulsionForce = useCallback((element: FloatingElement, others: FloatingElement[]) => {
     let forceX = 0;
     let forceY = 0;
     
@@ -86,10 +67,10 @@ export function ParticleBackground() {
       const dx = element.x - other.x;
       const dy = element.y - other.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
-      const safeDistance = (element.collisionRadius + other.collisionRadius) / 18;
+      const minDistance = 8; // Reduced minimum distance
       
-      if (distance < safeDistance && distance > 0) {
-        const force = ((safeDistance - distance) / safeDistance) * 0.3;
+      if (distance < minDistance && distance > 0) {
+        const force = ((minDistance - distance) / minDistance) * 0.3; // Reduced force
         const normalizedX = dx / distance;
         const normalizedY = dy / distance;
         
@@ -101,68 +82,52 @@ export function ParticleBackground() {
     return { forceX, forceY };
   }, []);
 
-  // Simple exclusion zone checking
-  const isInExclusionZone = useCallback((x: number, y: number, elementSize: number = 50): boolean => {
-    const zones = getExclusionZones();
+  // Central attraction force to prevent edge clustering
+  const getCentralAttraction = useCallback((element: FloatingElement) => {
+    const centerX = 50;
+    const centerY = 50;
+    const dx = centerX - element.x;
+    const dy = centerY - element.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
     
+    if (distance > 0) {
+      const force = Math.min(distance / 2000, 0.001); // Much weaker attraction
+      return {
+        forceX: (dx / distance) * force,
+        forceY: (dy / distance) * force
+      };
+    }
+    return { forceX: 0, forceY: 0 };
+  }, []);
+
+  // Check if position is in exclusion zone
+  const isInExclusionZone = useCallback((x: number, y: number): boolean => {
+    const zones = getExclusionZones();
     return zones.some(zone => 
-      x >= zone.x && 
-      x <= (zone.x + zone.width) &&
-      y >= zone.y && 
-      y <= (zone.y + zone.height)
+      x >= zone.x - zone.buffer && 
+      x <= (zone.x + zone.width + zone.buffer) &&
+      y >= zone.y - zone.buffer && 
+      y <= (zone.y + zone.height + zone.buffer)
     );
   }, [getExclusionZones]);
 
-  // Gentle attraction force from preferred zones
-  const getZoneAttraction = useCallback((element: FloatingElement) => {
-    const zones = getPreferredZones();
-    let forceX = 0;
-    let forceY = 0;
-    
-    zones.forEach(zone => {
-      const zoneCenterX = zone.x + zone.width / 2;
-      const zoneCenterY = zone.y + zone.height / 2;
-      const dx = zoneCenterX - element.x;
-      const dy = zoneCenterY - element.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      
-      if (distance > 0 && distance < 30) {
-        const force = zone.attraction * (1 - distance / 30);
-        forceX += (dx / distance) * force * 0.0005;
-        forceY += (dy / distance) * force * 0.0005;
-      }
-    });
-    
-    return { forceX, forceY };
-  }, [getPreferredZones]);
-
-  // Simple random positioning with collision avoidance
-  const generateSafePosition = useCallback((existingElements: FloatingElement[] = [], elementSize: number = 50): { x: number; y: number } => {
+  // Generate random position avoiding exclusion zones
+  const getRandomPosition = useCallback(() => {
     let attempts = 0;
-    let x: number, y: number;
+    let position;
     
     do {
-      x = 10 + Math.random() * 80;
-      y = 10 + Math.random() * 80;
+      position = {
+        x: 10 + Math.random() * 80, // Stay away from edges
+        y: 10 + Math.random() * 80
+      };
       attempts++;
-      
-      const collision = existingElements.some(existing => {
-        const dx = x - existing.x;
-        const dy = y - existing.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const minDistance = (elementSize + existing.size) / 25;
-        return distance < minDistance;
-      });
-      
-      if (!collision && !isInExclusionZone(x, y, elementSize)) {
-        break;
-      }
-    } while (attempts < 20);
+    } while (isInExclusionZone(position.x, position.y) && attempts < 20);
     
-    return { x: Math.max(8, Math.min(92, x)), y: Math.max(8, Math.min(92, y)) };
+    return position;
   }, [isInExclusionZone]);
 
-  // Initialize with logos only (fix non-existent avatars)
+  // Initialize elements with improved distribution and more avatars
   useEffect(() => {
     const logos = [
       '/logos/Coca-Cola_logo.svg',
@@ -173,111 +138,162 @@ export function ParticleBackground() {
       '/logos/Sephora_logo.svg',
       '/logos/L\'Oréal_logo.svg',
       '/logos/Revolut.svg',
-      '/logos/Samsung_Logo.svg',
-      '/logos/Starbucks_Coffee_Logo.svg',
       '/logos/McDonald\'s_SVG_logo.svg',
       '/logos/PlayStation_logo.svg',
-      '/logos/Zara_Logo.svg',
-      '/logos/WWF_logo_2000.svg'
+      '/logos/Samsung_Logo.svg',
+      '/logos/Starbucks_Coffee_Logo.svg'
+    ];
+
+    const avatars = [
+      '/avatars/avatar1.svg',
+      '/avatars/avatar2.svg',
+      '/avatars/avatar3.svg',
+      '/avatars/avatar4.svg',
+      '/avatars/avatar5.svg',
+      '/avatars/avatar6.svg',
+      '/avatars/avatar7.svg',
+      '/avatars/avatar8.svg',
+      '/avatars/avatar9.svg',
+      '/avatars/avatar10.svg',
+      '/avatars/avatar11.svg',
+      '/avatars/avatar1.svg' // Repeat some for more avatars
     ];
 
     const initialElements: FloatingElement[] = [];
-    
-    // Add logos with simple positioning
-    logos.forEach((src, index) => {
-      const position = generateSafePosition(initialElements, 40);
+
+    // Add 12 logos with random positioning
+    for (let i = 0; i < 12; i++) {
+      const src = logos[i % logos.length];
+      const position = getRandomPosition();
+      
       initialElements.push({
-        id: `logo-${index}`,
-        type: 'logo' as const,
+        id: `logo-${i}`,
+        type: 'logo',
         src,
         x: position.x,
         y: position.y,
-        size: 40,
-        speed: 0.01 + Math.random() * 0.015,
+        size: 32, // Slightly smaller logos
+        speed: 0.025 + Math.random() * 0.04,
         direction: Math.random() * Math.PI * 2,
-        vx: (Math.random() - 0.5) * 0.001,
-        vy: (Math.random() - 0.5) * 0.001,
-        collisionRadius: 50
+        vx: (Math.random() - 0.5) * 0.04, // More initial velocity
+        vy: (Math.random() - 0.5) * 0.04,
+        collisionRadius: 40,
+        waypoint: undefined, // Remove waypoints for simpler movement
+        directionChangeTimer: 800 + Math.random() * 1200, // Faster direction changes
+        gridX: 0,
+        gridY: 0
       });
-    });
+    }
+
+    // Add 12 avatars with random positioning (larger size)
+    for (let i = 0; i < 12; i++) {
+      const src = avatars[i % avatars.length];
+      const position = getRandomPosition();
+      
+      initialElements.push({
+        id: `avatar-${i}`,
+        type: 'avatar',
+        src,
+        x: position.x,
+        y: position.y,
+        size: 58, // Significantly larger avatars (was 40)
+        speed: 0.02 + Math.random() * 0.035,
+        direction: Math.random() * Math.PI * 2,
+        vx: (Math.random() - 0.5) * 0.035,
+        vy: (Math.random() - 0.5) * 0.035,
+        collisionRadius: 65,
+        waypoint: undefined,
+        directionChangeTimer: 600 + Math.random() * 1000, // Even faster changes
+        gridX: 0,
+        gridY: 0
+      });
+    }
 
     setElements(initialElements);
-  }, [generateSafePosition]);
+  }, [getRandomPosition]);
 
-  // Enhanced connection creation with better logic
-  const createConnection = useCallback((currentElements: FloatingElement[]) => {
+  // Fixed connection creation with current element positions
+  const createConnection = useCallback(() => {
     const now = Date.now();
-    if (now - lastConnectionTime.current < 2000) return;
+    if (now - lastConnectionTime.current < 800) return; // More frequent attempts
     
     setConnections(prevConnections => {
       const activeConnections = prevConnections.filter(conn => 
-        conn.phase !== 'completed' && now - conn.createdAt < 6000
+        conn.phase !== 'completed' && now - conn.createdAt < 6000 // Shorter connection lifespan
       );
       
-      if (activeConnections.length >= 3) return prevConnections;
+      if (activeConnections.length >= 6) return prevConnections; // Allow more simultaneous connections
       
-      const availableElements = currentElements.filter(el => 
-        !activeConnections.some(conn => conn.fromId === el.id || conn.toId === el.id)
-      );
-      
-      if (availableElements.length < 2) return prevConnections;
+      // Get current elements inside the callback to ensure fresh positions
+      setElements(currentElements => {
+        const availableElements = currentElements.filter(el => 
+          !activeConnections.some(conn => conn.fromId === el.id || conn.toId === el.id)
+        );
+        
+        if (availableElements.length < 2) return currentElements;
 
-      // Find any reasonable pair within distance
-      let bestPair = null;
-      let shortestDistance = Infinity;
-      
-      for (let i = 0; i < availableElements.length; i++) {
-        for (let j = i + 1; j < availableElements.length; j++) {
-          const element1 = availableElements[i];
-          const element2 = availableElements[j];
-          
-          const dx = element1.x - element2.x;
-          const dy = element1.y - element2.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          
-          if (distance < shortestDistance && distance < 35) {
-            shortestDistance = distance;
-            bestPair = { from: element1, to: element2 };
+        // More aggressive connection finding
+        let bestPair = null;
+        let bestDistance = Infinity;
+        
+        for (let i = 0; i < availableElements.length && !bestPair; i++) {
+          for (let j = i + 1; j < availableElements.length; j++) {
+            const element1 = availableElements[i];
+            const element2 = availableElements[j];
+            
+            const dx = element1.x - element2.x;
+            const dy = element1.y - element2.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Increased connection range for more connections
+            if (distance < 90 && distance > 10 && distance < bestDistance) {
+              bestPair = { from: element1, to: element2 };
+              bestDistance = distance;
+            }
           }
         }
-      }
-      
-      if (bestPair) {
-        lastConnectionTime.current = now;
         
-        const newConnection: Connection = {
-          id: `connection-${now}-${Math.random()}`,
-          fromId: bestPair.from.id,
-          toId: bestPair.to.id,
-          progress: 0,
-          visible: true,
-          showHeart: false,
-          heartVisible: false,
-          phase: 'approaching',
-          createdAt: now
-        };
+        if (bestPair) {
+          lastConnectionTime.current = now;
+          
+          const newConnection: Connection = {
+            id: `connection-${now}-${Math.random()}`,
+            fromId: bestPair.from.id,
+            toId: bestPair.to.id,
+            progress: 0,
+            visible: true,
+            showHeart: false,
+            heartVisible: false,
+            phase: 'approaching',
+            createdAt: now
+          };
+          
+          setConnections(prev => [...prev.filter(conn => 
+            conn.phase !== 'completed' && now - conn.createdAt < 6000
+          ), newConnection]);
+        }
         
-        return [...activeConnections, newConnection];
-      }
+        return currentElements;
+      });
       
       return prevConnections;
     });
   }, []);
 
-  // Connection management with current elements
+  // Much more frequent connection attempts
   useEffect(() => {
     if (elements.length === 0) return;
 
     const connectionTimer = setTimeout(() => {
-      createConnection(elements);
-      const interval = setInterval(() => createConnection(elements), 3000);
+      createConnection();
+      const interval = setInterval(() => createConnection(), 1200); // More frequent
       return () => clearInterval(interval);
-    }, 1000);
+    }, 500);
 
     return () => clearTimeout(connectionTimer);
-  }, [elements, createConnection]);
+  }, [elements.length, createConnection]);
 
-  // Simple connection animation
+  // Enhanced connection animation
   useEffect(() => {
     const animateConnections = () => {
       const now = Date.now();
@@ -290,19 +306,19 @@ export function ParticleBackground() {
           let newHeartVisible = conn.heartVisible;
           
           if (conn.phase === 'approaching') {
-            newProgress = Math.min(conn.progress + 0.02, 1);
+            newProgress = Math.min(conn.progress + 0.025, 1);
             if (newProgress >= 1) {
               newPhase = 'connected';
               newShowHeart = true;
               newHeartVisible = true;
             }
           } else if (conn.phase === 'connected') {
-            if (now - conn.createdAt > 2000) {
+            if (now - conn.createdAt > 2500) {
               newPhase = 'separating';
               newHeartVisible = false;
             }
           } else if (conn.phase === 'separating') {
-            if (now - conn.createdAt > 3000) {
+            if (now - conn.createdAt > 4000) {
               newPhase = 'completed';
             }
           }
@@ -318,38 +334,52 @@ export function ParticleBackground() {
       );
     };
 
-    const interval = setInterval(animateConnections, 50);
+    const interval = setInterval(animateConnections, 40);
     return () => clearInterval(interval);
   }, []);
 
-  // Simplified fluid movement system
+  // Improved movement system with better randomness and central attraction
   useEffect(() => {
     const updateElements = () => {
       setElements(prev => {
         return prev.map(element => {
           let newVx = element.vx;
           let newVy = element.vy;
+          let newDirection = element.direction;
+          let newDirectionChangeTimer = element.directionChangeTimer - 40;
+
+          // More frequent and random direction changes
+          if (newDirectionChangeTimer <= 0) {
+            newDirection = Math.random() * Math.PI * 2;
+            newDirectionChangeTimer = 500 + Math.random() * 1000; // Much more frequent
+          }
+
+          // Smoother random movement with reduced chaos
+          const time = Date.now() * 0.0002;
+          const primaryChaos = Math.cos(newDirection + time * element.speed) * 0.008;
+          const secondaryChaos = Math.sin(newDirection * 1.3 + time * element.speed * 0.7) * 0.006;
           
-          // Base drift movement with smooth rotation
-          const time = Date.now() * 0.0001;
-          const driftX = Math.cos(element.direction + time * element.speed) * 0.003;
-          const driftY = Math.sin(element.direction + time * element.speed) * 0.003;
-          
-          newVx += driftX;
-          newVy += driftY;
-          
-          // Balanced collision avoidance
-          const { forceX, forceY } = getAvoidanceForce(element, prev);
-          newVx += forceX * 0.002;
-          newVy += forceY * 0.002;
-          
-          // Zone attraction
-          const { forceX: zoneForceX, forceY: zoneForceY } = getZoneAttraction(element);
-          newVx += zoneForceX;
-          newVy += zoneForceY;
-          
-          // Gentle exclusion zone avoidance
-          if (isInExclusionZone(element.x, element.y, element.size)) {
+          newVx += primaryChaos + (Math.random() - 0.5) * 0.006; // Reduced randomness
+          newVy += secondaryChaos + (Math.random() - 0.5) * 0.006;
+
+          // Add some elements with random burst movement for screen traversal
+          if (Math.random() < 0.002) { // 0.2% chance per frame
+            newVx += (Math.random() - 0.5) * 0.08; // Burst movement
+            newVy += (Math.random() - 0.5) * 0.08;
+          }
+
+          // Reduced repulsion force
+          const { forceX, forceY } = getRepulsionForce(element, prev);
+          newVx += forceX * 0.005; // Reduced from 0.01
+          newVy += forceY * 0.005;
+
+          // Central attraction to prevent edge clustering
+          const { forceX: centerForceX, forceY: centerForceY } = getCentralAttraction(element);
+          newVx += centerForceX;
+          newVy += centerForceY;
+
+          // Gentler exclusion zone avoidance
+          if (isInExclusionZone(element.x, element.y)) {
             const zones = getExclusionZones();
             for (const zone of zones) {
               const centerX = zone.x + zone.width / 2;
@@ -359,47 +389,49 @@ export function ParticleBackground() {
               const distance = Math.sqrt(dx * dx + dy * dy);
               
               if (distance > 0) {
-                const force = 0.002; // Much weaker force
+                const force = 0.005; // Reduced force
                 newVx += (dx / distance) * force;
                 newVy += (dy / distance) * force;
               }
             }
           }
-          
-          // Gentle boundary repulsion
+
+          // Stronger boundary forces to keep elements moving inward
           const margin = 8;
-          if (element.x < margin) newVx += (margin - element.x) * 0.001;
-          if (element.x > 100 - margin) newVx -= (element.x - (100 - margin)) * 0.001;
-          if (element.y < margin) newVy += (margin - element.y) * 0.001;
-          if (element.y > 100 - margin) newVy -= (element.y - (100 - margin)) * 0.001;
-          
-          // Apply damping for smooth movement
-          newVx *= 0.95;
-          newVy *= 0.95;
-          
-          // Update position
+          const boundaryForce = 0.008;
+          if (element.x < margin) newVx += (margin - element.x) * boundaryForce;
+          if (element.x > 100 - margin) newVx -= (element.x - (100 - margin)) * boundaryForce;
+          if (element.y < margin) newVy += (margin - element.y) * boundaryForce;
+          if (element.y > 100 - margin) newVy -= (element.y - (100 - margin)) * boundaryForce;
+
+          // Reduced damping for more fluid movement
+          newVx *= 0.94; // Less damping
+          newVy *= 0.94;
+
+          // Update position with wider bounds
           const newX = Math.max(2, Math.min(98, element.x + newVx));
           const newY = Math.max(2, Math.min(98, element.y + newVy));
-          
+
           return {
             ...element,
             x: newX,
             y: newY,
             vx: newVx,
             vy: newVy,
-            direction: element.direction + (Math.random() - 0.5) * 0.002
+            direction: newDirection,
+            directionChangeTimer: newDirectionChangeTimer
           };
         });
       });
     };
 
-    const interval = setInterval(updateElements, 50);
+    const interval = setInterval(updateElements, 40); // Slightly faster updates
     return () => clearInterval(interval);
-  }, [getAvoidanceForce, isInExclusionZone, getZoneAttraction]);
+  }, [getRepulsionForce, getCentralAttraction, isInExclusionZone, getExclusionZones]);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {/* Company logos only */}
+      {/* Floating elements with different styles for logos and avatars */}
       {elements.map((element) => (
         <motion.div
           key={element.id}
@@ -412,13 +444,17 @@ export function ParticleBackground() {
             transform: 'translate(-50%, -50%)'
           }}
           animate={{
-            rotate: [0, 360],
-            scale: [0.9, 1.1, 0.9]
+            rotate: element.type === 'logo' ? [0, 360] : [0, 15, 0, -15, 0],
+            scale: element.type === 'avatar' ? [0.95, 1.15, 0.95] : [0.9, 1.1, 0.9]
           }}
           transition={{
-            rotate: { duration: 30, repeat: Infinity, ease: "linear" },
+            rotate: { 
+              duration: element.type === 'avatar' ? 8 : 30, 
+              repeat: Infinity, 
+              ease: element.type === 'avatar' ? "easeInOut" : "linear"
+            },
             scale: { 
-              duration: 8, 
+              duration: element.type === 'avatar' ? 6 : 8, 
               repeat: Infinity, 
               ease: "easeInOut" 
             }
@@ -427,15 +463,18 @@ export function ParticleBackground() {
           <div className="w-full h-full flex items-center justify-center">
             <img 
               src={element.src} 
-              alt="Company logo" 
-              className="w-full h-full object-contain opacity-70"
+              alt={element.type === 'avatar' ? 'User avatar' : 'Company logo'} 
+              className="w-full h-full object-contain"
               style={{ 
-                filter: 'brightness(0) invert(1) drop-shadow(0 0 8px rgba(255, 255, 255, 0.3))',
+                filter: element.type === 'avatar' 
+                  ? 'drop-shadow(0 0 12px rgba(147, 51, 234, 0.4))' 
+                  : 'brightness(0) invert(1) drop-shadow(0 0 8px rgba(255, 255, 255, 0.3))',
+                opacity: element.type === 'avatar' ? 0.8 : 0.7,
                 maxWidth: '100%',
                 maxHeight: '100%'
               }}
               onError={(e) => {
-                console.warn('Failed to load logo:', element.src);
+                console.warn(`Failed to load ${element.type}:`, element.src);
                 e.currentTarget.style.display = 'none';
               }}
             />
@@ -443,12 +482,11 @@ export function ParticleBackground() {
         </motion.div>
       ))}
 
-      {/* Connection lines */}
+      {/* Enhanced connection lines */}
       <svg className="absolute inset-0 w-full h-full">
         {connections.map((connection) => {
           if (typeof window === 'undefined') return null;
           
-          // Find current positions of connected elements
           const fromElement = elements.find(el => el.id === connection.fromId);
           const toElement = elements.find(el => el.id === connection.toId);
           
@@ -465,6 +503,8 @@ export function ParticleBackground() {
           const heartX = fromX + (toX - fromX) * 0.5;
           const heartY = fromY + (toY - fromY) * 0.5;
 
+          const isAvatarConnection = fromElement.type === 'avatar' || toElement.type === 'avatar';
+
           return (
             <g key={connection.id}>
               <motion.line
@@ -472,46 +512,50 @@ export function ParticleBackground() {
                 y1={fromY}
                 x2={currentX}
                 y2={currentY}
-                stroke="white"
-                strokeWidth="2"
+                stroke={isAvatarConnection ? "#9333ea" : "white"}
+                strokeWidth="3"
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={{ 
                   pathLength: connection.progress,
-                  opacity: connection.visible ? 0.6 : 0
+                  opacity: connection.visible ? 0.8 : 0
                 }}
                 transition={{ 
-                  duration: 0.3,
+                  duration: 0.4,
                   ease: "easeInOut"
                 }}
                 style={{
-                  filter: 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.3))'
+                  filter: isAvatarConnection 
+                    ? 'drop-shadow(0 0 6px rgba(147, 51, 234, 0.5))' 
+                    : 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.3))'
                 }}
               />
               
-              {/* Heart at connection midpoint */}
+              {/* Enhanced heart animation */}
               {connection.heartVisible && connection.phase === 'connected' && (
                 <motion.g
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ 
-                    scale: connection.heartVisible ? [0, 1.5, 1] : [1, 0],
-                    opacity: connection.heartVisible ? [0, 1, 0.8] : [0.8, 0]
+                    scale: connection.heartVisible ? [0, 1.8, 1.2] : [1.2, 0],
+                    opacity: connection.heartVisible ? [0, 1, 0.9] : [0.9, 0]
                   }}
                   transition={{ 
-                    duration: connection.heartVisible ? 1 : 0.5,
+                    duration: connection.heartVisible ? 1.2 : 0.6,
                     ease: "easeOut"
                   }}
                 >
                   <path
-                    d={`M${heartX},${heartY + 3} 
-                        C${heartX},${heartY - 2} ${heartX - 8},${heartY - 6} ${heartX - 8},${heartY - 2}
-                        C${heartX - 8},${heartY + 2} ${heartX},${heartY + 8} ${heartX},${heartY + 8}
-                        C${heartX},${heartY + 8} ${heartX + 8},${heartY + 2} ${heartX + 8},${heartY - 2}
-                        C${heartX + 8},${heartY - 6} ${heartX},${heartY - 2} ${heartX},${heartY + 3} Z`}
-                    fill="none"
-                    stroke="white"
-                    strokeWidth="2"
+                    d={`M${heartX},${heartY + 4} 
+                        C${heartX},${heartY - 3} ${heartX - 10},${heartY - 7} ${heartX - 10},${heartY - 3}
+                        C${heartX - 10},${heartY + 3} ${heartX},${heartY + 10} ${heartX},${heartY + 10}
+                        C${heartX},${heartY + 10} ${heartX + 10},${heartY + 3} ${heartX + 10},${heartY - 3}
+                        C${heartX + 10},${heartY - 7} ${heartX},${heartY - 3} ${heartX},${heartY + 4} Z`}
+                    fill={isAvatarConnection ? "#9333ea" : "white"}
+                    stroke={isAvatarConnection ? "#7c3aed" : "#f1f5f9"}
+                    strokeWidth="1"
                     style={{
-                      filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.6))'
+                      filter: isAvatarConnection 
+                        ? 'drop-shadow(0 0 12px rgba(147, 51, 234, 0.8))' 
+                        : 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.6))'
                     }}
                   />
                 </motion.g>
