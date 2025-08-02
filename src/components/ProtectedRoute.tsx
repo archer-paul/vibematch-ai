@@ -39,5 +39,10 @@ export function ProtectedRoute({ children, requiredUserType, requireOnboarding =
     return <Navigate to={redirectPath} replace />;
   }
 
+  // Default redirection for authenticated users
+  if (window.location.pathname === '/dashboard' && profile?.user_type === 'creator') {
+    return <Navigate to="/matches" replace />;
+  }
+
   return <>{children}</>;
 }

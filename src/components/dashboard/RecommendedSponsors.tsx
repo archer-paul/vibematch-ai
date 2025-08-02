@@ -193,11 +193,11 @@ export function RecommendedSponsors() {
                 </div>
                 
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => alert('Opening sponsor details...')}>
                     <ExternalLink className="mr-2 h-4 w-4" />
                     View Details
                   </Button>
-                  <Button size="sm">
+                  <Button size="sm" onClick={() => alert('Application submitted successfully!')}>
                     Apply Now
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>

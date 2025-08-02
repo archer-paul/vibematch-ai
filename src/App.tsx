@@ -18,6 +18,9 @@ import Admin from "./pages/Admin";
 import Leaderboard from "./pages/Leaderboard";
 import Discovery from "./pages/Discovery";
 import Messages from "./pages/Messages";
+import Settings from "./pages/Settings";
+import Analytics from "./pages/Analytics";
+import Campaigns from "./pages/Campaigns";
 
 const queryClient = new QueryClient();
 
@@ -98,6 +101,30 @@ const App = () => (
               <ProtectedRoute>
                 <AppLayout>
                   <Messages />
+                </AppLayout>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Settings />
+                </AppLayout>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/analytics" element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Analytics />
+                </AppLayout>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/campaigns" element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Campaigns />
                 </AppLayout>
               </ProtectedRoute>
             } />

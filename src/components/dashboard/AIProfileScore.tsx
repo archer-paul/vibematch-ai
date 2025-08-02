@@ -130,7 +130,7 @@ export function AIProfileScore() {
           </div>
 
           {/* Action Button */}
-          <Button className="w-full" variant="outline">
+          <Button className="w-full" variant="outline" onClick={() => window.location.href = '/profile'}>
             <TrendingUp className="mr-2 h-4 w-4" />
             Improve Score
           </Button>

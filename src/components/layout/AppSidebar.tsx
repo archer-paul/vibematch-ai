@@ -21,12 +21,14 @@ import {
   Building2,
   UserPlus,
   MessageSquare,
-  Award
+  Award,
+  Briefcase
 } from 'lucide-react';
 
 const creatorNavItems = [
   { title: 'AI Matches', url: '/matches', icon: Sparkles },
   { title: 'Dashboard', url: '/dashboard', icon: Home },
+  { title: 'Campaigns', url: '/campaigns', icon: Briefcase },
   { title: 'My Profile', url: '/profile', icon: Users },
   { title: 'Leaderboard', url: '/leaderboard', icon: Award },
   { title: 'Analytics', url: '/analytics', icon: BarChart3 },
