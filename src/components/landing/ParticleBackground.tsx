@@ -91,7 +91,7 @@ export function ParticleBackground() {
     const distance = Math.sqrt(dx * dx + dy * dy);
     
     if (distance > 0) {
-      const force = Math.min(distance / 1000, 0.002); // Very gentle attraction
+      const force = Math.min(distance / 2000, 0.001); // Much weaker attraction
       return {
         forceX: (dx / distance) * force,
         forceY: (dy / distance) * force
@@ -212,8 +212,8 @@ export function ParticleBackground() {
     setElements(initialElements);
   }, [getRandomPosition]);
 
-  // Improved connection creation with better success rate
-  const createConnection = useCallback((currentElements: FloatingElement[]) => {
+  // Fixed connection creation with current element positions
+  const createConnection = useCallback(() => {
     const now = Date.now();
     if (now - lastConnectionTime.current < 800) return; // More frequent attempts
     
@@ -224,50 +224,57 @@ export function ParticleBackground() {
       
       if (activeConnections.length >= 6) return prevConnections; // Allow more simultaneous connections
       
-      const availableElements = currentElements.filter(el => 
-        !activeConnections.some(conn => conn.fromId === el.id || conn.toId === el.id)
-      );
-      
-      if (availableElements.length < 2) return prevConnections;
+      // Get current elements inside the callback to ensure fresh positions
+      setElements(currentElements => {
+        const availableElements = currentElements.filter(el => 
+          !activeConnections.some(conn => conn.fromId === el.id || conn.toId === el.id)
+        );
+        
+        if (availableElements.length < 2) return currentElements;
 
-      // More aggressive connection finding
-      let bestPair = null;
-      let bestDistance = Infinity;
-      
-      for (let i = 0; i < availableElements.length && !bestPair; i++) {
-        for (let j = i + 1; j < availableElements.length; j++) {
-          const element1 = availableElements[i];
-          const element2 = availableElements[j];
-          
-          const dx = element1.x - element2.x;
-          const dy = element1.y - element2.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          
-          // Increased connection range for more connections
-          if (distance < 90 && distance > 10 && distance < bestDistance) {
-            bestPair = { from: element1, to: element2 };
-            bestDistance = distance;
+        // More aggressive connection finding
+        let bestPair = null;
+        let bestDistance = Infinity;
+        
+        for (let i = 0; i < availableElements.length && !bestPair; i++) {
+          for (let j = i + 1; j < availableElements.length; j++) {
+            const element1 = availableElements[i];
+            const element2 = availableElements[j];
+            
+            const dx = element1.x - element2.x;
+            const dy = element1.y - element2.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Increased connection range for more connections
+            if (distance < 90 && distance > 10 && distance < bestDistance) {
+              bestPair = { from: element1, to: element2 };
+              bestDistance = distance;
+            }
           }
         }
-      }
-      
-      if (bestPair) {
-        lastConnectionTime.current = now;
         
-        const newConnection: Connection = {
-          id: `connection-${now}-${Math.random()}`,
-          fromId: bestPair.from.id,
-          toId: bestPair.to.id,
-          progress: 0,
-          visible: true,
-          showHeart: false,
-          heartVisible: false,
-          phase: 'approaching',
-          createdAt: now
-        };
+        if (bestPair) {
+          lastConnectionTime.current = now;
+          
+          const newConnection: Connection = {
+            id: `connection-${now}-${Math.random()}`,
+            fromId: bestPair.from.id,
+            toId: bestPair.to.id,
+            progress: 0,
+            visible: true,
+            showHeart: false,
+            heartVisible: false,
+            phase: 'approaching',
+            createdAt: now
+          };
+          
+          setConnections(prev => [...prev.filter(conn => 
+            conn.phase !== 'completed' && now - conn.createdAt < 6000
+          ), newConnection]);
+        }
         
-        return [...activeConnections, newConnection];
-      }
+        return currentElements;
+      });
       
       return prevConnections;
     });
@@ -278,13 +285,13 @@ export function ParticleBackground() {
     if (elements.length === 0) return;
 
     const connectionTimer = setTimeout(() => {
-      createConnection(elements);
-      const interval = setInterval(() => createConnection(elements), 1200); // More frequent
+      createConnection();
+      const interval = setInterval(() => createConnection(), 1200); // More frequent
       return () => clearInterval(interval);
     }, 500);
 
     return () => clearTimeout(connectionTimer);
-  }, [elements, createConnection]);
+  }, [elements.length, createConnection]);
 
   // Enhanced connection animation
   useEffect(() => {
@@ -347,13 +354,13 @@ export function ParticleBackground() {
             newDirectionChangeTimer = 500 + Math.random() * 1000; // Much more frequent
           }
 
-          // Enhanced random movement with more chaos
+          // Smoother random movement with reduced chaos
           const time = Date.now() * 0.0002;
-          const primaryChaos = Math.cos(newDirection + time * element.speed) * 0.015;
-          const secondaryChaos = Math.sin(newDirection * 1.3 + time * element.speed * 0.7) * 0.012;
+          const primaryChaos = Math.cos(newDirection + time * element.speed) * 0.008;
+          const secondaryChaos = Math.sin(newDirection * 1.3 + time * element.speed * 0.7) * 0.006;
           
-          newVx += primaryChaos + (Math.random() - 0.5) * 0.012; // Increased randomness
-          newVy += secondaryChaos + (Math.random() - 0.5) * 0.012;
+          newVx += primaryChaos + (Math.random() - 0.5) * 0.006; // Reduced randomness
+          newVy += secondaryChaos + (Math.random() - 0.5) * 0.006;
 
           // Add some elements with random burst movement for screen traversal
           if (Math.random() < 0.002) { // 0.2% chance per frame
@@ -437,14 +444,14 @@ export function ParticleBackground() {
             transform: 'translate(-50%, -50%)'
           }}
           animate={{
-            rotate: element.type === 'logo' ? [0, 360] : [0, -360],
+            rotate: element.type === 'logo' ? [0, 360] : [0, 15, 0, -15, 0],
             scale: element.type === 'avatar' ? [0.95, 1.15, 0.95] : [0.9, 1.1, 0.9]
           }}
           transition={{
             rotate: { 
-              duration: element.type === 'avatar' ? 25 : 30, 
+              duration: element.type === 'avatar' ? 8 : 30, 
               repeat: Infinity, 
-              ease: "linear" 
+              ease: element.type === 'avatar' ? "easeInOut" : "linear"
             },
             scale: { 
               duration: element.type === 'avatar' ? 6 : 8, 
