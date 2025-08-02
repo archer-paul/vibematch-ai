@@ -37,15 +37,15 @@ export function CursorTrail() {
       mouse.current.x = e.clientX;
       mouse.current.y = e.clientY;
 
-      // Add new particles
-      for (let i = 0; i < 3; i++) {
+      // Add new particles with more trail density
+      for (let i = 0; i < 5; i++) {
         particles.current.push({
-          x: mouse.current.x + (Math.random() - 0.5) * 10,
-          y: mouse.current.y + (Math.random() - 0.5) * 10,
-          life: 60,
-          maxLife: 60,
-          vx: (Math.random() - 0.5) * 2,
-          vy: (Math.random() - 0.5) * 2,
+          x: mouse.current.x + (Math.random() - 0.5) * 15,
+          y: mouse.current.y + (Math.random() - 0.5) * 15,
+          life: 80,
+          maxLife: 80,
+          vx: (Math.random() - 0.5) * 3,
+          vy: (Math.random() - 0.5) * 3,
           color: colors[Math.floor(Math.random() * colors.length)]
         });
       }
@@ -78,13 +78,23 @@ export function CursorTrail() {
         }
 
         const alpha = particle.life / particle.maxLife;
-        const size = alpha * 3;
+        const size = alpha * 5;
 
         ctx.save();
-        ctx.globalAlpha = alpha;
+        ctx.globalAlpha = alpha * 0.9;
         ctx.fillStyle = particle.color;
         ctx.shadowColor = particle.color;
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 20;
+        
+        // Add outer glow
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, size * 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = particle.color;
+        ctx.globalAlpha = alpha * 0.3;
+        ctx.fill();
+        
+        // Main particle
+        ctx.globalAlpha = alpha * 0.9;
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, size, 0, Math.PI * 2);
         ctx.fill();

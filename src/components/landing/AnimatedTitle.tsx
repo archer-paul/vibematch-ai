@@ -47,7 +47,7 @@ export function AnimatedTitle() {
       <motion.h1 className="text-5xl md:text-6xl font-bold text-center">
         <motion.span
           style={{
-            background: `linear-gradient(${gradientPosition}deg, #8B5CF6, #EC4899, #3B82F6, #8B5CF6)`,
+            background: `linear-gradient(${gradientPosition}deg, hsl(262 83% 58%), hsl(330 81% 60%), hsl(221 83% 53%), hsl(262 83% 58%))`,
             backgroundSize: '300% 300%',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -60,21 +60,21 @@ export function AnimatedTitle() {
             variants={wordVariants}
             className="inline-block mr-4"
           >
-            <motion.span className="text-blue-400 font-extrabold">AI</motion.span> that connects
+            <span className="text-blue-400 font-extrabold">AI</span> that connects
           </motion.span>{' '}
           <motion.span
             custom={1}
             variants={wordVariants}
             className="inline-block mr-4"
           >
-            <motion.span className="text-pink-400 font-extrabold">creators</motion.span> and
+            <span className="text-pink-400 font-extrabold">creators</span> and
           </motion.span>{' '}
           <motion.span
             custom={2}
             variants={wordVariants}
             className="inline-block"
           >
-            <motion.span className="text-purple-400 font-extrabold">sponsors</motion.span>
+            <span className="text-purple-400 font-extrabold">sponsors</span>
           </motion.span>
         </motion.span>
       </motion.h1>

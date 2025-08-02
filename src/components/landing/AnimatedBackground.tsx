@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { FaInstagram, FaTiktok, FaYoutube, FaTwitter } from 'react-icons/fa';
 
 interface FloatingLogo {
   id: string;
   icon: string;
+  color: string;
   x: number;
   y: number;
   rotation: number;
@@ -48,19 +50,25 @@ export function AnimatedBackground() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Initialize floating logos
-    const socialLogos = ['📱', '📺', '🎬', '🎵', '📸', '💬'];
-    logoPositions.current = socialLogos.map((icon, index) => ({
+    // Initialize floating logos with social media icons
+    const socialLogos = [
+      { component: FaInstagram, color: '#E1306C' },
+      { component: FaTiktok, color: '#000000' },
+      { component: FaYoutube, color: '#FF0000' },
+      { component: FaTwitter, color: '#1DA1F2' }
+    ];
+    logoPositions.current = socialLogos.map((logo, index) => ({
       id: `logo-${index}`,
-      icon,
+      icon: logo.component.name,
+      color: logo.color,
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
       rotation: 0,
       speed: 0.2 + Math.random() * 0.3
     }));
 
-    // Initialize creator avatars
-    const avatarEmojis = ['👩‍💻', '👨‍🎨', '👩‍🎤', '👨‍💼', '👩‍🎨', '👨‍🎵', '👩‍📱', '👨‍🎬'];
+    // Initialize creator avatars with diverse characters
+    const avatarEmojis = ['👩🏻‍💻', '👨🏾‍🎨', '👩🏽‍🎤', '👨🏻‍💼', '👩🏾‍🎨', '👨🏽‍🎵', '👩🏿‍📱', '👨🏻‍🎬', '👩🏽‍💻', '👨🏿‍🎨', '👩🏻‍🎤', '👨🏾‍💼'];
     avatarPositions.current = avatarEmojis.map((emoji, index) => ({
       id: `avatar-${index}`,
       x: Math.random() * canvas.width,
@@ -87,18 +95,23 @@ export function AnimatedBackground() {
         if (logo.y < -50) logo.y = canvas.height + 50;
         if (logo.y > canvas.height + 50) logo.y = -50;
 
-        // Draw logo with glow
+        // Draw social media icons
         ctx.save();
         ctx.translate(logo.x, logo.y);
         ctx.rotate(logo.rotation);
         
-        // Glow effect
-        ctx.shadowColor = '#8B5CF6';
-        ctx.shadowBlur = 20;
-        ctx.font = '24px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-        ctx.fillText(logo.icon, 0, 8);
+        // Create icon representation with colors
+        const iconSize = 20;
+        ctx.shadowColor = logo.color || '#8B5CF6';
+        ctx.shadowBlur = 15;
+        
+        // Draw icon background
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.fillRect(-iconSize/2, -iconSize/2, iconSize, iconSize);
+        
+        // Draw colored icon representation
+        ctx.fillStyle = logo.color || '#8B5CF6';
+        ctx.fillRect(-iconSize/2 + 2, -iconSize/2 + 2, iconSize - 4, iconSize - 4);
         
         ctx.restore();
       });
@@ -153,20 +166,29 @@ export function AnimatedBackground() {
           connection.completed = true;
           
           // Lightning effect when connection completes
-          setTimeout(() => {
-            // Create lightning flash
-            ctx.save();
-            ctx.globalCompositeOperation = 'screen';
-            ctx.strokeStyle = '#EC4899';
-            ctx.lineWidth = 3;
-            ctx.shadowColor = '#8B5CF6';
-            ctx.shadowBlur = 30;
-            ctx.beginPath();
-            ctx.moveTo(connection.from.x, connection.from.y);
-            ctx.lineTo(connection.to.x, connection.to.y);
-            ctx.stroke();
-            ctx.restore();
-          }, 100);
+          ctx.save();
+          ctx.globalCompositeOperation = 'screen';
+          
+          // Multiple lightning bolts effect
+          for (let i = 0; i < 3; i++) {
+            setTimeout(() => {
+              ctx.strokeStyle = i % 2 === 0 ? '#EC4899' : '#8B5CF6';
+              ctx.lineWidth = 4 - i;
+              ctx.shadowColor = i % 2 === 0 ? '#EC4899' : '#8B5CF6';
+              ctx.shadowBlur = 40;
+              
+              // Add some randomness to lightning path
+              const midX = (connection.from.x + connection.to.x) / 2 + (Math.random() - 0.5) * 20;
+              const midY = (connection.from.y + connection.to.y) / 2 + (Math.random() - 0.5) * 20;
+              
+              ctx.beginPath();
+              ctx.moveTo(connection.from.x, connection.from.y);
+              ctx.quadraticCurveTo(midX, midY, connection.to.x, connection.to.y);
+              ctx.stroke();
+            }, i * 50);
+          }
+          
+          ctx.restore();
         }
 
         // Draw connection line
