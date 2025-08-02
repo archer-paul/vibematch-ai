@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Search, Filter, TrendingUp, DollarSign, Clock, Users, Star, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { SendMessageModal } from '@/components/modals/SendMessageModal';
+import { MarketCampaignDetailsModal } from '@/components/modals/MarketCampaignDetailsModal';
 import { useNotifications } from '@/hooks/useNotifications';
 import { NotificationToast } from '@/components/ui/notification-toast';
 
@@ -118,7 +118,7 @@ export default function Market() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('relevance');
   const [selectedPartnership, setSelectedPartnership] = useState<Partnership | null>(null);
-  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [applyingPartnerships, setApplyingPartnerships] = useState<Set<number>>(new Set());
   const { notifications, removeNotification, showSuccess } = useNotifications();
 
@@ -165,20 +165,19 @@ export default function Market() {
         });
         
         setSelectedPartnership(partnership);
-        setIsMessageModalOpen(true);
+        setIsDetailsModalOpen(true);
       }, 1500);
     }, 2000);
   };
 
   const handleViewDetails = (partnership: Partnership) => {
     setSelectedPartnership(partnership);
-    setIsMessageModalOpen(true);
+    setIsDetailsModalOpen(true);
   };
 
-  const handleSendMessage = async (message: string) => {
-    // Simulate sending message
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    showSuccess('Message sent successfully! 📨');
+  const handleApplyForCampaign = (partnership: Partnership) => {
+    setIsDetailsModalOpen(false);
+    handleApplyNow(partnership);
   };
 
   return (
@@ -367,15 +366,15 @@ export default function Market() {
         </TabsContent>
       </Tabs>
 
-      {/* Send Message Modal */}
-      <SendMessageModal
+      {/* Campaign Details Modal */}
+      <MarketCampaignDetailsModal
         partnership={selectedPartnership}
-        isOpen={isMessageModalOpen}
+        isOpen={isDetailsModalOpen}
         onClose={() => {
-          setIsMessageModalOpen(false);
+          setIsDetailsModalOpen(false);
           setSelectedPartnership(null);
         }}
-        onSend={handleSendMessage}
+        onApply={handleApplyForCampaign}
       />
 
       {/* Notifications */}
