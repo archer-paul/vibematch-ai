@@ -3,9 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FloatingBubbles } from '@/components/ui/floating-bubbles';
 import { ParticleBackground } from '@/components/landing/ParticleBackground';
-import { CursorTrail } from '@/components/landing/CursorTrail';
 import { AnimatedTitle } from '@/components/landing/AnimatedTitle';
 import { InteractiveButton } from '@/components/landing/InteractiveButton';
 import { ParticleField } from '@/components/landing/ParticleField';
@@ -46,9 +44,6 @@ const Index = () => {
     <div className="min-h-screen immersive-bg relative overflow-hidden">
       {/* Animated Background Effects */}
       <ParticleBackground />
-      <ParticleField />
-      <CursorTrail />
-      <FloatingBubbles />
       {/* Header */}
       <motion.header 
         className="relative z-40 border-b glass-card border-white/10"

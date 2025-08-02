@@ -51,19 +51,7 @@ export function AnimatedTitle() {
           className="inline-block mr-4"
         >
           <motion.span 
-            className="font-extrabold bg-gradient-to-r from-purple-600 to-purple-500 bg-clip-text text-transparent"
-            animate={{ 
-              textShadow: [
-                '0 0 10px #7c3aed',
-                '0 0 20px #7c3aed',
-                '0 0 10px #7c3aed'
-              ]
-            }}
-            transition={{ 
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
+            className="font-extrabold bg-gradient-to-r from-violet-800 to-violet-700 bg-clip-text text-transparent"
           >
             AI
           </motion.span> that connects
@@ -74,20 +62,7 @@ export function AnimatedTitle() {
           className="inline-block mr-4"
         >
           <motion.span 
-            className="font-extrabold bg-gradient-to-r from-purple-500 to-purple-400 bg-clip-text text-transparent"
-            animate={{ 
-              textShadow: [
-                '0 0 10px #a855f7',
-                '0 0 20px #a855f7',
-                '0 0 10px #a855f7'
-              ]
-            }}
-            transition={{ 
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 0.5
-            }}
+            className="font-extrabold bg-gradient-to-r from-violet-700 to-violet-600 bg-clip-text text-transparent"
           >
             creators
           </motion.span> and
@@ -98,20 +73,7 @@ export function AnimatedTitle() {
           className="inline-block"
         >
           <motion.span 
-            className="font-extrabold bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent"
-            animate={{ 
-              textShadow: [
-                '0 0 10px #c084fc',
-                '0 0 20px #c084fc',
-                '0 0 10px #c084fc'
-              ]
-            }}
-            transition={{ 
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 1
-            }}
+            className="font-extrabold bg-gradient-to-r from-violet-600 to-violet-500 bg-clip-text text-transparent"
           >
             sponsors
           </motion.span>
