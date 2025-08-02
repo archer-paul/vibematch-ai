@@ -47,6 +47,12 @@ export function AddNetworksModal({ isOpen, onClose, onSave }: AddNetworksModalPr
 
       if (error) throw error;
       
+      // Update the profile in the context/hook if available
+      if (profile) {
+        profile.social_handles = networks;
+        profile.follower_counts = followerCounts;
+      }
+      
       onSave();
       onClose();
     } catch (error) {

@@ -104,14 +104,41 @@ export default function Profile() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8 text-muted-foreground">
-                  No social networks configured.
-                  <br />
-                  <Button variant="outline" className="mt-2" onClick={() => setIsNetworksModalOpen(true)}>
-                    <Network className="mr-2 h-4 w-4" />
-                    Add Networks
-                  </Button>
-                </div>
+                {profile.social_handles && Object.keys(profile.social_handles).length > 0 ? (
+                  <div className="space-y-3">
+                    {Object.entries(profile.social_handles).map(([platform, handle]) => (
+                      <div key={platform} className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                            <Network className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <div className="font-medium capitalize">{platform}</div>
+                            <div className="text-sm text-muted-foreground">@{String(handle)}</div>
+                          </div>
+                        </div>
+                        {profile.follower_counts?.[platform] && (
+                          <Badge variant="outline">
+                            {Number(profile.follower_counts[platform]).toLocaleString()} followers
+                          </Badge>
+                        )}
+                      </div>
+                    ))}
+                    <Button variant="outline" className="w-full mt-4" onClick={() => setIsNetworksModalOpen(true)}>
+                      <Network className="mr-2 h-4 w-4" />
+                      Manage Networks
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No social networks configured.
+                    <br />
+                    <Button variant="outline" className="mt-2" onClick={() => setIsNetworksModalOpen(true)}>
+                      <Network className="mr-2 h-4 w-4" />
+                      Add Networks
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
 

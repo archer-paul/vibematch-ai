@@ -6,6 +6,7 @@ import { Calendar, DollarSign, Users, TrendingUp, Play, Pause, CheckCircle2, Clo
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 import { toast } from '@/hooks/use-toast';
+import { CampaignDetailsModal } from '@/components/modals/CampaignDetailsModal';
 
 interface Campaign {
   id: string;
@@ -21,12 +22,15 @@ interface Campaign {
 
 export default function Campaigns() {
   const { profile } = useAuth();
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   const handleViewDetails = (campaignId: string) => {
-    toast({
-      title: "Campaign Details",
-      description: `Opening detailed view for campaign ${campaignId}`,
-    });
+    const campaign = campaigns.find(c => c.id === campaignId);
+    if (campaign) {
+      setSelectedCampaign(campaign);
+      setIsDetailsModalOpen(true);
+    }
   };
 
   const handleUploadContent = (campaignId: string) => {
@@ -274,6 +278,18 @@ export default function Campaigns() {
           ))}
         </div>
       </div>
+
+      {/* Campaign Details Modal */}
+      <CampaignDetailsModal
+        campaign={selectedCampaign}
+        isOpen={isDetailsModalOpen}
+        onClose={() => {
+          setIsDetailsModalOpen(false);
+          setSelectedCampaign(null);
+        }}
+        onUploadContent={handleUploadContent}
+        onAcceptCampaign={handleAcceptCampaign}
+      />
     </div>
   );
 }

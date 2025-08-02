@@ -1,13 +1,30 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Star, DollarSign, Users, Clock } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Search, Filter, TrendingUp, DollarSign, Clock, Users, Star, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { SendMessageModal } from '@/components/modals/SendMessageModal';
+import { useNotifications } from '@/hooks/useNotifications';
+import { NotificationToast } from '@/components/ui/notification-toast';
 
-const partnerships = [
+interface Partnership {
+  id: number;
+  brand: string;
+  campaign: string;
+  budget: string;
+  category: string;
+  requirements: string;
+  deadline: string;
+  relevance: number;
+  status: string;
+  description: string;
+  tags: string[];
+}
+
+const partnerships: Partnership[] = [
   {
     id: 1,
     brand: 'Nike',
@@ -79,6 +96,10 @@ export default function Market() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('relevance');
+  const [selectedPartnership, setSelectedPartnership] = useState<Partnership | null>(null);
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+  const [applyingPartnerships, setApplyingPartnerships] = useState<Set<number>>(new Set());
+  const { notifications, removeNotification, showSuccess } = useNotifications();
 
   const categories = ['all', 'Sports & Fitness', 'Food & Beverage', 'Fashion', 'Technology', 'Beauty'];
 
@@ -101,8 +122,46 @@ export default function Market() {
       }
     });
 
+  const handleApplyNow = (partnership: Partnership) => {
+    setApplyingPartnerships(prev => new Set(prev).add(partnership.id));
+    
+    // Simulate application process
+    setTimeout(() => {
+      // Success animation and feedback
+      const partnershipElement = document.querySelector(`[data-partnership-id="${partnership.id}"]`);
+      if (partnershipElement) {
+        partnershipElement.classList.add('bg-green-50', 'border-green-200', 'transition-all', 'duration-500');
+      }
+      
+      showSuccess('🎉 Application submitted successfully!');
+      
+      // Remove from applying state and show message modal
+      setTimeout(() => {
+        setApplyingPartnerships(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(partnership.id);
+          return newSet;
+        });
+        
+        setSelectedPartnership(partnership);
+        setIsMessageModalOpen(true);
+      }, 1500);
+    }, 2000);
+  };
+
+  const handleViewDetails = (partnership: Partnership) => {
+    setSelectedPartnership(partnership);
+    setIsMessageModalOpen(true);
+  };
+
+  const handleSendMessage = async (message: string) => {
+    // Simulate sending message
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    showSuccess('Message sent successfully! 📨');
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 py-8 space-y-8">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Partnership Market</h1>
@@ -157,7 +216,7 @@ export default function Market() {
         <TabsContent value="grid" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredPartnerships.map(partnership => (
-              <Card key={partnership.id} className="cursor-pointer hover:shadow-lg transition-shadow">
+              <Card key={partnership.id} data-partnership-id={partnership.id} className="cursor-pointer hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg">{partnership.brand}</CardTitle>
@@ -193,10 +252,26 @@ export default function Market() {
                   </p>
                   
                   <div className="flex gap-2">
-                    <Button className="flex-1" size="sm">
-                      Apply Now
+                    <Button 
+                      className="flex-1" 
+                      size="sm"
+                      onClick={() => handleApplyNow(partnership)}
+                      disabled={applyingPartnerships.has(partnership.id)}
+                    >
+                      {applyingPartnerships.has(partnership.id) ? (
+                        <>
+                          <CheckCircle2 className="mr-2 h-4 w-4 animate-spin" />
+                          Applying...
+                        </>
+                      ) : (
+                        'Apply Now'
+                      )}
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleViewDetails(partnership)}
+                    >
                       Details
                     </Button>
                   </div>
@@ -208,7 +283,7 @@ export default function Market() {
         
         <TabsContent value="list" className="space-y-4">
           {filteredPartnerships.map(partnership => (
-            <Card key={partnership.id}>
+            <Card key={partnership.id} data-partnership-id={partnership.id}>
               <CardContent className="p-6">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                   <div className="flex-1 space-y-2">
@@ -242,8 +317,27 @@ export default function Market() {
                   </div>
                   
                   <div className="flex gap-2">
-                    <Button size="sm">Apply Now</Button>
-                    <Button variant="outline" size="sm">View Details</Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => handleApplyNow(partnership)}
+                      disabled={applyingPartnerships.has(partnership.id)}
+                    >
+                      {applyingPartnerships.has(partnership.id) ? (
+                        <>
+                          <CheckCircle2 className="mr-2 h-4 w-4 animate-spin" />
+                          Applying...
+                        </>
+                      ) : (
+                        'Apply Now'
+                      )}
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleViewDetails(partnership)}
+                    >
+                      View Details
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -251,6 +345,23 @@ export default function Market() {
           ))}
         </TabsContent>
       </Tabs>
+
+      {/* Send Message Modal */}
+      <SendMessageModal
+        partnership={selectedPartnership}
+        isOpen={isMessageModalOpen}
+        onClose={() => {
+          setIsMessageModalOpen(false);
+          setSelectedPartnership(null);
+        }}
+        onSend={handleSendMessage}
+      />
+
+      {/* Notifications */}
+      <NotificationToast 
+        notifications={notifications}
+        onRemove={removeNotification}
+      />
     </div>
   );
 }
