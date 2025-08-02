@@ -37,22 +37,22 @@ export function CursorTrail() {
       mouse.current.x = e.clientX;
       mouse.current.y = e.clientY;
 
-      // Add new particles with more trail density
-      for (let i = 0; i < 5; i++) {
+      // Add new particles with higher density for smoother trail
+      for (let i = 0; i < 8; i++) {
         particles.current.push({
-          x: mouse.current.x + (Math.random() - 0.5) * 15,
-          y: mouse.current.y + (Math.random() - 0.5) * 15,
-          life: 80,
-          maxLife: 80,
-          vx: (Math.random() - 0.5) * 3,
-          vy: (Math.random() - 0.5) * 3,
+          x: mouse.current.x + (Math.random() - 0.5) * 8,
+          y: mouse.current.y + (Math.random() - 0.5) * 8,
+          life: 120,
+          maxLife: 120,
+          vx: (Math.random() - 0.5) * 2,
+          vy: (Math.random() - 0.5) * 2,
           color: colors[Math.floor(Math.random() * colors.length)]
         });
       }
 
       // Limit particles count
-      if (particles.current.length > 100) {
-        particles.current = particles.current.slice(-100);
+      if (particles.current.length > 200) {
+        particles.current = particles.current.slice(-200);
       }
     };
 
@@ -67,37 +67,53 @@ export function CursorTrail() {
         particle.vx *= 0.98;
         particle.vy *= 0.98;
 
-        // Gravity effect towards mouse
+        // Enhanced gravity effect towards mouse
         const dx = mouse.current.x - particle.x;
         const dy = mouse.current.y - particle.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
-        if (distance < 100) {
-          particle.vx += dx * 0.0001;
-          particle.vy += dy * 0.0001;
+        if (distance < 150) {
+          particle.vx += dx * 0.00008;
+          particle.vy += dy * 0.00008;
         }
 
         const alpha = particle.life / particle.maxLife;
-        const size = alpha * 5;
+        const size = alpha * 3; // Smaller, finer particles
 
         ctx.save();
-        ctx.globalAlpha = alpha * 0.9;
+        
+        // Multiple glow layers for more visibility
         ctx.fillStyle = particle.color;
         ctx.shadowColor = particle.color;
-        ctx.shadowBlur = 20;
         
-        // Add outer glow
+        // Outer glow - largest
+        ctx.globalAlpha = alpha * 0.2;
+        ctx.shadowBlur = 30;
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, size * 1.5, 0, Math.PI * 2);
-        ctx.fillStyle = particle.color;
-        ctx.globalAlpha = alpha * 0.3;
+        ctx.arc(particle.x, particle.y, size * 3, 0, Math.PI * 2);
         ctx.fill();
         
-        // Main particle
-        ctx.globalAlpha = alpha * 0.9;
+        // Middle glow
+        ctx.globalAlpha = alpha * 0.4;
+        ctx.shadowBlur = 15;
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, size * 2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Inner glow
+        ctx.globalAlpha = alpha * 0.6;
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, size * 1.2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Core particle - brightest and most visible
+        ctx.globalAlpha = alpha * 0.95;
+        ctx.shadowBlur = 5;
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, size, 0, Math.PI * 2);
         ctx.fill();
+        
         ctx.restore();
 
         return particle.life > 0;

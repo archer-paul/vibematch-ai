@@ -20,88 +20,96 @@ export function useDemoData() {
       user_id: 'demo-user-1',
       full_name: 'Marie Dubois',
       display_name: 'Marie D.',
-      company_name: 'TechStart Innovation',
-      bio: 'Passionnée par les nouvelles technologies et l\'innovation. Je recherche des créateurs authentiques pour promouvoir nos solutions tech auprès d\'une audience engagée.',
-      budget_range: '5000-15000',
-      campaign_objectives: ['Brand Awareness', 'Lead Generation', 'Product Demo', 'Community Building'],
-      preferred_sectors: ['Tech', 'Innovation', 'Startups', 'SaaS', 'IA']
+      company_name: 'Coca-Cola',
+      bio: 'Global Marketing Director at Coca-Cola. Leading innovative campaigns that connect with diverse audiences worldwide through authentic storytelling.',
+      budget_range: '50000-500000',
+      campaign_objectives: ['Brand Awareness', 'Global Reach', 'Cultural Connection', 'Share a Coke'],
+      preferred_sectors: ['Lifestyle', 'Entertainment', 'Music', 'Sports', 'Food & Beverage'],
+      avatar_url: '/logos/Coca-Cola_logo.svg'
     },
     {
       id: 'demo-2',
       user_id: 'demo-user-2',
       full_name: 'Thomas Martin',
       display_name: 'Thomas M.',
-      company_name: 'EcoLife Solutions',
-      bio: 'Entrepreneur engagé dans le développement durable. Nous cherchons des influenceurs qui partagent nos valeurs environnementales pour sensibiliser à l\'écologie.',
-      budget_range: '8000-25000',
-      campaign_objectives: ['Sustainability Education', 'Brand Values', 'Environmental Awareness', 'CSR Communication'],
-      preferred_sectors: ['Écologie', 'Lifestyle', 'Mode Durable', 'Zero Waste', 'Energie Verte']
+      company_name: 'Adidas',
+      bio: 'Head of Influencer Marketing at Adidas. Passionate about partnering with creators who embody our "Impossible is Nothing" spirit.',
+      budget_range: '30000-300000',
+      campaign_objectives: ['Athletic Performance', 'Street Style', 'Sustainability', 'Innovation'],
+      preferred_sectors: ['Sports', 'Fashion', 'Fitness', 'Streetwear', 'Lifestyle'],
+      avatar_url: '/logos/Adidas_Logo.svg'
     },
     {
       id: 'demo-3',
       user_id: 'demo-user-3',
       full_name: 'Sophie Laurent',
       display_name: 'Sophie L.',
-      company_name: 'Beauty & Wellness Co',
-      bio: 'Spécialiste en cosmétiques naturels et bien-être. Recherche des créatrices authentiques dans l\'univers beauté pour promouvoir nos produits clean beauty.',
-      budget_range: '12000-40000',
-      campaign_objectives: ['Product Launch', 'Trust Building', 'Sales Conversion', 'Tutorial Content'],
-      preferred_sectors: ['Beauté', 'Bien-être', 'Lifestyle', 'Skincare', 'Clean Beauty']
+      company_name: 'Apple',
+      bio: 'Senior Brand Partnerships Manager at Apple. Focused on showcasing how Apple products enhance creativity and productivity in daily life.',
+      budget_range: '75000-1000000',
+      campaign_objectives: ['Product Innovation', 'Creative Workflow', 'Productivity', 'Photography'],
+      preferred_sectors: ['Technology', 'Photography', 'Creative', 'Productivity', 'Music'],
+      avatar_url: '/logos/Apple_logo_black.svg'
     },
     {
       id: 'demo-4',
       user_id: 'demo-user-4',
       full_name: 'Alexandre Chen',
       display_name: 'Alex C.',
-      company_name: 'FitTech Pro',
-      bio: 'Co-fondateur d\'une startup fitness tech. Nous développons des applications de coaching personnalisé et cherchons des créateurs fitness pour des partenariats long terme.',
-      budget_range: '15000-50000',
-      campaign_objectives: ['App Downloads', 'User Acquisition', 'Fitness Education', 'Community Growth'],
-      preferred_sectors: ['Fitness', 'Sport', 'Nutrition', 'Wellness', 'Tech']
+      company_name: 'Nike',
+      bio: 'Global Creator Partnerships Lead at Nike. Building relationships with athletes and creators who inspire others to move and achieve greatness.',
+      budget_range: '40000-400000',
+      campaign_objectives: ['Athletic Excellence', 'Just Do It', 'Inspiration', 'Performance'],
+      preferred_sectors: ['Sports', 'Fitness', 'Athletics', 'Motivation', 'Lifestyle'],
+      avatar_url: '/logos/Logo_NIKE.svg'
     },
     {
       id: 'demo-5',
       user_id: 'demo-user-5',
       full_name: 'Camille Rousseau',
       display_name: 'Camille R.',
-      company_name: 'Artisan Food Lab',
-      bio: 'Passionnée de gastronomie et fondatrice d\'une marque de produits artisanaux. Je cherche des créateurs culinaires pour partager notre savoir-faire authentique.',
-      budget_range: '6000-20000',
-      campaign_objectives: ['Recipe Creation', 'Brand Storytelling', 'Product Testing', 'Culinary Education'],
-      preferred_sectors: ['Cuisine', 'Gastronomie', 'Artisanat', 'Terroir', 'Food']
+      company_name: 'Sephora',
+      bio: 'Beauty Partnerships Director at Sephora. Collaborating with beauty creators to showcase inclusive beauty and the latest trends.',
+      budget_range: '25000-200000',
+      campaign_objectives: ['Beauty Education', 'Product Discovery', 'Inclusivity', 'Trends'],
+      preferred_sectors: ['Beauty', 'Makeup', 'Skincare', 'Lifestyle', 'Fashion'],
+      avatar_url: '/logos/Sephora_logo.svg'
     },
     {
       id: 'demo-6',
       user_id: 'demo-user-6',
       full_name: 'David Kim',
       display_name: 'David K.',
-      company_name: 'GameZone Studios',
-      bio: 'Développeur de jeux indépendants. Nous créons des expériences gaming uniques et recherchons des créateurs gaming pour faire découvrir nos titres à leur communauté.',
-      budget_range: '10000-30000',
-      campaign_objectives: ['Game Reviews', 'Streaming Content', 'Community Engagement', 'Launch Campaign'],
-      preferred_sectors: ['Gaming', 'Esports', 'Tech', 'Streaming', 'Entertainment']
+      company_name: 'Netflix',
+      bio: 'Content Partnerships Manager at Netflix. Collaborating with creators to promote our original series and movies to engaged audiences.',
+      budget_range: '60000-600000',
+      campaign_objectives: ['Content Promotion', 'Streaming Growth', 'Audience Engagement', 'Brand Entertainment'],
+      preferred_sectors: ['Entertainment', 'TV Shows', 'Movies', 'Gaming', 'Pop Culture'],
+      avatar_url: '/logos/Netflix_2015_logo.svg'
     },
     {
       id: 'demo-7',
       user_id: 'demo-user-7',
       full_name: 'Laura Santos',
       display_name: 'Laura S.',
-      company_name: 'Travel Memories',
-      bio: 'Agence de voyage spécialisée dans les expériences authentiques. Nous collaborons avec des créateurs voyage pour inspirer et documenter des destinations uniques.',
-      budget_range: '20000-60000',
-      campaign_objectives: ['Destination Marketing', 'Travel Inspiration', 'Experience Documentation', 'Tourism Promotion'],
-      preferred_sectors: ['Voyage', 'Tourisme', 'Culture', 'Adventure', 'Photography']
+      company_name: 'L\'Oréal',
+      bio: 'Global Beauty Innovation Director at L\'Oréal. Leading partnerships with diverse creators to showcase our commitment to beauty for everyone.',
+      budget_range: '45000-450000',
+      campaign_objectives: ['Beauty Innovation', 'Inclusivity', 'Product Education', 'Trend Setting'],
+      preferred_sectors: ['Beauty', 'Skincare', 'Hair Care', 'Fashion', 'Lifestyle'],
+      avatar_url: '/logos/L\'Oréal_logo.svg'
     },
     {
       id: 'demo-8',
       user_id: 'demo-user-8',
       full_name: 'Julien Moreau',
       display_name: 'Julien M.',
-      company_name: 'FinTech Solutions',
-      bio: 'Expert en technologies financières. Nous démocratisons l\'investissement et cherchons des créateurs pour expliquer la finance de manière accessible et pédagogique.',
-      budget_range: '25000-80000',
-      campaign_objectives: ['Financial Education', 'App Promotion', 'Trust Building', 'Compliance Communication'],
-      preferred_sectors: ['Finance', 'Investissement', 'Crypto', 'Education', 'Tech']
+      company_name: 'McDonald\'s',
+      bio: 'Digital Marketing Director at McDonald\'s. Creating engaging campaigns that connect with younger audiences through authentic creator partnerships.',
+      budget_range: '35000-350000',
+      campaign_objectives: ['Brand Engagement', 'Menu Promotion', 'Local Marketing', 'Cultural Relevance'],
+      preferred_sectors: ['Food & Beverage', 'Lifestyle', 'Entertainment', 'Local Culture', 'Gaming'],
+      avatar_url: '/logos/McDonald\'s_SVG_logo.svg'
     }
   ]);
 

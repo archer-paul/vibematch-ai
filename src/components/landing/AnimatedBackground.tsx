@@ -1,23 +1,22 @@
 import { useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { FaInstagram, FaTiktok, FaYoutube, FaTwitter } from 'react-icons/fa';
 
 interface FloatingLogo {
   id: string;
-  icon: string;
-  color: string;
+  logoPath: string;
   x: number;
   y: number;
   rotation: number;
   speed: number;
+  scale: number;
 }
 
 interface CreatorAvatar {
   id: string;
   x: number;
   y: number;
-  emoji: string;
+  avatarPath: string;
   visible: boolean;
+  fadePhase: number;
 }
 
 interface Connection {
@@ -50,31 +49,56 @@ export function AnimatedBackground() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Initialize floating logos with social media icons
-    const socialLogos = [
-      { component: FaInstagram, color: '#E1306C' },
-      { component: FaTiktok, color: '#000000' },
-      { component: FaYoutube, color: '#FF0000' },
-      { component: FaTwitter, color: '#1DA1F2' }
+    // Initialize floating logos with real company logos
+    const companyLogos = [
+      '/logos/Coca-Cola_logo.svg',
+      '/logos/Adidas_Logo.svg',
+      '/logos/Apple_logo_black.svg',
+      '/logos/Logo_NIKE.svg',
+      '/logos/Netflix_2015_logo.svg',
+      '/logos/Sephora_logo.svg',
+      '/logos/L\'Oréal_logo.svg',
+      '/logos/McDonald\'s_SVG_logo.svg',
+      '/logos/PlayStation_logo.svg',
+      '/logos/Samsung_Logo.svg',
+      '/logos/Starbucks_Coffee_Logo.svg',
+      '/logos/Revolut.svg',
+      '/logos/Zara_Logo.svg',
+      '/logos/WWF_logo_2000.svg'
     ];
-    logoPositions.current = socialLogos.map((logo, index) => ({
+    
+    logoPositions.current = companyLogos.map((logoPath, index) => ({
       id: `logo-${index}`,
-      icon: logo.component.name,
-      color: logo.color,
+      logoPath,
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
       rotation: 0,
-      speed: 0.2 + Math.random() * 0.3
+      speed: 0.1 + Math.random() * 0.2,
+      scale: 0.8 + Math.random() * 0.4
     }));
 
-    // Initialize creator avatars with diverse characters
-    const avatarEmojis = ['👩🏻‍💻', '👨🏾‍🎨', '👩🏽‍🎤', '👨🏻‍💼', '👩🏾‍🎨', '👨🏽‍🎵', '👩🏿‍📱', '👨🏻‍🎬', '👩🏽‍💻', '👨🏿‍🎨', '👩🏻‍🎤', '👨🏾‍💼'];
-    avatarPositions.current = avatarEmojis.map((emoji, index) => ({
+    // Initialize creator avatars with memoji-style avatars
+    const avatarPaths = [
+      '/avatars/avatar1.svg',
+      '/avatars/avatar2.svg',
+      '/avatars/avatar3.svg',
+      '/avatars/avatar4.svg',
+      '/avatars/avatar5.svg',
+      '/avatars/avatar6.svg',
+      '/avatars/avatar7.svg',
+      '/avatars/avatar8.svg',
+      '/avatars/avatar9.svg',
+      '/avatars/avatar10.svg',
+      '/avatars/avatar11.svg'
+    ];
+    
+    avatarPositions.current = avatarPaths.map((avatarPath, index) => ({
       id: `avatar-${index}`,
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      emoji,
-      visible: Math.random() > 0.5
+      avatarPath,
+      visible: Math.random() > 0.5,
+      fadePhase: Math.random() * Math.PI * 2
     }));
 
     let time = 0;
@@ -85,33 +109,44 @@ export function AnimatedBackground() {
 
       // Update and draw floating logos
       logoPositions.current.forEach(logo => {
-        logo.x += Math.sin(time * logo.speed) * 0.5;
-        logo.y += Math.cos(time * logo.speed * 0.7) * 0.3;
-        logo.rotation += logo.speed * 0.5;
+        // Slow floating movement
+        logo.x += Math.sin(time * logo.speed) * 0.3;
+        logo.y += Math.cos(time * logo.speed * 0.8) * 0.2;
+        logo.rotation += logo.speed * 0.3; // Slow rotation
 
         // Keep within bounds
-        if (logo.x < -50) logo.x = canvas.width + 50;
-        if (logo.x > canvas.width + 50) logo.x = -50;
-        if (logo.y < -50) logo.y = canvas.height + 50;
-        if (logo.y > canvas.height + 50) logo.y = -50;
+        if (logo.x < -100) logo.x = canvas.width + 100;
+        if (logo.x > canvas.width + 100) logo.x = -100;
+        if (logo.y < -100) logo.y = canvas.height + 100;
+        if (logo.y > canvas.height + 100) logo.y = -100;
 
-        // Draw social media icons
+        // Draw company logos (we'll create a simple representation for canvas)
         ctx.save();
         ctx.translate(logo.x, logo.y);
         ctx.rotate(logo.rotation);
+        ctx.scale(logo.scale, logo.scale);
         
-        // Create icon representation with colors
-        const iconSize = 20;
-        ctx.shadowColor = logo.color || '#8B5CF6';
-        ctx.shadowBlur = 15;
+        const logoSize = 40;
         
-        // Draw icon background
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.fillRect(-iconSize/2, -iconSize/2, iconSize, iconSize);
+        // Create a subtle glow effect
+        ctx.shadowColor = 'rgba(139, 92, 246, 0.6)';
+        ctx.shadowBlur = 20;
         
-        // Draw colored icon representation
-        ctx.fillStyle = logo.color || '#8B5CF6';
-        ctx.fillRect(-iconSize/2 + 2, -iconSize/2 + 2, iconSize - 4, iconSize - 4);
+        // Draw logo background with glassmorphism effect
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = 1;
+        
+        // Rounded rectangle for logo container
+        const radius = 8;
+        ctx.beginPath();
+        ctx.roundRect(-logoSize/2, -logoSize/2, logoSize, logoSize, radius);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Add a subtle inner highlight
+        ctx.fillStyle = 'rgba(139, 92, 246, 0.3)';
+        ctx.fillRect(-logoSize/2 + 4, -logoSize/2 + 4, logoSize - 8, logoSize - 8);
         
         ctx.restore();
       });
@@ -128,16 +163,41 @@ export function AnimatedBackground() {
       // Draw avatars with fade effect
       avatarPositions.current.forEach(avatar => {
         if (avatar.visible) {
-          const alpha = Math.sin(time * 2) * 0.2 + 0.8;
+          avatar.fadePhase += 0.02;
+          const alpha = Math.sin(avatar.fadePhase) * 0.3 + 0.7;
           
           ctx.save();
           ctx.globalAlpha = alpha;
-          ctx.font = '32px Arial';
-          ctx.textAlign = 'center';
-          ctx.fillStyle = '#FFFFFF';
+          
+          const avatarSize = 50;
+          
+          // Create avatar glow
           ctx.shadowColor = '#EC4899';
-          ctx.shadowBlur = 15;
-          ctx.fillText(avatar.emoji, avatar.x, avatar.y);
+          ctx.shadowBlur = 25;
+          
+          // Draw avatar background circle
+          ctx.fillStyle = 'rgba(236, 72, 153, 0.2)';
+          ctx.beginPath();
+          ctx.arc(avatar.x, avatar.y, avatarSize/2 + 5, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Draw avatar container
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+          ctx.beginPath();
+          ctx.arc(avatar.x, avatar.y, avatarSize/2, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Add avatar border
+          ctx.strokeStyle = 'rgba(139, 92, 246, 0.5)';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          
+          // Add inner avatar representation
+          ctx.fillStyle = 'rgba(139, 92, 246, 0.8)';
+          ctx.beginPath();
+          ctx.arc(avatar.x, avatar.y, avatarSize/2 - 6, 0, Math.PI * 2);
+          ctx.fill();
+          
           ctx.restore();
         }
       });
@@ -165,46 +225,91 @@ export function AnimatedBackground() {
         if (connection.progress >= 1 && !connection.completed) {
           connection.completed = true;
           
-          // Lightning effect when connection completes
+          // Enhanced lightning effect when connection completes
           ctx.save();
           ctx.globalCompositeOperation = 'screen';
           
-          // Multiple lightning bolts effect
-          for (let i = 0; i < 3; i++) {
+          // Multiple lightning bolts with trembling effect
+          for (let i = 0; i < 5; i++) {
             setTimeout(() => {
-              ctx.strokeStyle = i % 2 === 0 ? '#EC4899' : '#8B5CF6';
-              ctx.lineWidth = 4 - i;
-              ctx.shadowColor = i % 2 === 0 ? '#EC4899' : '#8B5CF6';
-              ctx.shadowBlur = 40;
+              const colors = ['#EC4899', '#8B5CF6', '#3B82F6', '#F59E0B'];
+              ctx.strokeStyle = colors[i % colors.length];
+              ctx.lineWidth = 6 - i;
+              ctx.shadowColor = colors[i % colors.length];
+              ctx.shadowBlur = 50;
               
-              // Add some randomness to lightning path
-              const midX = (connection.from.x + connection.to.x) / 2 + (Math.random() - 0.5) * 20;
-              const midY = (connection.from.y + connection.to.y) / 2 + (Math.random() - 0.5) * 20;
-              
+              // Create trembling lightning path with multiple segments
+              const segments = 8;
               ctx.beginPath();
               ctx.moveTo(connection.from.x, connection.from.y);
-              ctx.quadraticCurveTo(midX, midY, connection.to.x, connection.to.y);
+              
+              for (let seg = 1; seg <= segments; seg++) {
+                const progress = seg / segments;
+                const baseX = connection.from.x + (connection.to.x - connection.from.x) * progress;
+                const baseY = connection.from.y + (connection.to.y - connection.from.y) * progress;
+                
+                // Add trembling offset
+                const trembleX = baseX + (Math.random() - 0.5) * 30;
+                const trembleY = baseY + (Math.random() - 0.5) * 30;
+                
+                if (seg === segments) {
+                  ctx.lineTo(connection.to.x, connection.to.y);
+                } else {
+                  ctx.lineTo(trembleX, trembleY);
+                }
+              }
+              
               ctx.stroke();
-            }, i * 50);
+              
+              // Add glow effect
+              ctx.globalAlpha = 0.3;
+              ctx.lineWidth = 12;
+              ctx.stroke();
+              
+            }, i * 30);
           }
           
           ctx.restore();
         }
 
-        // Draw connection line
+        // Draw animated connection line with glow
         if (connection.progress <= 1) {
           const currentX = connection.from.x + (connection.to.x - connection.from.x) * connection.progress;
           const currentY = connection.from.y + (connection.to.y - connection.from.y) * connection.progress;
           
           ctx.save();
-          ctx.strokeStyle = `rgba(139, 92, 246, ${0.6 * (1 - connection.progress * 0.5)})`;
-          ctx.lineWidth = 2;
+          
+          // Main line
+          ctx.strokeStyle = `rgba(139, 92, 246, ${0.8 * (1 - connection.progress * 0.3)})`;
+          ctx.lineWidth = 3;
           ctx.shadowColor = '#8B5CF6';
-          ctx.shadowBlur = 10;
+          ctx.shadowBlur = 15;
           ctx.beginPath();
           ctx.moveTo(connection.from.x, connection.from.y);
           ctx.lineTo(currentX, currentY);
           ctx.stroke();
+          
+          // Glow effect
+          ctx.strokeStyle = `rgba(139, 92, 246, ${0.4 * (1 - connection.progress * 0.3)})`;
+          ctx.lineWidth = 8;
+          ctx.shadowBlur = 25;
+          ctx.stroke();
+          
+          // Particles along the line
+          const particleCount = Math.floor(connection.progress * 10);
+          for (let i = 0; i < particleCount; i++) {
+            const particleProgress = (i / particleCount) * connection.progress;
+            const particleX = connection.from.x + (connection.to.x - connection.from.x) * particleProgress;
+            const particleY = connection.from.y + (connection.to.y - connection.from.y) * particleProgress;
+            
+            ctx.fillStyle = 'rgba(236, 72, 153, 0.8)';
+            ctx.shadowColor = '#EC4899';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(particleX, particleY, 2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          
           ctx.restore();
         }
 

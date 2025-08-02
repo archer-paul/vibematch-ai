@@ -47,12 +47,13 @@ export function AnimatedTitle() {
       <motion.h1 className="text-5xl md:text-6xl font-bold text-center">
         <motion.span
           style={{
-            background: `linear-gradient(${gradientPosition}deg, hsl(262 83% 58%), hsl(330 81% 60%), hsl(221 83% 53%), hsl(262 83% 58%))`,
+            background: `linear-gradient(${gradientPosition}deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)), hsl(var(--primary)))`,
             backgroundSize: '300% 300%',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
-            filter: 'drop-shadow(0 0 20px rgba(139, 92, 246, 0.5))'
+            color: 'transparent',
+            filter: 'drop-shadow(0 0 20px hsl(var(--primary) / 0.5))'
           }}
         >
           <motion.span
@@ -60,21 +61,51 @@ export function AnimatedTitle() {
             variants={wordVariants}
             className="inline-block mr-4"
           >
-            <span className="text-blue-400 font-extrabold">AI</span> that connects
+            <span 
+              className="font-extrabold"
+              style={{
+                background: 'linear-gradient(135deg, #3b82f6, #1e40af)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}
+            >
+              AI
+            </span> that connects
           </motion.span>{' '}
           <motion.span
             custom={1}
             variants={wordVariants}
             className="inline-block mr-4"
           >
-            <span className="text-pink-400 font-extrabold">creators</span> and
+            <span 
+              className="font-extrabold"
+              style={{
+                background: 'linear-gradient(135deg, #ec4899, #be185d)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}
+            >
+              creators
+            </span> and
           </motion.span>{' '}
           <motion.span
             custom={2}
             variants={wordVariants}
             className="inline-block"
           >
-            <span className="text-purple-400 font-extrabold">sponsors</span>
+            <span 
+              className="font-extrabold"
+              style={{
+                background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}
+            >
+              sponsors
+            </span>
           </motion.span>
         </motion.span>
       </motion.h1>
