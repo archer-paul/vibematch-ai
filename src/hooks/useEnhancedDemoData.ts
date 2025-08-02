@@ -93,7 +93,7 @@ export function useEnhancedDemoData() {
       budget_range: '$50,000-$500,000',
       campaign_objectives: ['Brand Awareness', 'Global Reach', 'Cultural Connection', 'Share a Coke'],
       preferred_sectors: ['Lifestyle', 'Entertainment', 'Music', 'Sports', 'Food & Beverage'],
-      avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b787?w=150&h=150&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1561424000-3f23e5b9e9c1?w=150&h=150&fit=crop&crop=center'
     },
     {
       id: 'sponsor_2',
@@ -104,7 +104,7 @@ export function useEnhancedDemoData() {
       budget_range: '$30,000-$300,000',
       campaign_objectives: ['Athletic Performance', 'Street Style', 'Sustainability', 'Innovation'],
       preferred_sectors: ['Sports', 'Fashion', 'Fitness', 'Streetwear', 'Lifestyle'],
-      avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=150&h=150&fit=crop&crop=center'
     },
     {
       id: 'sponsor_3',
@@ -115,7 +115,7 @@ export function useEnhancedDemoData() {
       budget_range: '$75,000-$1,000,000',
       campaign_objectives: ['Product Innovation', 'Creative Workflow', 'Productivity', 'Photography'],
       preferred_sectors: ['Technology', 'Photography', 'Creative', 'Productivity', 'Music'],
-      avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=150&h=150&fit=crop&crop=center'
     },
     {
       id: 'sponsor_4',
@@ -126,7 +126,7 @@ export function useEnhancedDemoData() {
       budget_range: '$40,000-$400,000',
       campaign_objectives: ['Athletic Excellence', 'Just Do It', 'Inspiration', 'Performance'],
       preferred_sectors: ['Sports', 'Fitness', 'Athletics', 'Motivation', 'Lifestyle'],
-      avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1542834368-75bf12a62cd7?w=150&h=150&fit=crop&crop=center'
     },
     {
       id: 'sponsor_5',
@@ -137,7 +137,7 @@ export function useEnhancedDemoData() {
       budget_range: '$25,000-$200,000',
       campaign_objectives: ['Beauty Education', 'Product Discovery', 'Inclusivity', 'Trends'],
       preferred_sectors: ['Beauty', 'Makeup', 'Skincare', 'Lifestyle', 'Fashion'],
-      avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=150&h=150&fit=crop&crop=center'
     },
     {
       id: 'sponsor_6',
@@ -148,7 +148,7 @@ export function useEnhancedDemoData() {
       budget_range: '$60,000-$600,000',
       campaign_objectives: ['Sustainability', 'Innovation', 'Technology', 'Future Mobility'],
       preferred_sectors: ['Technology', 'Automotive', 'Sustainability', 'Innovation', 'Travel'],
-      avatar_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face'
+      avatar_url: 'https://images.unsplash.com/photo-1567069114856-9d2b0aa8e7e7?w=150&h=150&fit=crop&crop=center'
     }
   ]);
 

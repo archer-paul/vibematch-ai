@@ -34,9 +34,8 @@ export function ProtectedRoute({ children, requiredUserType, requireOnboarding =
 
   // If user is on onboarding page but has already completed it
   if (!requireOnboarding && profile?.onboarding_completed) {
-    // Redirect creators to matches page, sponsors to dashboard
-    const redirectPath = profile.user_type === 'creator' ? '/matches' : '/dashboard';
-    return <Navigate to={redirectPath} replace />;
+    // Redirect both creators and sponsors to dashboard
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Allow creators to access dashboard directly

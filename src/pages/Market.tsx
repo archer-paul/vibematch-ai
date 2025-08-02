@@ -22,6 +22,17 @@ interface Partnership {
   status: string;
   description: string;
   tags: string[];
+  // Extended details for the details modal
+  detailedDescription?: string;
+  objectives?: string[];
+  deliverables?: string[];
+  timeline?: string[];
+  targetAudience?: string;
+  brandValues?: string[];
+  campaignDuration?: string;
+  contentGuidelines?: string[];
+  exclusivityRequirements?: string;
+  performanceMetrics?: string[];
 }
 
 const partnerships: Partnership[] = [
@@ -36,7 +47,17 @@ const partnerships: Partnership[] = [
     relevance: 95,
     status: 'Active',
     description: 'Promote our new summer sports collection with authentic workout content',
-    tags: ['Sports', 'Fitness', 'Lifestyle']
+    tags: ['Sports', 'Fitness', 'Lifestyle'],
+    detailedDescription: 'Nike is launching its most innovative summer sports collection to date, featuring cutting-edge Dri-FIT technology and sustainable materials. We\'re looking for authentic fitness creators who embody the "Just Do It" spirit to showcase these products in real workout scenarios.',
+    objectives: ['Increase brand awareness among 18-35 fitness enthusiasts', 'Drive sales of summer collection', 'Showcase product performance in real scenarios', 'Build community around active lifestyle'],
+    deliverables: ['3 Instagram posts featuring collection pieces', '2 Instagram Stories workout sessions', '1 YouTube video review/workout', '1 TikTok challenge participation'],
+    timeline: ['Week 1: Product delivery and briefing', 'Week 2-3: Content creation', 'Week 4: Content review and approval', 'Week 5-6: Content publication'],
+    targetAudience: 'Fitness enthusiasts aged 18-35, both beginners and advanced athletes',
+    brandValues: ['Performance Excellence', 'Innovation', 'Sustainability', 'Inclusivity', 'Inspiration'],
+    campaignDuration: '6 weeks',
+    contentGuidelines: ['Authentic workout demonstrations', 'Natural lighting preferred', 'Include performance benefits', 'Show product versatility', 'Maintain positive, motivational tone'],
+    exclusivityRequirements: 'No competing sportswear brand partnerships during campaign period',
+    performanceMetrics: ['Engagement rate (min 4%)', 'Reach metrics', 'Brand mention sentiment', 'Click-through to product pages', 'User-generated content']
   },
   {
     id: 2,

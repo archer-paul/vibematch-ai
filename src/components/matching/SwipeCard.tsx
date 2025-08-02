@@ -7,7 +7,7 @@ interface SponsorProfile {
   id: string;
   user_id: string;
   full_name: string;
-  display_name: string;
+  display_name?: string;
   company_name: string;
   bio: string;
   budget_range: string;
@@ -219,13 +219,23 @@ export function SwipeCard({ sponsor, index, isTop, swipeDirection, onSwipe, anal
         )}
 
         <CardHeader className="text-center pb-4">
-          <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
-            {sponsor.full_name.charAt(0)}
+          <div className="w-24 h-24 mx-auto rounded-full bg-white flex items-center justify-center shadow-lg border-4 border-gray-100 overflow-hidden">
+            {sponsor.avatar_url ? (
+              <img 
+                src={sponsor.avatar_url} 
+                alt={`${sponsor.company_name} logo`}
+                className="w-full h-full object-contain p-2"
+              />
+            ) : (
+              <div className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white text-3xl font-bold w-full h-full flex items-center justify-center">
+                {sponsor.company_name.charAt(0)}
+              </div>
+            )}
           </div>
           <CardTitle className="text-2xl bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text">
-            {sponsor.display_name}
+            {sponsor.company_name}
           </CardTitle>
-          <p className="text-lg text-muted-foreground font-medium">{sponsor.company_name}</p>
+          <p className="text-lg text-muted-foreground font-medium">Global Brand Partnership</p>
         </CardHeader>
 
         <CardContent className="space-y-4 px-6">

@@ -26,10 +26,10 @@ import {
 } from 'lucide-react';
 
 const creatorNavItems = [
-  { title: 'AI Matches', url: '/matches', icon: Sparkles },
   { title: 'Dashboard', url: '/dashboard', icon: Home },
-  { title: 'Campaigns', url: '/campaigns', icon: Briefcase },
-  { title: 'Market', url: '/market', icon: Target },
+  { title: 'AI Matches', url: '/matches', icon: Sparkles },
+  { title: 'My campaigns', url: '/campaigns', icon: Briefcase },
+  { title: 'All Campaigns', url: '/market', icon: Target },
   { title: 'Profile', url: '/profile', icon: Users },
   { title: 'Leaderboard', url: '/leaderboard', icon: Award },
   { title: 'Analytics', url: '/analytics', icon: BarChart3 },

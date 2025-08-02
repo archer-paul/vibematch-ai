@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SponsorDetailsModal } from '@/components/modals/SponsorDetailsModal';
+import { SendMessageModal } from '@/components/modals/SendMessageModal';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -73,6 +74,8 @@ export function RecommendedSponsors() {
   const [filter, setFilter] = useState('all');
   const [selectedSponsor, setSelectedSponsor] = useState<Sponsor | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPartnership, setSelectedPartnership] = useState<any>(null);
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   const [applyingSponsors, setApplyingSponsors] = useState<Set<string>>(new Set());
   const [likedSponsors, setLikedSponsors] = useState<Set<string>>(new Set());
   const { notifications, removeNotification, showLike, showSuccess } = useNotifications();
@@ -120,29 +123,47 @@ export function RecommendedSponsors() {
   };
 
   const handleApply = (sponsorId: string) => {
-    setApplyingSponsors(prev => new Set(prev).add(sponsorId));
-    
-    // Simulate application process
-    setTimeout(() => {
-      // Success animation and feedback
-      const sponsorElement = document.querySelector(`[data-sponsor-id="${sponsorId}"]`);
-      if (sponsorElement) {
-        sponsorElement.classList.add('bg-green-50', 'border-green-200', 'transition-all', 'duration-500');
-      }
+    // Find the sponsor and convert to partnership format
+    const sponsor = sponsors.find(s => s.id === sponsorId);
+    if (sponsor) {
+      const partnership = {
+        id: parseInt(sponsorId),
+        brand: sponsor.name,
+        campaign: sponsor.campaignType,
+        budget: sponsor.budgetRange,
+        category: sponsor.industry,
+        requirements: sponsor.requirements.join(', '),
+        deadline: sponsor.deadline,
+        relevance: sponsor.compatibilityScore,
+        status: 'available',
+        description: sponsor.description,
+        tags: sponsor.requirements
+      };
       
-      showSuccess('🎉 Application submitted successfully! The sponsor will review your profile.');
+      setSelectedPartnership(partnership);
+      setIsMessageModalOpen(true);
+    }
+  };
+
+  const handleSendMessage = async (message: string) => {
+    if (selectedPartnership) {
+      setApplyingSponsors(prev => new Set(prev).add(selectedPartnership.id.toString()));
+      
+      // Simulate sending message
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      showSuccess('🎉 Message sent successfully! The sponsor will review your profile.');
       
       // Remove from applying state and optionally from list
       setTimeout(() => {
         setApplyingSponsors(prev => {
           const newSet = new Set(prev);
-          newSet.delete(sponsorId);
+          newSet.delete(selectedPartnership.id.toString());
           return newSet;
         });
-        // Optionally remove applied sponsor from list
-        setSponsors(prev => prev.filter(s => s.id !== sponsorId));
+        setSponsors(prev => prev.filter(s => s.id !== selectedPartnership.id.toString()));
       }, 1500);
-    }, 2000);
+    }
   };
 
   const getScoreColor = (score: number) => {
@@ -335,6 +356,17 @@ export function RecommendedSponsors() {
           setIsModalOpen(false);
           setSelectedSponsor(null);
         }}
+      />
+
+      {/* Send Message Modal */}
+      <SendMessageModal
+        partnership={selectedPartnership}
+        isOpen={isMessageModalOpen}
+        onClose={() => {
+          setIsMessageModalOpen(false);
+          setSelectedPartnership(null);
+        }}
+        onSend={handleSendMessage}
       />
 
       {/* Notifications */}

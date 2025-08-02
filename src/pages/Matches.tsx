@@ -10,13 +10,13 @@ import { cerebrasService } from '@/services/cerebrasService';
 import { SwipeCard } from '@/components/matching/SwipeCard';
 import { SwipeActions } from '@/components/matching/SwipeActions';
 import { MatchingStats } from '@/components/matching/MatchingStats';
-import { useDemoData } from '@/hooks/useDemoData';
+import { useEnhancedDemoData } from '@/hooks/useEnhancedDemoData';
 
 interface SponsorProfile {
   id: string;
   user_id: string;
   full_name: string;
-  display_name: string;
+  display_name?: string;
   company_name: string;
   bio: string;
   budget_range: string;
@@ -28,7 +28,7 @@ interface SponsorProfile {
 export default function Matches() {
   const { profile } = useAuth();
   const { useSuperLike, canUseSuperLike, getSuperLikesRemaining, quotas } = useGamification();
-  const { getAllSponsors } = useDemoData();
+  const { getAllSponsors } = useEnhancedDemoData();
   const [sponsors, setSponsors] = useState<SponsorProfile[]>([]);
   const [currentSponsorIndex, setCurrentSponsorIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -68,8 +68,11 @@ export default function Matches() {
       const swipedIds = swipedData?.map(s => s.target_id) || [];
       const unswipedSponsors = data?.filter(sponsor => !swipedIds.includes(sponsor.user_id)) || [];
 
-      // Use demo data for better experience
-      const demoSponsors = getAllSponsors();
+      // Use demo data for better experience  
+      const demoSponsors = getAllSponsors().map(sponsor => ({
+        ...sponsor,
+        display_name: sponsor.company_name
+      }));
       const allSponsors = unswipedSponsors.length > 0 ? unswipedSponsors : demoSponsors;
       setSponsors(allSponsors);
       setCurrentSponsorIndex(0);
