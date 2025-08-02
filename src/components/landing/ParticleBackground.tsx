@@ -10,8 +10,13 @@ interface FloatingElement {
   size: number;
   speed: number;
   direction: number;
+  vx: number; // velocity x
+  vy: number; // velocity y
   targetX?: number;
   targetY?: number;
+  connectedUntil?: number; // timestamp when separation should complete
+  avoidanceForceX?: number;
+  avoidanceForceY?: number;
 }
 
 interface ExclusionZone {
@@ -28,7 +33,9 @@ interface Connection {
   progress: number;
   visible: boolean;
   showHeart: boolean;
-  attractionPhase: boolean;
+  heartVisible: boolean;
+  phase: 'approaching' | 'connected' | 'separating' | 'completed';
+  createdAt: number;
 }
 
 export function ParticleBackground() {
@@ -49,6 +56,38 @@ export function ParticleBackground() {
     { x: 20, y: 85, width: 60, height: 10 }
   ], []);
 
+  // Check for collision between two elements
+  const checkCollision = useCallback((element1: FloatingElement, element2: FloatingElement): boolean => {
+    const dx = element1.x - element2.x;
+    const dy = element1.y - element2.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const minDistance = (element1.size + element2.size) / 40; // Convert pixels to percentage
+    return distance < minDistance;
+  }, []);
+
+  // Generate collision avoidance force
+  const getAvoidanceForce = useCallback((element: FloatingElement, others: FloatingElement[]) => {
+    let forceX = 0;
+    let forceY = 0;
+    
+    others.forEach(other => {
+      if (other.id === element.id) return;
+      
+      const dx = element.x - other.x;
+      const dy = element.y - other.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const minDistance = (element.size + other.size) / 30;
+      
+      if (distance < minDistance && distance > 0) {
+        const force = (minDistance - distance) / minDistance;
+        forceX += (dx / distance) * force * 0.5;
+        forceY += (dy / distance) * force * 0.5;
+      }
+    });
+    
+    return { forceX, forceY };
+  }, []);
+
   // Check if position overlaps with exclusion zones
   const isInExclusionZone = useCallback((x: number, y: number): boolean => {
     const zones = getExclusionZones();
@@ -58,8 +97,8 @@ export function ParticleBackground() {
     );
   }, [getExclusionZones]);
 
-  // Generate safe position avoiding exclusion zones
-  const generateSafePosition = useCallback((): { x: number; y: number } => {
+  // Generate safe position avoiding exclusion zones and other elements
+  const generateSafePosition = useCallback((existingElements: FloatingElement[] = [], elementSize: number = 50): { x: number; y: number } => {
     let attempts = 0;
     let x: number, y: number;
     
@@ -67,16 +106,37 @@ export function ParticleBackground() {
       x = 10 + Math.random() * 80; // Stay within 10-90% range
       y = 10 + Math.random() * 80;
       attempts++;
-    } while (isInExclusionZone(x, y) && attempts < 20);
+      
+      // Check collision with existing elements
+      const collision = existingElements.some(existing => {
+        const dx = x - existing.x;
+        const dy = y - existing.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const minDistance = (elementSize + existing.size) / 25; // Minimum distance in percentage
+        return distance < minDistance;
+      });
+      
+      if (!collision && !isInExclusionZone(x, y)) {
+        break;
+      }
+    } while (attempts < 30);
     
-    // If we can't find a safe spot, place on edges
-    if (attempts >= 20) {
-      const edge = Math.floor(Math.random() * 4);
-      switch (edge) {
-        case 0: x = 5; y = 20 + Math.random() * 60; break; // Left
-        case 1: x = 95; y = 20 + Math.random() * 60; break; // Right
-        case 2: x = 20 + Math.random() * 60; y = 5; break; // Top
-        case 3: x = 20 + Math.random() * 60; y = 95; break; // Bottom
+    // If we can't find a safe spot, use grid-based distribution
+    if (attempts >= 30) {
+      const gridSize = 6;
+      const cellWidth = 80 / gridSize;
+      const cellHeight = 80 / gridSize;
+      const gridIndex = existingElements.length % (gridSize * gridSize);
+      const gridX = gridIndex % gridSize;
+      const gridY = Math.floor(gridIndex / gridSize);
+      
+      x = 10 + gridX * cellWidth + cellWidth / 2;
+      y = 10 + gridY * cellHeight + cellHeight / 2;
+      
+      // Avoid exclusion zones in grid placement
+      if (isInExclusionZone(x, y)) {
+        x = x < 50 ? 5 : 95;
+        y = 20 + Math.random() * 60;
       }
     }
     
@@ -108,45 +168,56 @@ export function ParticleBackground() {
     ];
 
     // Initialize floating elements in safe positions
-    const initialElements: FloatingElement[] = [
-      ...logos.map((src, index) => {
-        const position = generateSafePosition();
-        return {
-          id: `logo-${index}`,
-          type: 'logo' as const,
-          src,
-          x: position.x,
-          y: position.y,
-          size: 50,
-          speed: 0.05 + Math.random() * 0.05,
-          direction: Math.random() * Math.PI * 2
-        };
-      }),
-      ...avatars.map((src, index) => {
-        const position = generateSafePosition();
-        return {
-          id: `avatar-${index}`,
-          type: 'avatar' as const,
-          src,
-          x: position.x,
-          y: position.y,
-          size: 80,
-          speed: 0.03 + Math.random() * 0.05,
-          direction: Math.random() * Math.PI * 2
-        };
-      })
-    ];
+    const initialElements: FloatingElement[] = [];
+    
+    // Add logos with collision avoidance
+    logos.forEach((src, index) => {
+      const position = generateSafePosition(initialElements, 50);
+      initialElements.push({
+        id: `logo-${index}`,
+        type: 'logo' as const,
+        src,
+        x: position.x,
+        y: position.y,
+        size: 50,
+        speed: 0.02 + Math.random() * 0.03,
+        direction: Math.random() * Math.PI * 2,
+        vx: 0,
+        vy: 0
+      });
+    });
+    
+    // Add avatars with collision avoidance
+    avatars.forEach((src, index) => {
+      const position = generateSafePosition(initialElements, 80);
+      initialElements.push({
+        id: `avatar-${index}`,
+        type: 'avatar' as const,
+        src,
+        x: position.x,
+        y: position.y,
+        size: 80,
+        speed: 0.015 + Math.random() * 0.025,
+        direction: Math.random() * Math.PI * 2,
+        vx: 0,
+        vy: 0
+      });
+    });
 
     setElements(initialElements);
   }, [generateSafePosition]);
 
-  // Optimized connection creation system
+  // Enhanced connection creation system
   const createConnection = useCallback(() => {
     const now = Date.now();
-    if (now - lastConnectionTime.current < 8000) return; // Throttle connections
+    if (now - lastConnectionTime.current < 6000) return; // Reduced throttle time
     
     setElements(currentElements => {
       setConnections(prevConnections => {
+        // Only create new connections if we have fewer than 2 active ones
+        const activeConnections = prevConnections.filter(conn => conn.phase !== 'completed');
+        if (activeConnections.length >= 2) return prevConnections;
+        
         const logoElements = currentElements.filter(el => el.type === 'logo');
         const avatarElements = currentElements.filter(el => el.type === 'avatar');
         
@@ -154,26 +225,26 @@ export function ParticleBackground() {
           return prevConnections;
         }
 
-        // Find best connection using relative distance calculation
+        // Find best connection pair
         let bestPair = null;
-        let shortestRelativeDistance = Infinity;
+        let shortestDistance = Infinity;
         
         for (const logo of logoElements) {
           for (const avatar of avatarElements) {
-            // Use percentage-based distance calculation
-            const dx = Math.abs(logo.x - avatar.x);
-            const dy = Math.abs(logo.y - avatar.y);
-            const relativeDistance = Math.sqrt(dx * dx + dy * dy);
+            const dx = logo.x - avatar.x;
+            const dy = logo.y - avatar.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
             
-            // Skip if connection already exists
-            const connectionExists = prevConnections.some(conn => 
-              (conn.from.id === logo.id && conn.to.id === avatar.id) ||
-              (conn.from.id === avatar.id && conn.to.id === logo.id)
+            // Skip if either element is recently connected
+            const recentlyConnected = prevConnections.some(conn => 
+              now - conn.createdAt < 8000 && (
+                conn.from.id === logo.id || conn.to.id === avatar.id ||
+                conn.from.id === avatar.id || conn.to.id === logo.id
+              )
             );
             
-            // Use relative threshold (percentage-based)
-            if (relativeDistance < shortestRelativeDistance && !connectionExists && relativeDistance < 30) {
-              shortestRelativeDistance = relativeDistance;
+            if (distance < shortestDistance && !recentlyConnected && distance < 35) {
+              shortestDistance = distance;
               bestPair = { logo, avatar };
             }
           }
@@ -188,11 +259,12 @@ export function ParticleBackground() {
             progress: 0,
             visible: true,
             showHeart: false,
-            attractionPhase: false
+            heartVisible: false,
+            phase: 'approaching',
+            createdAt: now
           };
           
-          // Keep only the latest 2 connections
-          return [...prevConnections.slice(-1), newConnection];
+          return [...prevConnections.filter(conn => conn.phase !== 'completed'), newConnection];
         }
         
         return prevConnections;
@@ -214,46 +286,75 @@ export function ParticleBackground() {
     return () => clearTimeout(connectionTimer);
   }, [elements.length, createConnection]);
 
-  // Optimized connection animation
+  // Enhanced connection animation with phases
   useEffect(() => {
     const animateConnections = () => {
+      const now = Date.now();
+      
       setConnections(prev => 
         prev.map(conn => {
-          const newProgress = Math.min(conn.progress + 0.012, 1);
-          const newShowHeart = newProgress >= 0.95 && !conn.showHeart;
-          const newAttractionPhase = newProgress >= 0.8;
+          let newProgress = conn.progress;
+          let newPhase = conn.phase;
+          let newShowHeart = conn.showHeart;
+          let newHeartVisible = conn.heartVisible;
+          
+          if (conn.phase === 'approaching') {
+            newProgress = Math.min(conn.progress + 0.008, 1);
+            if (newProgress >= 1) {
+              newPhase = 'connected';
+              newShowHeart = true;
+              newHeartVisible = true;
+            }
+          } else if (conn.phase === 'connected') {
+            // Stay connected for 1.5 seconds
+            if (now - conn.createdAt > 3000) {
+              newPhase = 'separating';
+              newHeartVisible = false;
+            }
+          } else if (conn.phase === 'separating') {
+            // Separation phase lasts 1 second
+            if (now - conn.createdAt > 4000) {
+              newPhase = 'completed';
+            }
+          }
           
           return {
             ...conn,
             progress: newProgress,
-            showHeart: newShowHeart || conn.showHeart,
-            attractionPhase: newAttractionPhase
+            phase: newPhase,
+            showHeart: newShowHeart,
+            heartVisible: newHeartVisible
           };
-        }).filter(conn => conn.progress < 1.5) // Remove completed connections faster
+        }).filter(conn => conn.phase !== 'completed' || now - conn.createdAt < 5000)
       );
     };
 
-    const interval = setInterval(animateConnections, 80);
+    const interval = setInterval(animateConnections, 60);
     return () => clearInterval(interval);
   }, []);
 
-  // Optimized floating animation with exclusion zone avoidance
+  // Enhanced physics-based animation system
   useEffect(() => {
-    const floatElements = () => {
+    const updateElements = () => {
+      const now = Date.now();
+      
       setConnections(currentConnections => {
-        setElements(prev =>
-          prev.map(element => {
-            let newX = element.x;
-            let newY = element.y;
+        setElements(prev => {
+          return prev.map(element => {
+            let newVx = element.vx;
+            let newVy = element.vy;
             
-            // Gentle base movement
-            const time = Date.now() * 0.0001;
-            const baseMovementX = Math.cos(element.direction + time * element.speed) * 0.008;
-            const baseMovementY = Math.sin(element.direction + time * element.speed) * 0.008;
+            // Base drift movement
+            const time = now * 0.0001;
+            const driftX = Math.cos(element.direction + time * element.speed) * 0.003;
+            const driftY = Math.sin(element.direction + time * element.speed) * 0.003;
             
-            // Check for attraction to connected elements
+            newVx += driftX;
+            newVy += driftY;
+            
+            // Connection-based forces
             const activeConnection = currentConnections.find(conn => 
-              conn.attractionPhase && (conn.from.id === element.id || conn.to.id === element.id)
+              conn.from.id === element.id || conn.to.id === element.id
             );
             
             if (activeConnection) {
@@ -262,52 +363,77 @@ export function ParticleBackground() {
               const dy = other.y - element.y;
               const distance = Math.sqrt(dx * dx + dy * dy);
               
-              if (distance > 1) {
-                newX += dx * 0.01;
-                newY += dy * 0.01;
-              }
-            } else {
-              // Normal floating with exclusion zone avoidance
-              newX += baseMovementX;
-              newY += baseMovementY;
-              
-              // Push away from exclusion zones
-              if (isInExclusionZone(newX, newY)) {
-                const zones = getExclusionZones();
-                for (const zone of zones) {
-                  const centerX = zone.x + zone.width / 2;
-                  const centerY = zone.y + zone.height / 2;
-                  const dx = newX - centerX;
-                  const dy = newY - centerY;
-                  const distance = Math.sqrt(dx * dx + dy * dy);
-                  
-                  if (distance < zone.width / 2 + 5) {
-                    newX += (dx / distance) * 0.5;
-                    newY += (dy / distance) * 0.5;
-                  }
+              if (activeConnection.phase === 'approaching') {
+                // Attraction force
+                if (distance > 2) {
+                  const force = 0.004;
+                  newVx += (dx / distance) * force;
+                  newVy += (dy / distance) * force;
+                }
+              } else if (activeConnection.phase === 'separating') {
+                // Separation force
+                if (distance < 25) {
+                  const force = 0.006;
+                  newVx -= (dx / distance) * force;
+                  newVy -= (dy / distance) * force;
                 }
               }
             }
             
-            // Keep elements within safe bounds
-            newX = Math.max(5, Math.min(95, newX));
-            newY = Math.max(5, Math.min(95, newY));
+            // Collision avoidance
+            const { forceX, forceY } = getAvoidanceForce(element, prev);
+            newVx += forceX * 0.002;
+            newVy += forceY * 0.002;
+            
+            // Exclusion zone avoidance
+            if (isInExclusionZone(element.x, element.y)) {
+              const zones = getExclusionZones();
+              for (const zone of zones) {
+                const centerX = zone.x + zone.width / 2;
+                const centerY = zone.y + zone.height / 2;
+                const dx = element.x - centerX;
+                const dy = element.y - centerY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < zone.width / 2 + 8) {
+                  const force = 0.008;
+                  newVx += (dx / distance) * force;
+                  newVy += (dy / distance) * force;
+                }
+              }
+            }
+            
+            // Boundary repulsion
+            if (element.x < 8) newVx += 0.002;
+            if (element.x > 92) newVx -= 0.002;
+            if (element.y < 8) newVy += 0.002;
+            if (element.y > 92) newVy -= 0.002;
+            
+            // Apply damping
+            newVx *= 0.95;
+            newVy *= 0.95;
+            
+            // Update position
+            let newX = Math.max(5, Math.min(95, element.x + newVx));
+            let newY = Math.max(5, Math.min(95, element.y + newVy));
             
             return {
               ...element,
               x: newX,
               y: newY,
-              direction: element.direction + (Math.random() - 0.5) * 0.003
+              vx: newVx,
+              vy: newVy,
+              direction: element.direction + (Math.random() - 0.5) * 0.002
             };
-          })
-        );
+          });
+        });
         return currentConnections;
       });
     };
 
-    const interval = setInterval(floatElements, 150);
+    const interval = setInterval(updateElements, 80);
     return () => clearInterval(interval);
-  }, [isInExclusionZone, getExclusionZones]);
+  }, [getAvoidanceForce, isInExclusionZone, getExclusionZones]);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
@@ -375,7 +501,7 @@ export function ParticleBackground() {
         </motion.div>
       ))}
 
-      {/* Enhanced connection lines */}
+      {/* Enhanced connection lines with white styling */}
       <svg className="absolute inset-0 w-full h-full">
         {connections.map((connection) => {
           if (typeof window === 'undefined') return null;
@@ -388,9 +514,9 @@ export function ParticleBackground() {
           const currentX = fromX + (toX - fromX) * connection.progress;
           const currentY = fromY + (toY - fromY) * connection.progress;
           
-          // Heart position at actual connection endpoint
-          const heartX = toX;
-          const heartY = toY;
+          // Heart position at center of connection line
+          const heartX = fromX + (toX - fromX) * 0.5;
+          const heartY = fromY + (toY - fromY) * 0.5;
 
           return (
             <g key={connection.id}>
@@ -399,68 +525,54 @@ export function ParticleBackground() {
                 y1={fromY}
                 x2={currentX}
                 y2={currentY}
-                stroke="url(#connectionGradient)"
-                strokeWidth="3"
+                stroke="white"
+                strokeWidth="1.5"
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={{ 
                   pathLength: connection.progress,
-                  opacity: connection.visible ? 0.8 : 0,
-                  strokeDasharray: connection.attractionPhase ? "12,6" : "0,0"
+                  opacity: connection.visible ? 0.7 : 0
                 }}
                 transition={{ 
-                  duration: 0.2,
+                  duration: 0.3,
                   ease: "easeInOut"
                 }}
                 style={{
-                  filter: connection.attractionPhase ? 'drop-shadow(0 0 12px #8b5cf6)' : 'drop-shadow(0 0 6px rgba(139, 92, 246, 0.6))'
+                  filter: 'drop-shadow(0 0 4px rgba(255, 255, 255, 0.3))'
                 }}
               />
               
-              {/* Enhanced heart animation only when connection is truly established */}
-              {connection.showHeart && connection.progress >= 0.95 && (
+              {/* White outlined heart animation */}
+              {connection.heartVisible && connection.phase === 'connected' && (
                 <motion.g
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ 
-                    scale: [0, 1.8, 1.2, 1.4, 1],
-                    opacity: [0, 1, 1, 0.9, 0],
-                    y: [0, -15, -30]
+                    scale: connection.heartVisible ? [0, 1.5, 1] : [1, 0],
+                    opacity: connection.heartVisible ? [0, 1, 0.8] : [0.8, 0]
                   }}
                   transition={{ 
-                    duration: 2.5,
+                    duration: connection.heartVisible ? 1.2 : 0.8,
                     ease: "easeOut"
                   }}
                 >
-                  <circle
-                    cx={heartX}
-                    cy={heartY}
-                    r="25"
-                    fill="rgba(236, 72, 153, 0.1)"
-                    stroke="#ec4899"
+                  {/* Heart shape using path */}
+                  <path
+                    d={`M${heartX},${heartY + 4} 
+                        C${heartX},${heartY - 2} ${heartX - 8},${heartY - 6} ${heartX - 8},${heartY - 2}
+                        C${heartX - 8},${heartY + 2} ${heartX},${heartY + 8} ${heartX},${heartY + 8}
+                        C${heartX},${heartY + 8} ${heartX + 8},${heartY + 2} ${heartX + 8},${heartY - 2}
+                        C${heartX + 8},${heartY - 6} ${heartX},${heartY - 2} ${heartX},${heartY + 4} Z`}
+                    fill="none"
+                    stroke="white"
                     strokeWidth="2"
-                    opacity="0.6"
+                    style={{
+                      filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.6))'
+                    }}
                   />
-                  <text
-                    x={heartX}
-                    y={heartY + 4}
-                    textAnchor="middle"
-                    fontSize="24"
-                    fill="#ec4899"
-                    style={{ filter: 'drop-shadow(0 0 4px rgba(236, 72, 153, 0.8))' }}
-                  >
-                    ❤️
-                  </text>
                 </motion.g>
               )}
             </g>
           );
         })}
-        <defs>
-          <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.9" />
-            <stop offset="50%" stopColor="#ec4899" stopOpacity="1" />
-            <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.9" />
-          </linearGradient>
-        </defs>
       </svg>
     </div>
   );
