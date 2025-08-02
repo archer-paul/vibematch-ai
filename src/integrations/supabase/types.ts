@@ -198,6 +198,33 @@ export type Database = {
         }
         Relationships: []
       }
+      conversations: {
+        Row: {
+          created_at: string
+          creator_id: string | null
+          id: string
+          sponsor_id: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id?: string | null
+          id?: string
+          sponsor_id?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string | null
+          id?: string
+          sponsor_id?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       creator_analytics: {
         Row: {
           audience_demographics: Json | null
@@ -293,6 +320,44 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string | null
+          created_at: string
+          id: string
+          message_type: string | null
+          read_at: string | null
+          sender_id: string | null
+        }
+        Insert: {
+          content: string
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          message_type?: string | null
+          read_at?: string | null
+          sender_id?: string | null
+        }
+        Update: {
+          content?: string
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          message_type?: string | null
+          read_at?: string | null
+          sender_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
