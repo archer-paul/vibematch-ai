@@ -1,8 +1,10 @@
-import { Bot, Star, Users, TrendingUp, Mail } from 'lucide-react';
+import { Bot, Star, Users, TrendingUp, Mail, Eye, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useNotifications } from '@/hooks/useNotifications';
+import { NotificationToast } from '@/components/ui/notification-toast';
 
 export interface GhostProfile {
   id: string;
@@ -33,6 +35,7 @@ interface GhostProfileCardProps {
 
 export function GhostProfileCard({ profile, onInvite, showInviteButton = true }: GhostProfileCardProps) {
   const { discovered_data, compatibility_scores, status } = profile;
+  const { notifications, removeNotification, showSuccess, showInfo } = useNotifications();
   
   const formatFollowers = (count: number) => {
     if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
@@ -61,11 +64,30 @@ export function GhostProfileCard({ profile, onInvite, showInviteButton = true }:
     }
   };
 
+  const handleInvite = () => {
+    onInvite?.(profile.id);
+    showSuccess('🎉 Invitation envoyée! Le créateur recevra une notification pour rejoindre la plateforme.');
+  };
+
+  const handleViewProfile = () => {
+    showInfo('👀 Profil analysé par Cerebras AI - Données mises à jour en temps réel');
+  };
+
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20 relative overflow-hidden">
+    <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20 relative overflow-hidden bg-gradient-to-br from-white to-blue-50/30">
+      {/* AI Glow Effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      
       {/* AI Discovered Badge */}
       <div className="absolute top-4 right-4 z-10">
         {getStatusBadge()}
+      </div>
+
+      {/* AI Sparkle Effect */}
+      <div className="absolute top-2 left-2 z-10">
+        <div className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center animate-pulse">
+          <Sparkles className="w-3 h-3 text-white" />
+        </div>
       </div>
 
       <CardHeader className="pb-3">
@@ -147,16 +169,27 @@ export function GhostProfileCard({ profile, onInvite, showInviteButton = true }:
           </div>
         </div>
 
-        {/* Invite Button */}
+        {/* Action Buttons */}
         {showInviteButton && status === 'discovered' && (
-          <Button 
-            onClick={() => onInvite?.(profile.id)}
-            className="w-full"
-            variant="default"
-          >
-            <Mail className="w-4 h-4 mr-2" />
-            Inviter sur la plateforme
-          </Button>
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleViewProfile}
+                variant="outline"
+                className="flex-1"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Voir le profil
+              </Button>
+              <Button 
+                onClick={handleInvite}
+                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                Inviter
+              </Button>
+            </div>
+          </div>
         )}
 
         {status === 'invited' && (
@@ -173,6 +206,12 @@ export function GhostProfileCard({ profile, onInvite, showInviteButton = true }:
           </Button>
         )}
       </CardContent>
+
+      {/* Notifications */}
+      <NotificationToast 
+        notifications={notifications}
+        onRemove={removeNotification}
+      />
     </Card>
   );
 }

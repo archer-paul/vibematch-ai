@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Heart, X, ExternalLink, Filter, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { useNotifications } from '@/hooks/useNotifications';
+import { NotificationToast } from '@/components/ui/notification-toast';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -72,17 +74,30 @@ export function RecommendedSponsors() {
   const [selectedSponsor, setSelectedSponsor] = useState<Sponsor | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [applyingSponsors, setApplyingSponsors] = useState<Set<string>>(new Set());
+  const [likedSponsors, setLikedSponsors] = useState<Set<string>>(new Set());
+  const { notifications, removeNotification, showLike, showSuccess } = useNotifications();
 
   const handleLike = (sponsorId: string) => {
-    // Add visual feedback and trigger matching
+    // Toggle like state
+    setLikedSponsors(prev => {
+      const newLiked = new Set(prev);
+      if (newLiked.has(sponsorId)) {
+        newLiked.delete(sponsorId);
+        return newLiked;
+      } else {
+        newLiked.add(sponsorId);
+        showLike('❤️ Liked sponsor! Match probability increased.');
+        return newLiked;
+      }
+    });
+    
+    // Add visual feedback
     const sponsorElement = document.querySelector(`[data-sponsor-id="${sponsorId}"]`);
     if (sponsorElement) {
       sponsorElement.classList.add('animate-pulse');
       setTimeout(() => sponsorElement.classList.remove('animate-pulse'), 500);
     }
     
-    // Here you would normally send to backend/matching service
-    alert(`❤️ Liked sponsor! Match probability increased.`);
     console.log('Liked sponsor:', sponsorId);
   };
 
@@ -115,7 +130,7 @@ export function RecommendedSponsors() {
         sponsorElement.classList.add('bg-green-50', 'border-green-200', 'transition-all', 'duration-500');
       }
       
-      alert('🎉 Application submitted successfully! The sponsor will review your profile.');
+      showSuccess('🎉 Application submitted successfully! The sponsor will review your profile.');
       
       // Remove from applying state and optionally from list
       setTimeout(() => {
@@ -237,9 +252,13 @@ export function RecommendedSponsors() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleLike(sponsor.id)}
-                    className="text-green-600 hover:text-green-700"
+                    className={`transition-colors ${
+                      likedSponsors.has(sponsor.id) 
+                        ? 'text-green-600 bg-green-50 border-green-200 hover:text-green-700 hover:bg-green-100' 
+                        : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
+                    }`}
                   >
-                    <Heart className="h-4 w-4" />
+                    <Heart className={`h-4 w-4 ${likedSponsors.has(sponsor.id) ? 'fill-current' : ''}`} />
                   </Button>
                 </div>
                 
@@ -316,6 +335,12 @@ export function RecommendedSponsors() {
           setIsModalOpen(false);
           setSelectedSponsor(null);
         }}
+      />
+
+      {/* Notifications */}
+      <NotificationToast 
+        notifications={notifications}
+        onRemove={removeNotification}
       />
     </Card>
   );

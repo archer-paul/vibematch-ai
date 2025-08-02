@@ -1,12 +1,22 @@
+import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Edit, MapPin, Globe, Users, Building2 } from 'lucide-react';
+import { Edit, MapPin, Globe, Users, Building2, Network, Tags } from 'lucide-react';
+import { EditProfileModal } from '@/components/modals/EditProfileModal';
+import { AddNetworksModal } from '@/components/modals/AddNetworksModal';
+import { AddCategoriesModal } from '@/components/modals/AddCategoriesModal';
+import { useNotifications } from '@/hooks/useNotifications';
+import { NotificationToast } from '@/components/ui/notification-toast';
 
 export default function Profile() {
   const { profile } = useAuth();
+  const { notifications, removeNotification, showSuccess } = useNotifications();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isNetworksModalOpen, setIsNetworksModalOpen] = useState(false);
+  const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
 
   if (!profile) {
     return (
@@ -73,7 +83,7 @@ export default function Profile() {
                 </div>
               </div>
               
-              <Button onClick={() => alert('Edit profile functionality coming soon!')}>
+              <Button onClick={() => setIsEditModalOpen(true)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Profile
               </Button>
@@ -97,7 +107,8 @@ export default function Profile() {
                 <div className="text-center py-8 text-muted-foreground">
                   No social networks configured.
                   <br />
-                  <Button variant="outline" className="mt-2" onClick={() => alert('Add social networks functionality coming soon!')}>
+                  <Button variant="outline" className="mt-2" onClick={() => setIsNetworksModalOpen(true)}>
+                    <Network className="mr-2 h-4 w-4" />
                     Add Networks
                   </Button>
                 </div>
@@ -124,7 +135,8 @@ export default function Profile() {
                   <div className="text-center py-8 text-muted-foreground">
                     No categories selected.
                     <br />
-                    <Button variant="outline" className="mt-2" onClick={() => alert('Add categories functionality coming soon!')}>
+                    <Button variant="outline" className="mt-2" onClick={() => setIsCategoriesModalOpen(true)}>
+                      <Tags className="mr-2 h-4 w-4" />
                       Add Categories
                     </Button>
                   </div>
@@ -186,7 +198,7 @@ export default function Profile() {
                   <div className="text-center py-8 text-muted-foreground">
                     No objectives defined.
                     <br />
-                    <Button variant="outline" className="mt-2" onClick={() => alert('Define objectives functionality coming soon!')}>
+                    <Button variant="outline" className="mt-2" onClick={() => showSuccess('Cette fonctionnalité sera bientôt disponible!')}>
                       Define Objectives
                     </Button>
                   </div>
@@ -247,6 +259,29 @@ export default function Profile() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modals */}
+      <EditProfileModal 
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={() => showSuccess('Profil mis à jour avec succès!')}
+      />
+      <AddNetworksModal 
+        isOpen={isNetworksModalOpen} 
+        onClose={() => setIsNetworksModalOpen(false)}
+        onSave={() => showSuccess('Réseaux sociaux mis à jour!')}
+      />
+      <AddCategoriesModal 
+        isOpen={isCategoriesModalOpen} 
+        onClose={() => setIsCategoriesModalOpen(false)}
+        onSave={() => showSuccess('Catégories mises à jour!')}
+      />
+
+      {/* Notifications */}
+      <NotificationToast 
+        notifications={notifications}
+        onRemove={removeNotification}
+      />
     </div>
   );
 }
