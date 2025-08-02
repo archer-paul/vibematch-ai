@@ -18,6 +18,8 @@ interface Connection {
   to: FloatingElement;
   progress: number;
   visible: boolean;
+  showHeart: boolean;
+  attractionPhase: boolean;
 }
 
 export function ParticleBackground() {
@@ -53,7 +55,7 @@ export function ParticleBackground() {
         src,
         x: Math.random() * 80 + 10, // 10-90% of screen width
         y: Math.random() * 80 + 10, // 10-90% of screen height
-        size: 40 + Math.random() * 20,
+        size: 35 + Math.random() * 15,
         speed: 0.5 + Math.random() * 0.5,
         direction: Math.random() * Math.PI * 2
       })),
@@ -63,7 +65,7 @@ export function ParticleBackground() {
         src,
         x: Math.random() * 80 + 10,
         y: Math.random() * 80 + 10,
-        size: 50 + Math.random() * 20,
+        size: 70 + Math.random() * 30,
         speed: 0.3 + Math.random() * 0.4,
         direction: Math.random() * Math.PI * 2
       }))
@@ -85,7 +87,9 @@ export function ParticleBackground() {
           from: logo,
           to: avatar,
           progress: 0,
-          visible: true
+          visible: true,
+          showHeart: false,
+          attractionPhase: false
         };
         
         setConnections(prev => [...prev.slice(-2), newConnection]); // Keep max 3 connections
@@ -103,10 +107,18 @@ export function ParticleBackground() {
     // Animate connections
     const animateConnections = () => {
       setConnections(prev => 
-        prev.map(conn => ({
-          ...conn,
-          progress: Math.min(conn.progress + 0.02, 1)
-        })).filter(conn => conn.progress < 1.2) // Remove completed connections
+        prev.map(conn => {
+          const newProgress = Math.min(conn.progress + 0.02, 1);
+          const newShowHeart = newProgress >= 0.8 && !conn.showHeart;
+          const newAttractionPhase = newProgress >= 0.6;
+          
+          return {
+            ...conn,
+            progress: newProgress,
+            showHeart: newShowHeart || conn.showHeart,
+            attractionPhase: newAttractionPhase
+          };
+        }).filter(conn => conn.progress < 1.5) // Remove completed connections
       );
     };
 
@@ -115,21 +127,43 @@ export function ParticleBackground() {
   }, []);
 
   useEffect(() => {
-    // Float elements
+    // Float elements with attraction logic
     const floatElements = () => {
       setElements(prev =>
-        prev.map(element => ({
-          ...element,
-          x: element.x + Math.cos(element.direction + Date.now() * 0.001 * element.speed) * 0.1,
-          y: element.y + Math.sin(element.direction + Date.now() * 0.001 * element.speed) * 0.1,
-          direction: element.direction + (Math.random() - 0.5) * 0.02
-        }))
+        prev.map(element => {
+          let newX = element.x + Math.cos(element.direction + Date.now() * 0.001 * element.speed) * 0.1;
+          let newY = element.y + Math.sin(element.direction + Date.now() * 0.001 * element.speed) * 0.1;
+          
+          // Check if element is part of an active connection in attraction phase
+          const activeConnection = connections.find(conn => 
+            conn.attractionPhase && (conn.from.id === element.id || conn.to.id === element.id)
+          );
+          
+          if (activeConnection) {
+            const other = activeConnection.from.id === element.id ? activeConnection.to : activeConnection.from;
+            const dx = other.x - element.x;
+            const dy = other.y - element.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance > 5) {
+              newX += dx * 0.02;
+              newY += dy * 0.02;
+            }
+          }
+          
+          return {
+            ...element,
+            x: newX,
+            y: newY,
+            direction: element.direction + (Math.random() - 0.5) * 0.02
+          };
+        })
       );
     };
 
     const interval = setInterval(floatElements, 100);
     return () => clearInterval(interval);
-  }, []);
+  }, [connections]);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
@@ -157,7 +191,7 @@ export function ParticleBackground() {
             <img 
               src={element.src} 
               alt="Company logo" 
-              className="w-6 h-6 object-contain opacity-80"
+              className="w-5 h-5 object-contain opacity-80"
               style={{ filter: 'brightness(0) invert(1)' }}
             />
           </div>
@@ -189,7 +223,7 @@ export function ParticleBackground() {
             <img 
               src={element.src} 
               alt="Creator avatar" 
-              className="w-8 h-8 object-contain"
+              className="w-12 h-12 object-contain"
             />
           </div>
         </motion.div>
@@ -205,6 +239,10 @@ export function ParticleBackground() {
           
           const currentX = fromX + (toX - fromX) * connection.progress;
           const currentY = fromY + (toY - fromY) * connection.progress;
+          
+          // Heart position at midpoint when connection is complete
+          const heartX = (fromX + toX) / 2;
+          const heartY = (fromY + toY) / 2;
 
           return (
             <g key={connection.id}>
@@ -214,41 +252,64 @@ export function ParticleBackground() {
                 x2={currentX}
                 y2={currentY}
                 stroke="url(#connectionGradient)"
-                strokeWidth="2"
+                strokeWidth="3"
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={{ 
                   pathLength: connection.progress,
-                  opacity: connection.visible ? 0.8 : 0
+                  opacity: connection.visible ? 0.8 : 0,
+                  strokeDasharray: connection.attractionPhase ? "5,5" : "0,0"
                 }}
-                transition={{ duration: 0.1 }}
+                transition={{ 
+                  duration: 0.1,
+                  strokeDasharray: { duration: 0.3 }
+                }}
+                style={{
+                  filter: connection.attractionPhase ? 'drop-shadow(0 0 6px #ec4899)' : 'none'
+                }}
               />
-              {/* Animated particles along connection */}
-              {Array.from({ length: Math.floor(connection.progress * 5) }).map((_, i) => (
-                <motion.circle
-                  key={i}
-                  cx={fromX + (toX - fromX) * (i / 5) * connection.progress}
-                  cy={fromY + (toY - fromY) * (i / 5) * connection.progress}
-                  r="2"
-                  fill="#8b5cf6"
-                  animate={{
-                    opacity: [0, 1, 0],
-                    r: [1, 3, 1]
+              
+              {/* Heart animation when connection completes */}
+              {connection.showHeart && (
+                <motion.g
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ 
+                    scale: [0, 1.2, 1],
+                    opacity: [0, 1, 0.8],
+                    rotate: [0, 360]
                   }}
-                  transition={{
+                  transition={{ 
                     duration: 1,
-                    repeat: Infinity,
-                    delay: i * 0.2
+                    ease: "easeOut"
                   }}
-                />
-              ))}
+                >
+                  <circle
+                    cx={heartX}
+                    cy={heartY}
+                    r="15"
+                    fill="none"
+                    stroke="#ec4899"
+                    strokeWidth="2"
+                    opacity="0.6"
+                  />
+                  <text
+                    x={heartX}
+                    y={heartY + 2}
+                    textAnchor="middle"
+                    fontSize="16"
+                    fill="#ec4899"
+                  >
+                    ❤️
+                  </text>
+                </motion.g>
+              )}
             </g>
           );
         })}
         <defs>
           <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.2" />
-            <stop offset="50%" stopColor="#ec4899" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.2" />
+            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.3" />
+            <stop offset="50%" stopColor="#ec4899" stopOpacity="1" />
+            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.3" />
           </linearGradient>
         </defs>
       </svg>

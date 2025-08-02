@@ -51,12 +51,12 @@ export function AnimatedTitle() {
           className="inline-block mr-4"
         >
           <motion.span 
-            className="font-extrabold text-blue-400"
+            className="font-extrabold bg-gradient-to-r from-purple-600 to-purple-500 bg-clip-text text-transparent"
             animate={{ 
               textShadow: [
-                '0 0 10px #3b82f6',
-                '0 0 20px #3b82f6',
-                '0 0 10px #3b82f6'
+                '0 0 10px #7c3aed',
+                '0 0 20px #7c3aed',
+                '0 0 10px #7c3aed'
               ]
             }}
             transition={{ 
@@ -74,12 +74,12 @@ export function AnimatedTitle() {
           className="inline-block mr-4"
         >
           <motion.span 
-            className="font-extrabold text-pink-400"
+            className="font-extrabold bg-gradient-to-r from-purple-500 to-purple-400 bg-clip-text text-transparent"
             animate={{ 
               textShadow: [
-                '0 0 10px #ec4899',
-                '0 0 20px #ec4899',
-                '0 0 10px #ec4899'
+                '0 0 10px #a855f7',
+                '0 0 20px #a855f7',
+                '0 0 10px #a855f7'
               ]
             }}
             transition={{ 
@@ -98,12 +98,12 @@ export function AnimatedTitle() {
           className="inline-block"
         >
           <motion.span 
-            className="font-extrabold text-purple-400"
+            className="font-extrabold bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent"
             animate={{ 
               textShadow: [
-                '0 0 10px #8b5cf6',
-                '0 0 20px #8b5cf6',
-                '0 0 10px #8b5cf6'
+                '0 0 10px #c084fc',
+                '0 0 20px #c084fc',
+                '0 0 10px #c084fc'
               ]
             }}
             transition={{ 
