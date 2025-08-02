@@ -52,19 +52,18 @@ export function ParticleBackground() {
   const animationFrameRef = useRef<number>();
   const connectionDebounce = useRef<{ [key: string]: number }>({});
 
-  // Simplified exclusion zones for key UI areas
+  // Minimal exclusion zones with smaller areas
   const getExclusionZones = useCallback((): ExclusionZone[] => [
-    { id: 'header', x: 0, y: 0, width: 100, height: 12, buffer: 2 },
-    { id: 'hero-title', x: 15, y: 15, width: 70, height: 15, buffer: 2 },
-    { id: 'hero-buttons', x: 25, y: 35, width: 50, height: 6, buffer: 2 },
-    { id: 'features-grid', x: 10, y: 50, width: 80, height: 20, buffer: 2 },
-    { id: 'how-it-works-cards', x: 15, y: 75, width: 70, height: 15, buffer: 2 }
+    { id: 'header', x: 20, y: 0, width: 60, height: 8, buffer: 1 },
+    { id: 'hero-title', x: 25, y: 20, width: 50, height: 10, buffer: 1 },
+    { id: 'hero-buttons', x: 35, y: 35, width: 30, height: 4, buffer: 1 }
   ], []);
 
-  // Simplified preferred zones for element attraction
+  // Balanced preferred zones with weaker attraction
   const getPreferredZones = useCallback((): PreferredZone[] => [
-    { id: 'left-sidebar', x: 0, y: 15, width: 12, height: 70, attraction: 0.2 },
-    { id: 'right-sidebar', x: 88, y: 15, width: 12, height: 70, attraction: 0.2 }
+    { id: 'left-area', x: 5, y: 20, width: 20, height: 60, attraction: 0.1 },
+    { id: 'right-area', x: 75, y: 20, width: 20, height: 60, attraction: 0.1 },
+    { id: 'center-bottom', x: 30, y: 70, width: 40, height: 25, attraction: 0.15 }
   ], []);
 
   // Simple collision detection
@@ -205,81 +204,78 @@ export function ParticleBackground() {
     setElements(initialElements);
   }, [generateSafePosition]);
 
-  // Simplified connection creation between logos
-  const createConnection = useCallback(() => {
+  // Enhanced connection creation with better logic
+  const createConnection = useCallback((currentElements: FloatingElement[]) => {
     const now = Date.now();
-    if (now - lastConnectionTime.current < 3000) return;
+    if (now - lastConnectionTime.current < 2000) return;
     
-    setElements(currentElements => {
-      setConnections(prevConnections => {
-        const activeConnections = prevConnections.filter(conn => 
-          conn.phase !== 'completed' && now - conn.createdAt < 8000
-        );
-        
-        if (activeConnections.length >= 2) return prevConnections;
-        
-        const availableElements = currentElements.filter(el => 
-          !activeConnections.some(conn => conn.fromId === el.id || conn.toId === el.id)
-        );
-        
-        if (availableElements.length < 2) return prevConnections;
+    setConnections(prevConnections => {
+      const activeConnections = prevConnections.filter(conn => 
+        conn.phase !== 'completed' && now - conn.createdAt < 6000
+      );
+      
+      if (activeConnections.length >= 3) return prevConnections;
+      
+      const availableElements = currentElements.filter(el => 
+        !activeConnections.some(conn => conn.fromId === el.id || conn.toId === el.id)
+      );
+      
+      if (availableElements.length < 2) return prevConnections;
 
-        // Find closest pair of elements
-        let bestPair = null;
-        let shortestDistance = Infinity;
-        
-        for (let i = 0; i < availableElements.length; i++) {
-          for (let j = i + 1; j < availableElements.length; j++) {
-            const element1 = availableElements[i];
-            const element2 = availableElements[j];
-            
-            const dx = element1.x - element2.x;
-            const dy = element1.y - element2.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            if (distance < shortestDistance && distance < 25) {
-              shortestDistance = distance;
-              bestPair = { from: element1, to: element2 };
-            }
+      // Find any reasonable pair within distance
+      let bestPair = null;
+      let shortestDistance = Infinity;
+      
+      for (let i = 0; i < availableElements.length; i++) {
+        for (let j = i + 1; j < availableElements.length; j++) {
+          const element1 = availableElements[i];
+          const element2 = availableElements[j];
+          
+          const dx = element1.x - element2.x;
+          const dy = element1.y - element2.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < shortestDistance && distance < 35) {
+            shortestDistance = distance;
+            bestPair = { from: element1, to: element2 };
           }
         }
+      }
+      
+      if (bestPair) {
+        lastConnectionTime.current = now;
         
-        if (bestPair) {
-          lastConnectionTime.current = now;
-          
-          const newConnection: Connection = {
-            id: `connection-${now}-${Math.random()}`,
-            fromId: bestPair.from.id,
-            toId: bestPair.to.id,
-            progress: 0,
-            visible: true,
-            showHeart: false,
-            heartVisible: false,
-            phase: 'approaching',
-            createdAt: now
-          };
-          
-          return [...activeConnections, newConnection];
-        }
+        const newConnection: Connection = {
+          id: `connection-${now}-${Math.random()}`,
+          fromId: bestPair.from.id,
+          toId: bestPair.to.id,
+          progress: 0,
+          visible: true,
+          showHeart: false,
+          heartVisible: false,
+          phase: 'approaching',
+          createdAt: now
+        };
         
-        return prevConnections;
-      });
-      return currentElements;
+        return [...activeConnections, newConnection];
+      }
+      
+      return prevConnections;
     });
   }, []);
 
-  // Connection management
+  // Connection management with current elements
   useEffect(() => {
     if (elements.length === 0) return;
 
     const connectionTimer = setTimeout(() => {
-      createConnection();
-      const interval = setInterval(createConnection, 5000);
+      createConnection(elements);
+      const interval = setInterval(() => createConnection(elements), 3000);
       return () => clearInterval(interval);
     }, 1000);
 
     return () => clearTimeout(connectionTimer);
-  }, [elements.length, createConnection]);
+  }, [elements, createConnection]);
 
   // Simple connection animation
   useEffect(() => {
@@ -352,7 +348,7 @@ export function ParticleBackground() {
           newVx += zoneForceX;
           newVy += zoneForceY;
           
-          // Exclusion zone avoidance
+          // Gentle exclusion zone avoidance
           if (isInExclusionZone(element.x, element.y, element.size)) {
             const zones = getExclusionZones();
             for (const zone of zones) {
@@ -363,19 +359,19 @@ export function ParticleBackground() {
               const distance = Math.sqrt(dx * dx + dy * dy);
               
               if (distance > 0) {
-                const force = 0.008;
+                const force = 0.002; // Much weaker force
                 newVx += (dx / distance) * force;
                 newVy += (dy / distance) * force;
               }
             }
           }
           
-          // Boundary repulsion
-          const margin = 5;
-          if (element.x < margin) newVx += (margin - element.x) * 0.002;
-          if (element.x > 100 - margin) newVx -= (element.x - (100 - margin)) * 0.002;
-          if (element.y < margin) newVy += (margin - element.y) * 0.002;
-          if (element.y > 100 - margin) newVy -= (element.y - (100 - margin)) * 0.002;
+          // Gentle boundary repulsion
+          const margin = 8;
+          if (element.x < margin) newVx += (margin - element.x) * 0.001;
+          if (element.x > 100 - margin) newVx -= (element.x - (100 - margin)) * 0.001;
+          if (element.y < margin) newVy += (margin - element.y) * 0.001;
+          if (element.y > 100 - margin) newVy -= (element.y - (100 - margin)) * 0.001;
           
           // Apply damping for smooth movement
           newVx *= 0.95;
@@ -432,8 +428,16 @@ export function ParticleBackground() {
             <img 
               src={element.src} 
               alt="Company logo" 
-              className="w-full h-full object-contain opacity-60"
-              style={{ filter: 'brightness(0) invert(1)' }}
+              className="w-full h-full object-contain opacity-70"
+              style={{ 
+                filter: 'brightness(0) invert(1) drop-shadow(0 0 8px rgba(255, 255, 255, 0.3))',
+                maxWidth: '100%',
+                maxHeight: '100%'
+              }}
+              onError={(e) => {
+                console.warn('Failed to load logo:', element.src);
+                e.currentTarget.style.display = 'none';
+              }}
             />
           </div>
         </motion.div>
