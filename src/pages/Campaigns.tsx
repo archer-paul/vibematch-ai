@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Calendar, DollarSign, Users, TrendingUp, Play, Pause, CheckCircle2, Clock } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useState } from 'react';
+import { toast } from '@/hooks/use-toast';
 
 interface Campaign {
   id: string;
@@ -19,6 +21,27 @@ interface Campaign {
 
 export default function Campaigns() {
   const { profile } = useAuth();
+
+  const handleViewDetails = (campaignId: string) => {
+    toast({
+      title: "Campaign Details",
+      description: `Opening detailed view for campaign ${campaignId}`,
+    });
+  };
+
+  const handleUploadContent = (campaignId: string) => {
+    toast({
+      title: "Upload Content", 
+      description: `Opening content upload for campaign ${campaignId}`,
+    });
+  };
+
+  const handleAcceptCampaign = (campaignId: string) => {
+    toast({
+      title: "Campaign Accepted",
+      description: `Successfully accepted campaign ${campaignId}`,
+    });
+  };
 
   const campaigns: Campaign[] = [
     {
@@ -162,7 +185,7 @@ export default function Campaigns() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">Active Campaigns</h2>
-          <Button>View All Opportunities</Button>
+          <Button onClick={() => window.location.href = '/market'}>View All Opportunities</Button>
         </div>
 
         <div className="grid gap-6">
@@ -214,10 +237,10 @@ export default function Campaigns() {
                 </div>
 
                 <div className="flex gap-2 pt-2">
-                  <Button size="sm">View Details</Button>
-                  <Button size="sm" variant="outline">Upload Content</Button>
+                  <Button size="sm" onClick={() => handleViewDetails(campaign.id)}>View Details</Button>
+                  <Button size="sm" variant="outline" onClick={() => handleUploadContent(campaign.id)}>Upload Content</Button>
                   {campaign.status === 'pending' && (
-                    <Button size="sm" variant="outline">Accept Campaign</Button>
+                    <Button size="sm" variant="outline" onClick={() => handleAcceptCampaign(campaign.id)}>Accept Campaign</Button>
                   )}
                 </div>
               </CardContent>

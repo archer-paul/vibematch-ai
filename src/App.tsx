@@ -21,6 +21,7 @@ import Messages from "./pages/Messages";
 import Settings from "./pages/Settings";
 import Analytics from "./pages/Analytics";
 import Campaigns from "./pages/Campaigns";
+import Market from "./pages/Market";
 
 const queryClient = new QueryClient();
 
@@ -125,6 +126,14 @@ const App = () => (
               <ProtectedRoute>
                 <AppLayout>
                   <Campaigns />
+                </AppLayout>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/market" element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <Market />
                 </AppLayout>
               </ProtectedRoute>
             } />

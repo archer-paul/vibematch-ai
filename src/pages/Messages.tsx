@@ -78,16 +78,35 @@ export default function Messages() {
   const [selectedConversation, setSelectedConversation] = useState<string>('1');
   const [newMessage, setNewMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [messages, setMessages] = useState<Message[]>(mockMessages);
+  const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
 
   const handleSendMessage = () => {
     if (newMessage.trim()) {
-      // Here you would typically send the message to your backend
-      console.log('Sending message:', newMessage);
+      const newMsg: Message = {
+        id: Date.now().toString(),
+        sender: 'You',
+        content: newMessage,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      
+      setMessages([...messages, newMsg]);
       setNewMessage('');
+      
+      // Update conversation with latest message
+      const updatedConversations = conversations.map(conv => 
+        conv.id === selectedConversation ? { 
+          ...conv, 
+          lastMessage: newMessage,
+          timestamp: 'now',
+          unread: 0 
+        } : conv
+      );
+      setConversations(updatedConversations);
     }
   };
 
-  const filteredConversations = mockConversations.filter(conv =>
+  const filteredConversations = conversations.filter(conv =>
     conv.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -172,7 +191,7 @@ export default function Messages() {
           {/* Messages */}
           <CardContent className="flex-1 overflow-y-auto p-4">
             <div className="space-y-4">
-              {mockMessages.map((message) => (
+              {messages.map((message) => (
                 <div
                   key={message.id}
                   className={`flex ${message.sender === 'You' ? 'justify-end' : 'justify-start'}`}
