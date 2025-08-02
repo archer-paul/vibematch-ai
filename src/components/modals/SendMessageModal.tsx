@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -28,8 +28,18 @@ interface SendMessageModalProps {
 }
 
 export function SendMessageModal({ partnership, isOpen, onClose, onSend }: SendMessageModalProps) {
-  const [message, setMessage] = useState('');
+  const defaultMessage = partnership ? 
+    `Hi there!\n\nI'm interested in your "${partnership.campaign}" campaign. I believe my content style and audience would be a great fit for this collaboration.\n\nI'd love to discuss how we can work together to achieve your campaign goals.\n\nLooking forward to hearing from you!\n\nBest regards` : '';
+  
+  const [message, setMessage] = useState(defaultMessage);
   const [isSending, setIsSending] = useState(false);
+
+  // Reset message when partnership changes or modal opens
+  useEffect(() => {
+    if (partnership && isOpen) {
+      setMessage(defaultMessage);
+    }
+  }, [partnership, isOpen, defaultMessage]);
 
   const handleSend = async () => {
     if (!message.trim()) return;
@@ -43,9 +53,6 @@ export function SendMessageModal({ partnership, isOpen, onClose, onSend }: SendM
       setIsSending(false);
     }
   };
-
-  const defaultMessage = partnership ? 
-    `Hi there!\n\nI'm interested in your "${partnership.campaign}" campaign. I believe my content style and audience would be a great fit for this collaboration.\n\nI'd love to discuss how we can work together to achieve your campaign goals.\n\nLooking forward to hearing from you!\n\nBest regards` : '';
 
   if (!partnership) return null;
 
@@ -87,7 +94,7 @@ export function SendMessageModal({ partnership, isOpen, onClose, onSend }: SendM
             <label className="text-sm font-medium">Your Message</label>
             <Textarea
               placeholder="Write your message..."
-              value={message || defaultMessage}
+              value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={8}
               className="resize-none"
