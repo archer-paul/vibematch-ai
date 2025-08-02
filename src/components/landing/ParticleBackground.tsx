@@ -40,15 +40,14 @@ interface Connection {
   createdAt: number;
 }
 
-const GRID_COLS = 8;
-const GRID_ROWS = 6;
+// Remove rigid grid system for more natural movement
+const TARGET_ELEMENTS = 24; // 12 logos + 12 avatars for better density
 
 export function ParticleBackground() {
   const [elements, setElements] = useState<FloatingElement[]>([]);
   const [connections, setConnections] = useState<Connection[]>([]);
   const lastConnectionTime = useRef(0);
   const animationFrameRef = useRef<number>();
-  const gridOccupancy = useRef<boolean[][]>(Array(GRID_ROWS).fill(null).map(() => Array(GRID_COLS).fill(false)));
 
   // Smaller exclusion zones for UI elements
   const getExclusionZones = useCallback((): ExclusionZone[] => [
@@ -57,7 +56,7 @@ export function ParticleBackground() {
     { id: 'hero-buttons', x: 35, y: 32, width: 30, height: 8, buffer: 2 }
   ], []);
 
-  // Enhanced repulsion force to prevent clustering
+  // Reduced repulsion force to allow closer proximity
   const getRepulsionForce = useCallback((element: FloatingElement, others: FloatingElement[]) => {
     let forceX = 0;
     let forceY = 0;
@@ -68,10 +67,10 @@ export function ParticleBackground() {
       const dx = element.x - other.x;
       const dy = element.y - other.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
-      const minDistance = 15; // Minimum distance between elements
+      const minDistance = 8; // Reduced minimum distance
       
       if (distance < minDistance && distance > 0) {
-        const force = ((minDistance - distance) / minDistance) * 0.8;
+        const force = ((minDistance - distance) / minDistance) * 0.3; // Reduced force
         const normalizedX = dx / distance;
         const normalizedY = dy / distance;
         
@@ -81,6 +80,24 @@ export function ParticleBackground() {
     });
     
     return { forceX, forceY };
+  }, []);
+
+  // Central attraction force to prevent edge clustering
+  const getCentralAttraction = useCallback((element: FloatingElement) => {
+    const centerX = 50;
+    const centerY = 50;
+    const dx = centerX - element.x;
+    const dy = centerY - element.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    
+    if (distance > 0) {
+      const force = Math.min(distance / 1000, 0.002); // Very gentle attraction
+      return {
+        forceX: (dx / distance) * force,
+        forceY: (dy / distance) * force
+      };
+    }
+    return { forceX: 0, forceY: 0 };
   }, []);
 
   // Check if position is in exclusion zone
@@ -94,26 +111,23 @@ export function ParticleBackground() {
     );
   }, [getExclusionZones]);
 
-  // Get grid position for uniform distribution
-  const getGridPosition = useCallback((gridX: number, gridY: number) => {
-    const cellWidth = 100 / GRID_COLS;
-    const cellHeight = 100 / GRID_ROWS;
+  // Generate random position avoiding exclusion zones
+  const getRandomPosition = useCallback(() => {
+    let attempts = 0;
+    let position;
     
-    const x = (gridX * cellWidth) + (cellWidth / 2) + (Math.random() - 0.5) * (cellWidth * 0.6);
-    const y = (gridY * cellHeight) + (cellHeight / 2) + (Math.random() - 0.5) * (cellHeight * 0.6);
+    do {
+      position = {
+        x: 10 + Math.random() * 80, // Stay away from edges
+        y: 10 + Math.random() * 80
+      };
+      attempts++;
+    } while (isInExclusionZone(position.x, position.y) && attempts < 20);
     
-    return { x: Math.max(5, Math.min(95, x)), y: Math.max(5, Math.min(95, y)) };
-  }, []);
+    return position;
+  }, [isInExclusionZone]);
 
-  // Generate waypoint for chaotic movement
-  const generateWaypoint = useCallback(() => {
-    return {
-      x: 10 + Math.random() * 80,
-      y: 10 + Math.random() * 80
-    };
-  }, []);
-
-  // Initialize elements with 50/50 mix of logos and avatars
+  // Initialize elements with improved distribution and more avatars
   useEffect(() => {
     const logos = [
       '/logos/Coca-Cola_logo.svg',
@@ -123,7 +137,11 @@ export function ParticleBackground() {
       '/logos/Netflix_2015_logo.svg',
       '/logos/Sephora_logo.svg',
       '/logos/L\'Oréal_logo.svg',
-      '/logos/Revolut.svg'
+      '/logos/Revolut.svg',
+      '/logos/McDonald\'s_SVG_logo.svg',
+      '/logos/PlayStation_logo.svg',
+      '/logos/Samsung_Logo.svg',
+      '/logos/Starbucks_Coffee_Logo.svg'
     ];
 
     const avatars = [
@@ -134,92 +152,77 @@ export function ParticleBackground() {
       '/avatars/avatar5.svg',
       '/avatars/avatar6.svg',
       '/avatars/avatar7.svg',
-      '/avatars/avatar8.svg'
+      '/avatars/avatar8.svg',
+      '/avatars/avatar9.svg',
+      '/avatars/avatar10.svg',
+      '/avatars/avatar11.svg',
+      '/avatars/avatar1.svg' // Repeat some for more avatars
     ];
 
     const initialElements: FloatingElement[] = [];
-    gridOccupancy.current = Array(GRID_ROWS).fill(null).map(() => Array(GRID_COLS).fill(false));
 
-    // Add logos
-    logos.forEach((src, index) => {
-      let gridX, gridY;
-      do {
-        gridX = Math.floor(Math.random() * GRID_COLS);
-        gridY = Math.floor(Math.random() * GRID_ROWS);
-      } while (gridOccupancy.current[gridY][gridX]);
+    // Add 12 logos with random positioning
+    for (let i = 0; i < 12; i++) {
+      const src = logos[i % logos.length];
+      const position = getRandomPosition();
+      
+      initialElements.push({
+        id: `logo-${i}`,
+        type: 'logo',
+        src,
+        x: position.x,
+        y: position.y,
+        size: 32, // Slightly smaller logos
+        speed: 0.025 + Math.random() * 0.04,
+        direction: Math.random() * Math.PI * 2,
+        vx: (Math.random() - 0.5) * 0.04, // More initial velocity
+        vy: (Math.random() - 0.5) * 0.04,
+        collisionRadius: 40,
+        waypoint: undefined, // Remove waypoints for simpler movement
+        directionChangeTimer: 800 + Math.random() * 1200, // Faster direction changes
+        gridX: 0,
+        gridY: 0
+      });
+    }
 
-      gridOccupancy.current[gridY][gridX] = true;
-      const position = getGridPosition(gridX, gridY);
-
-      // Skip if in exclusion zone
-      if (!isInExclusionZone(position.x, position.y)) {
-        initialElements.push({
-          id: `logo-${index}`,
-          type: 'logo',
-          src,
-          x: position.x,
-          y: position.y,
-          size: 35,
-          speed: 0.02 + Math.random() * 0.03,
-          direction: Math.random() * Math.PI * 2,
-          vx: (Math.random() - 0.5) * 0.02,
-          vy: (Math.random() - 0.5) * 0.02,
-          collisionRadius: 45,
-          waypoint: generateWaypoint(),
-          directionChangeTimer: 2000 + Math.random() * 3000,
-          gridX,
-          gridY
-        });
-      }
-    });
-
-    // Add avatars
-    avatars.forEach((src, index) => {
-      let gridX, gridY;
-      do {
-        gridX = Math.floor(Math.random() * GRID_COLS);
-        gridY = Math.floor(Math.random() * GRID_ROWS);
-      } while (gridOccupancy.current[gridY][gridX]);
-
-      gridOccupancy.current[gridY][gridX] = true;
-      const position = getGridPosition(gridX, gridY);
-
-      // Skip if in exclusion zone
-      if (!isInExclusionZone(position.x, position.y)) {
-        initialElements.push({
-          id: `avatar-${index}`,
-          type: 'avatar',
-          src,
-          x: position.x,
-          y: position.y,
-          size: 40,
-          speed: 0.015 + Math.random() * 0.025,
-          direction: Math.random() * Math.PI * 2,
-          vx: (Math.random() - 0.5) * 0.015,
-          vy: (Math.random() - 0.5) * 0.015,
-          collisionRadius: 50,
-          waypoint: generateWaypoint(),
-          directionChangeTimer: 1500 + Math.random() * 2500,
-          gridX,
-          gridY
-        });
-      }
-    });
+    // Add 12 avatars with random positioning (larger size)
+    for (let i = 0; i < 12; i++) {
+      const src = avatars[i % avatars.length];
+      const position = getRandomPosition();
+      
+      initialElements.push({
+        id: `avatar-${i}`,
+        type: 'avatar',
+        src,
+        x: position.x,
+        y: position.y,
+        size: 58, // Significantly larger avatars (was 40)
+        speed: 0.02 + Math.random() * 0.035,
+        direction: Math.random() * Math.PI * 2,
+        vx: (Math.random() - 0.5) * 0.035,
+        vy: (Math.random() - 0.5) * 0.035,
+        collisionRadius: 65,
+        waypoint: undefined,
+        directionChangeTimer: 600 + Math.random() * 1000, // Even faster changes
+        gridX: 0,
+        gridY: 0
+      });
+    }
 
     setElements(initialElements);
-  }, [getGridPosition, generateWaypoint, isInExclusionZone]);
+  }, [getRandomPosition]);
 
-  // Enhanced connection creation - allow far connections
+  // Improved connection creation with better success rate
   const createConnection = useCallback((currentElements: FloatingElement[]) => {
     const now = Date.now();
-    if (now - lastConnectionTime.current < 1500) return;
+    if (now - lastConnectionTime.current < 800) return; // More frequent attempts
     
     setConnections(prevConnections => {
       const activeConnections = prevConnections.filter(conn => 
-        conn.phase !== 'completed' && now - conn.createdAt < 8000
+        conn.phase !== 'completed' && now - conn.createdAt < 6000 // Shorter connection lifespan
       );
       
-      if (activeConnections.length >= 4) return prevConnections;
+      if (activeConnections.length >= 6) return prevConnections; // Allow more simultaneous connections
       
       const availableElements = currentElements.filter(el => 
         !activeConnections.some(conn => conn.fromId === el.id || conn.toId === el.id)
@@ -227,25 +230,25 @@ export function ParticleBackground() {
       
       if (availableElements.length < 2) return prevConnections;
 
-      // Allow connections across much larger distances
+      // More aggressive connection finding
       let bestPair = null;
-      let attempts = 0;
+      let bestDistance = Infinity;
       
-      while (attempts < 10 && !bestPair) {
-        const element1 = availableElements[Math.floor(Math.random() * availableElements.length)];
-        const element2 = availableElements[Math.floor(Math.random() * availableElements.length)];
-        
-        if (element1.id !== element2.id) {
+      for (let i = 0; i < availableElements.length && !bestPair; i++) {
+        for (let j = i + 1; j < availableElements.length; j++) {
+          const element1 = availableElements[i];
+          const element2 = availableElements[j];
+          
           const dx = element1.x - element2.x;
           const dy = element1.y - element2.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
           
-          // Much larger connection distance to show app's far-reaching connections
-          if (distance < 80 && distance > 20) {
+          // Increased connection range for more connections
+          if (distance < 90 && distance > 10 && distance < bestDistance) {
             bestPair = { from: element1, to: element2 };
+            bestDistance = distance;
           }
         }
-        attempts++;
       }
       
       if (bestPair) {
@@ -270,15 +273,15 @@ export function ParticleBackground() {
     });
   }, []);
 
-  // More frequent connection attempts
+  // Much more frequent connection attempts
   useEffect(() => {
     if (elements.length === 0) return;
 
     const connectionTimer = setTimeout(() => {
       createConnection(elements);
-      const interval = setInterval(() => createConnection(elements), 2000);
+      const interval = setInterval(() => createConnection(elements), 1200); // More frequent
       return () => clearInterval(interval);
-    }, 1000);
+    }, 500);
 
     return () => clearTimeout(connectionTimer);
   }, [elements, createConnection]);
@@ -328,7 +331,7 @@ export function ParticleBackground() {
     return () => clearInterval(interval);
   }, []);
 
-  // Enhanced chaotic movement system
+  // Improved movement system with better randomness and central attraction
   useEffect(() => {
     const updateElements = () => {
       setElements(prev => {
@@ -336,45 +339,39 @@ export function ParticleBackground() {
           let newVx = element.vx;
           let newVy = element.vy;
           let newDirection = element.direction;
-          let newWaypoint = element.waypoint;
-          let newDirectionChangeTimer = element.directionChangeTimer - 50;
+          let newDirectionChangeTimer = element.directionChangeTimer - 40;
 
-          // Waypoint-based movement for more interesting paths
-          if (element.waypoint) {
-            const waypointDx = element.waypoint.x - element.x;
-            const waypointDy = element.waypoint.y - element.y;
-            const waypointDistance = Math.sqrt(waypointDx * waypointDx + waypointDy * waypointDy);
-            
-            if (waypointDistance < 8 || newDirectionChangeTimer <= 0) {
-              newWaypoint = generateWaypoint();
-              newDirectionChangeTimer = 2000 + Math.random() * 4000;
-            } else {
-              const waypointForce = 0.001;
-              newVx += (waypointDx / waypointDistance) * waypointForce;
-              newVy += (waypointDy / waypointDistance) * waypointForce;
-            }
-          }
-
-          // Random direction changes for chaotic movement
+          // More frequent and random direction changes
           if (newDirectionChangeTimer <= 0) {
             newDirection = Math.random() * Math.PI * 2;
-            newDirectionChangeTimer = 1500 + Math.random() * 3000;
+            newDirectionChangeTimer = 500 + Math.random() * 1000; // Much more frequent
           }
 
-          // Base chaotic movement
-          const time = Date.now() * 0.0001;
-          const chaosX = Math.cos(newDirection + time * element.speed) * 0.008;
-          const chaosY = Math.sin(newDirection + time * element.speed) * 0.008;
+          // Enhanced random movement with more chaos
+          const time = Date.now() * 0.0002;
+          const primaryChaos = Math.cos(newDirection + time * element.speed) * 0.015;
+          const secondaryChaos = Math.sin(newDirection * 1.3 + time * element.speed * 0.7) * 0.012;
           
-          newVx += chaosX + (Math.random() - 0.5) * 0.004;
-          newVy += chaosY + (Math.random() - 0.5) * 0.004;
+          newVx += primaryChaos + (Math.random() - 0.5) * 0.012; // Increased randomness
+          newVy += secondaryChaos + (Math.random() - 0.5) * 0.012;
 
-          // Strong repulsion to prevent clustering
+          // Add some elements with random burst movement for screen traversal
+          if (Math.random() < 0.002) { // 0.2% chance per frame
+            newVx += (Math.random() - 0.5) * 0.08; // Burst movement
+            newVy += (Math.random() - 0.5) * 0.08;
+          }
+
+          // Reduced repulsion force
           const { forceX, forceY } = getRepulsionForce(element, prev);
-          newVx += forceX * 0.01;
-          newVy += forceY * 0.01;
+          newVx += forceX * 0.005; // Reduced from 0.01
+          newVy += forceY * 0.005;
 
-          // Exclusion zone avoidance
+          // Central attraction to prevent edge clustering
+          const { forceX: centerForceX, forceY: centerForceY } = getCentralAttraction(element);
+          newVx += centerForceX;
+          newVy += centerForceY;
+
+          // Gentler exclusion zone avoidance
           if (isInExclusionZone(element.x, element.y)) {
             const zones = getExclusionZones();
             for (const zone of zones) {
@@ -385,27 +382,28 @@ export function ParticleBackground() {
               const distance = Math.sqrt(dx * dx + dy * dy);
               
               if (distance > 0) {
-                const force = 0.01;
+                const force = 0.005; // Reduced force
                 newVx += (dx / distance) * force;
                 newVy += (dy / distance) * force;
               }
             }
           }
 
-          // Boundary forces
-          const margin = 5;
-          if (element.x < margin) newVx += (margin - element.x) * 0.003;
-          if (element.x > 100 - margin) newVx -= (element.x - (100 - margin)) * 0.003;
-          if (element.y < margin) newVy += (margin - element.y) * 0.003;
-          if (element.y > 100 - margin) newVy -= (element.y - (100 - margin)) * 0.003;
+          // Stronger boundary forces to keep elements moving inward
+          const margin = 8;
+          const boundaryForce = 0.008;
+          if (element.x < margin) newVx += (margin - element.x) * boundaryForce;
+          if (element.x > 100 - margin) newVx -= (element.x - (100 - margin)) * boundaryForce;
+          if (element.y < margin) newVy += (margin - element.y) * boundaryForce;
+          if (element.y > 100 - margin) newVy -= (element.y - (100 - margin)) * boundaryForce;
 
-          // Damping
-          newVx *= 0.92;
-          newVy *= 0.92;
+          // Reduced damping for more fluid movement
+          newVx *= 0.94; // Less damping
+          newVy *= 0.94;
 
-          // Update position
-          const newX = Math.max(3, Math.min(97, element.x + newVx));
-          const newY = Math.max(3, Math.min(97, element.y + newVy));
+          // Update position with wider bounds
+          const newX = Math.max(2, Math.min(98, element.x + newVx));
+          const newY = Math.max(2, Math.min(98, element.y + newVy));
 
           return {
             ...element,
@@ -414,16 +412,15 @@ export function ParticleBackground() {
             vx: newVx,
             vy: newVy,
             direction: newDirection,
-            waypoint: newWaypoint,
             directionChangeTimer: newDirectionChangeTimer
           };
         });
       });
     };
 
-    const interval = setInterval(updateElements, 50);
+    const interval = setInterval(updateElements, 40); // Slightly faster updates
     return () => clearInterval(interval);
-  }, [getRepulsionForce, isInExclusionZone, generateWaypoint, getExclusionZones]);
+  }, [getRepulsionForce, getCentralAttraction, isInExclusionZone, getExclusionZones]);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
