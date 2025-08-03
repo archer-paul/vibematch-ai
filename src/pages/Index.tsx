@@ -58,8 +58,10 @@ const Index = () => {
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <motion.div 
-              className="w-8 h-8 rounded-lg bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center shadow-lg shadow-purple-500/25"
+            <motion.img 
+              src="/favicon.ico"
+              alt="VibeMatch"
+              className="w-8 h-8 rounded-lg shadow-lg shadow-purple-500/25"
               animate={{ 
                 boxShadow: [
                   "0 0 20px rgba(139, 92, 246, 0.3)",
@@ -68,9 +70,7 @@ const Index = () => {
                 ]
               }}
               transition={{ duration: 2, repeat: Infinity }}
-            >
-              <span className="text-white font-bold text-sm">AI</span>
-            </motion.div>
+            />
             <span className="font-bold text-xl text-white">VibeMatch</span>
           </motion.div>
           
