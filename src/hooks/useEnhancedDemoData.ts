@@ -93,7 +93,7 @@ export function useEnhancedDemoData() {
       budget_range: '$50,000-$500,000',
       campaign_objectives: ['Brand Awareness', 'Global Reach', 'Cultural Connection', 'Share a Coke'],
       preferred_sectors: ['Lifestyle', 'Entertainment', 'Music', 'Sports', 'Food & Beverage'],
-      avatar_url: '/logos/Coca-Cola_logo.svg'
+      avatar_url: '/logos/coca-cola.svg'
     },
     {
       id: 'sponsor_2',
@@ -104,7 +104,7 @@ export function useEnhancedDemoData() {
       budget_range: '$30,000-$300,000',
       campaign_objectives: ['Athletic Performance', 'Street Style', 'Sustainability', 'Innovation'],
       preferred_sectors: ['Sports', 'Fashion', 'Fitness', 'Streetwear', 'Lifestyle'],
-      avatar_url: '/logos/Adidas_Logo.svg'
+      avatar_url: '/logos/adidas.svg'
     },
     {
       id: 'sponsor_3',
@@ -115,7 +115,7 @@ export function useEnhancedDemoData() {
       budget_range: '$75,000-$1,000,000',
       campaign_objectives: ['Product Innovation', 'Creative Workflow', 'Productivity', 'Photography'],
       preferred_sectors: ['Technology', 'Photography', 'Creative', 'Productivity', 'Music'],
-      avatar_url: '/logos/Apple_logo_black.svg'
+      avatar_url: '/logos/apple.svg'
     },
     {
       id: 'sponsor_4',
@@ -126,7 +126,7 @@ export function useEnhancedDemoData() {
       budget_range: '$40,000-$400,000',
       campaign_objectives: ['Athletic Excellence', 'Just Do It', 'Inspiration', 'Performance'],
       preferred_sectors: ['Sports', 'Fitness', 'Athletics', 'Motivation', 'Lifestyle'],
-      avatar_url: '/logos/Logo_NIKE.svg'
+      avatar_url: '/logos/nike.svg'
     },
     {
       id: 'sponsor_5',
@@ -137,18 +137,63 @@ export function useEnhancedDemoData() {
       budget_range: '$25,000-$200,000',
       campaign_objectives: ['Beauty Education', 'Product Discovery', 'Inclusivity', 'Trends'],
       preferred_sectors: ['Beauty', 'Makeup', 'Skincare', 'Lifestyle', 'Fashion'],
-      avatar_url: '/logos/Sephora_logo.svg'
+      avatar_url: '/logos/sephora.svg'
     },
     {
       id: 'sponsor_6',
       user_id: 'sponsor_user_6',
       full_name: 'Alex Chen',
-      company_name: 'Tesla',
-      bio: 'Digital Marketing Manager at Tesla. Partnering with tech and automotive creators to showcase sustainable transportation innovation.',
+      company_name: 'Netflix',
+      bio: 'Content Partnerships Manager at Netflix. Collaborating with creators to showcase original content and entertainment experiences.',
       budget_range: '$60,000-$600,000',
-      campaign_objectives: ['Sustainability', 'Innovation', 'Technology', 'Future Mobility'],
-      preferred_sectors: ['Technology', 'Automotive', 'Sustainability', 'Innovation', 'Travel'],
-      avatar_url: '/logos/Netflix_2015_logo.svg'
+      campaign_objectives: ['Content Promotion', 'Storytelling', 'Entertainment', 'Global Reach'],
+      preferred_sectors: ['Entertainment', 'Film', 'Series', 'Pop Culture', 'Lifestyle'],
+      avatar_url: '/logos/netflix.svg'
+    },
+    // Ajoutons quelques sponsors supplémentaires pour plus de variété
+    {
+      id: 'sponsor_7',
+      user_id: 'sponsor_user_7',
+      full_name: 'Sophie Martin',
+      company_name: 'L\'Oréal',
+      bio: 'Digital Partnerships Lead at L\'Oréal. Focused on beauty innovation and inclusivity campaigns with global creators.',
+      budget_range: '$35,000-$350,000',
+      campaign_objectives: ['Beauty Innovation', 'Inclusivity', 'Self-Expression', 'Sustainability'],
+      preferred_sectors: ['Beauty', 'Skincare', 'Makeup', 'Fashion', 'Lifestyle'],
+      avatar_url: '/logos/loreal.svg'
+    },
+    {
+      id: 'sponsor_8',
+      user_id: 'sponsor_user_8',
+      full_name: 'David Park',
+      company_name: 'Samsung',
+      bio: 'Mobile Marketing Manager at Samsung. Showcasing cutting-edge technology through authentic creator partnerships.',
+      budget_range: '$45,000-$450,000',
+      campaign_objectives: ['Technology Innovation', 'Mobile Photography', 'Connectivity', 'Lifestyle Integration'],
+      preferred_sectors: ['Technology', 'Photography', 'Gaming', 'Productivity', 'Lifestyle'],
+      avatar_url: '/logos/samsung.svg'
+    },
+    {
+      id: 'sponsor_9',
+      user_id: 'sponsor_user_9',
+      full_name: 'Maria Gonzalez',
+      company_name: 'McDonald\'s',
+      bio: 'Brand Experience Manager at McDonald\'s. Creating joyful moments and connections through food and community partnerships.',
+      budget_range: '$25,000-$250,000',
+      campaign_objectives: ['Community Connection', 'Joy & Fun', 'Food Culture', 'Local Experiences'],
+      preferred_sectors: ['Food & Beverage', 'Lifestyle', 'Family', 'Entertainment', 'Community'],
+      avatar_url: '/logos/mcdonalds.svg'
+    },
+    {
+      id: 'sponsor_10',
+      user_id: 'sponsor_user_10',
+      full_name: 'Thomas Anderson',
+      company_name: 'Starbucks',
+      bio: 'Global Partnerships Director at Starbucks. Building connections through coffee culture and community experiences.',
+      budget_range: '$30,000-$300,000',
+      campaign_objectives: ['Coffee Culture', 'Community Building', 'Sustainability', 'Local Stories'],
+      preferred_sectors: ['Food & Beverage', 'Lifestyle', 'Community', 'Sustainability', 'Culture'],
+      avatar_url: '/logos/starbucks.svg'
     }
   ]);
 

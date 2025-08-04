@@ -30,6 +30,7 @@ export function SwipeCard({ sponsor, index, isTop, swipeDirection, onSwipe, anal
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState(0);
   const [showOverlay, setShowOverlay] = useState<'like' | 'dislike' | 'super' | null>(null);
+  const [imageError, setImageError] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const startPosRef = useRef({ x: 0, y: 0 });
 
@@ -39,7 +40,43 @@ export function SwipeCard({ sponsor, index, isTop, swipeDirection, onSwipe, anal
     setRotation(0);
     setShowOverlay(null);
     setIsDragging(false);
+    setImageError(false);
   }, [sponsor.id]);
+
+  // Function to get the correct logo path
+  const getLogoPath = (companyName: string, avatarUrl?: string) => {
+    if (avatarUrl && !imageError) {
+      return avatarUrl;
+    }
+    
+    // Map company names to their logo files
+    const logoMap: { [key: string]: string } = {
+      'coca-cola': '/logos/coca-cola.svg',
+      'nike': '/logos/nike.svg',
+      'adidas': '/logos/adidas.svg',
+      'apple': '/logos/apple.svg',
+      'samsung': '/logos/samsung.svg',
+      'netflix': '/logos/netflix.svg',
+      'mcdonalds': '/logos/mcdonalds.svg',
+      'starbucks': '/logos/starbucks.svg',
+      'l\'oréal': '/logos/loreal.svg',
+      'loreal': '/logos/loreal.svg',
+      'sephora': '/logos/sephora.svg',
+      'zara': '/logos/zara.svg',
+      'playstation': '/logos/playstation.svg',
+      'revolut': '/logos/revolut.svg',
+      'wwf': '/logos/wwf.svg'
+    };
+
+    const normalizedName = companyName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const logoPath = logoMap[normalizedName] || logoMap[companyName.toLowerCase()];
+    
+    return logoPath || null;
+  };
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!isTop) return;
@@ -191,6 +228,8 @@ export function SwipeCard({ sponsor, index, isTop, swipeDirection, onSwipe, anal
     }
   };
 
+  const logoPath = getLogoPath(sponsor.company_name, sponsor.avatar_url);
+
   return (
     <div
       ref={cardRef}
@@ -220,11 +259,12 @@ export function SwipeCard({ sponsor, index, isTop, swipeDirection, onSwipe, anal
 
         <CardHeader className="text-center pb-4">
           <div className="w-24 h-24 mx-auto rounded-full bg-white flex items-center justify-center shadow-lg border-4 border-gray-100 overflow-hidden">
-            {sponsor.avatar_url ? (
+            {logoPath ? (
               <img 
-                src={sponsor.avatar_url} 
+                src={logoPath} 
                 alt={`${sponsor.company_name} logo`}
                 className="w-full h-full object-contain p-2"
+                onError={handleImageError}
               />
             ) : (
               <div className="bg-gradient-to-br from-blue-500 to-cyan-500 text-white text-3xl font-bold w-full h-full flex items-center justify-center">

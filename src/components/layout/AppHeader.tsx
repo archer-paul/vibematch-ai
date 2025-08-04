@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { LogOut, User } from 'lucide-react';
+import { motion } from 'framer-motion';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,20 +18,31 @@ export function AppHeader() {
   const { profile, signOut } = useAuth();
 
   const userTypeLabel = profile?.user_type === 'creator' ? 'Creator' : 'Sponsor';
-  const gradientClass = profile?.user_type === 'creator' 
-    ? 'bg-gradient-to-r from-purple-600 to-pink-600' 
-    : 'bg-gradient-to-r from-blue-600 to-cyan-600';
 
   return (
     <header className="h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-6">
       <div className="flex items-center gap-4">
         <SidebarTrigger />
-        <div className="flex items-center gap-2">
-          <div className={`w-8 h-8 rounded-lg ${gradientClass} flex items-center justify-center`}>
-            <span className="text-white font-bold text-sm">AI</span>
-          </div>
+        <motion.div 
+          className="flex items-center gap-2"
+          whileHover={{ scale: 1.05 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <motion.img 
+            src="/favicon.ico"
+            alt="VibeMatch"
+            className="w-8 h-8 rounded-lg shadow-lg shadow-purple-500/25"
+            animate={{ 
+              boxShadow: [
+                "0 0 20px rgba(139, 92, 246, 0.3)",
+                "0 0 30px rgba(236, 72, 153, 0.4)",
+                "0 0 20px rgba(139, 92, 246, 0.3)"
+              ]
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
           <h1 className="text-xl font-bold">VibeMatch</h1>
-        </div>
+        </motion.div>
       </div>
 
       <div className="flex items-center gap-4">

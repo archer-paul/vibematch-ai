@@ -289,8 +289,18 @@ const Index = () => {
         viewport={{ once: true }}
       >
         <div className="container mx-auto px-4 py-8">
-          <div className="text-center text-white/60">
-            <p>&copy; 2024 VibeMatch. All rights reserved.</p>
+          <div className="text-center space-y-3">
+            <p className="text-white/60">&copy; 2025 VibeMatch. All rights reserved.</p>
+            <div className="text-white/40 text-sm max-w-4xl mx-auto leading-relaxed">
+              <p className="mb-2">
+                <strong>Demo Notice:</strong> This website is currently a demonstration platform. 
+                No contracts or partnerships have been established with any of the brands whose logos are displayed.
+              </p>
+              <p>
+                All brand logos and trademarks remain the exclusive intellectual property of their respective owners. 
+                Their use here is purely for demonstration purposes and does not imply any endorsement or affiliation.
+              </p>
+            </div>
           </div>
         </div>
       </motion.footer>

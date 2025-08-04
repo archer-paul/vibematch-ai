@@ -27,6 +27,8 @@ interface FloatingElement {
   isAlive: boolean;
   fadeState: 'in' | 'stable' | 'out';
   createdAt: number;
+  // ✅ NOUVEAU - Compteur de connexions
+  connectionCount: number;
 }
 
 interface ExclusionZone {
@@ -192,7 +194,7 @@ export function ParticleBackground() {
         vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4,
         collisionRadius: 45, directionChangeTimer: 1000 + Math.random() * 2000,
         isConnecting: false, isAlive: true, fadeState: 'stable', createdAt: Date.now(),
-        gridX: 0, gridY: 0,
+        gridX: 0, gridY: 0, connectionCount: 0, // ✅ Initialiser à 0
       });
     }
 
@@ -211,7 +213,7 @@ export function ParticleBackground() {
         vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4,
         collisionRadius: 70, directionChangeTimer: 800 + Math.random() * 1500,
         isConnecting: false, isAlive: true, fadeState: 'stable', createdAt: Date.now(),
-        gridX: 0, gridY: 0,
+        gridX: 0, gridY: 0, connectionCount: 0, // ✅ Initialiser à 0
       });
     }
 
@@ -221,20 +223,22 @@ export function ParticleBackground() {
   // Détection de proximité et création de connexions
   const detectProximity = useCallback(() => {
     const now = Date.now();
-    if (now - lastConnectionTime.current < 5000) return; // Une connexion toutes les 5 secondes max
+    if (now - lastConnectionTime.current < 5000) return;
 
     setElements(currentElements => {
-      // Trouver les éléments libres
+      // Trouver les éléments libres avec max 1-2 connexions
       const availableLogos = currentElements.filter(el => 
         el.type === 'logo' && 
         !el.isConnecting && 
         el.fadeState === 'stable' &&
+        el.connectionCount < 2 && // ✅ Max 2 connexions
         !connections.some(conn => conn.fromId === el.id || conn.toId === el.id)
       );
       const availableAvatars = currentElements.filter(el => 
         el.type === 'avatar' && 
         !el.isConnecting && 
         el.fadeState === 'stable' &&
+        el.connectionCount < 2 && // ✅ Max 2 connexions
         !connections.some(conn => conn.fromId === el.id || conn.toId === el.id)
       );
 
@@ -245,8 +249,8 @@ export function ParticleBackground() {
           const dy = logo.y - avatar.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
 
-          // Si ils sont assez proches (environ 20% de l'écran)
-          if (distance < 25) {
+          // ✅ CORRECTION - Distance très proche pour commencer une connexion
+          if (distance < 15) { // ✅ Très proche (15% au lieu de 25%)
             lastConnectionTime.current = now;
 
             // Créer la connexion
@@ -255,17 +259,17 @@ export function ParticleBackground() {
               fromId: logo.id,
               toId: avatar.id,
               progress: 0,
-              visible: false, // Pas de ligne visible
+              visible: false,
               showHeart: false,
               heartVisible: false,
-              phase: 'pausing',
+              phase: 'pausing', // ✅ Commence par une pause pour se rapprocher
               createdAt: now,
               heartScale: 0
             };
 
             setConnections(prev => [...prev.filter(conn => conn.phase !== 'completed'), newConnection]);
 
-            // Marquer les éléments comme connectés et ralentir
+            // Marquer les éléments comme connectés ET incrémenter le compteur
             return currentElements.map(element => {
               if (element.id === logo.id || element.id === avatar.id) {
                 return {
@@ -274,9 +278,8 @@ export function ParticleBackground() {
                   targetId: element.id === logo.id ? avatar.id : logo.id,
                   originalX: element.x,
                   originalY: element.y,
-                  connectionPhase: 'connected',
-                  vx: element.vx * 0.1, // Ralentir drastiquement
-                  vy: element.vy * 0.1
+                  connectionPhase: 'moving',
+                  connectionCount: element.connectionCount + 1 // ✅ Incrémenter
                 };
               }
               return element;
@@ -289,7 +292,7 @@ export function ParticleBackground() {
     });
   }, [connections]);
 
-  // Animation des connexions (pas de ligne, juste coeur)
+  // Animation des connexions (rapprochement puis coeur)
   useEffect(() => {
     const animateConnections = () => {
       const now = Date.now();
@@ -302,26 +305,30 @@ export function ParticleBackground() {
           
           switch (conn.phase) {
             case 'pausing':
-              // Pause de 1 seconde avant le coeur
-              if (timeSinceCreation > 1000) {
+              // ✅ Phase de rapprochement - 2 secondes pour se rapprocher
+              if (timeSinceCreation > 2000) {
                 newPhase = 'heart-showing';
                 newHeartScale = 0;
               }
               break;
               
             case 'heart-showing':
-              // Montrer le coeur pendant 3 secondes
-              if (timeSinceCreation < 4000) {
-                newHeartScale = Math.min(newHeartScale + 0.08, 1.5);
-              } else {
-                newPhase = 'separating';
-                newHeartScale = Math.max(newHeartScale - 0.1, 0);
+              // ✅ CORRECTION - Animation plus rapide et pause
+              if (timeSinceCreation < 2800) { // Croissance rapide
+                newHeartScale = Math.min(newHeartScale + 0.15, 1.8); // ✅ Plus rapide et plus grand
+              } else if (timeSinceCreation < 4000) { // Pause à taille max
+                newHeartScale = 1.8; // ✅ Maintenir la taille
+              } else { // Disparition rapide
+                newHeartScale = Math.max(newHeartScale - 0.2, 0); // ✅ Disparition rapide
+                if (newHeartScale <= 0) {
+                  newPhase = 'separating';
+                }
               }
               break;
               
             case 'separating':
-              // Terminer la connexion
-              if (timeSinceCreation > 5000) {
+              // ✅ Terminer rapidement après disparition du coeur
+              if (timeSinceCreation > 4500) {
                 newPhase = 'completed';
               }
               break;
@@ -379,7 +386,8 @@ export function ParticleBackground() {
                   isConnecting: false,
                   targetId: undefined,
                   originalX: undefined,
-                  originalY: undefined
+                  originalY: undefined,
+                  connectionCount: 0 // ✅ Reset le compteur
                 };
               }
               return el;
@@ -396,7 +404,7 @@ export function ParticleBackground() {
       });
     };
 
-    const interval = setInterval(replaceElement, 12000); // Plus rare
+    const interval = setInterval(replaceElement, 8000); // ✅ Plus fréquent pour rotation
     return () => clearInterval(interval);
   }, [getRandomPosition]);
 
@@ -413,22 +421,54 @@ export function ParticleBackground() {
             conn.phase !== 'completed'
           );
 
-          // Si l'élément est en connexion
+          // ✅ Si l'élément est en connexion - MOUVEMENT CONTRÔLÉ
           if (element.isConnecting && connection) {
-            // Phase de pause - mouvement très lent
-            if (connection.phase === 'pausing' || connection.phase === 'heart-showing') {
-              return {
-                ...element,
-                x: element.x + element.vx * 0.1, // Très lent
-                y: element.y + element.vy * 0.1,
-                vx: element.vx * 0.98, // Ralentir progressivement
-                vy: element.vy * 0.98
-              };
+            const targetElement = prev.find(el => el.id === element.targetId);
+
+            if (targetElement) {
+              // ✅ PHASE DE RAPPROCHEMENT - Se rapprocher TRÈS près
+              if (connection.phase === 'pausing') {
+                const dx = targetElement.x - element.x;
+                const dy = targetElement.y - element.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const minDistance = 3; // ✅ TRÈS PROCHE - quasi collés
+
+                if (distance > minDistance) {
+                  const moveSpeed = 2.5; // ✅ Plus rapide
+                  const moveX = (dx / distance) * moveSpeed;
+                  const moveY = (dy / distance) * moveSpeed;
+                  
+                  return { 
+                    ...element, 
+                    x: element.x + moveX, // ✅ Pas de limites pour forcer le rapprochement
+                    y: element.y + moveY,
+                    vx: moveX, 
+                    vy: moveY 
+                  };
+                }
+                // ✅ Quand assez proche, arrêt TOTAL
+                return {
+                  ...element,
+                  vx: 0,
+                  vy: 0
+                };
+              }
+              
+              // ✅ PHASE COEUR - IMMOBILITÉ ABSOLUE
+              if (connection.phase === 'heart-showing') {
+                return {
+                  ...element,
+                  x: element.x, // ✅ Position figée
+                  y: element.y,
+                  vx: 0, // ✅ Vitesse nulle
+                  vy: 0
+                };
+              }
             }
             
-            // Phase de séparation - reprendre le mouvement normal
+            // ✅ PHASE DE SÉPARATION - reprendre le mouvement avec force
             if (connection.phase === 'separating') {
-              const separationForce = 0.8;
+              const separationForce = 1.5;
               const randomAngle = Math.random() * Math.PI * 2;
               return {
                 ...element,
@@ -601,10 +641,10 @@ export function ParticleBackground() {
               <img 
                 src="/heart-outline.svg" 
                 alt="Heart"
-                className="w-8 h-8"
+                className="w-10 h-10"
                 style={{ 
-                  filter: 'brightness(0) saturate(100%) invert(100%) drop-shadow(0 0 10px rgba(255, 255, 255, 0.4))',
-                  opacity: 0.7
+                  filter: 'brightness(0) saturate(100%) invert(100%) drop-shadow(0 0 12px rgba(255, 255, 255, 0.6))',
+                  opacity: 0.8
                 }}
               />
             </motion.div>
