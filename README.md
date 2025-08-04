@@ -9,13 +9,21 @@
 
 ## Hackathon Project
 
-Developed during the **Cerebras x Cline Hackathon** by **Paul Archer** and **Tom Effernelli**.
+Developed during the **Cerebras x Cline Hackathon** by **[Paul Archer](https://github.com/archer-paul)** and **[Tom Effernelli](https://github.com/tom-effernelli)**.
+
+Check out the demo video:
+
+https://github.com/user-attachments/assets/8d731038-a078-4628-867a-c1bdb1700f8e
 
 ---
+
+Check out our app [here](https://vibematch-ai-79314808001.europe-west9.run.app/)
 
 ## About
 
 VibeMatch is a revolutionary SaaS platform that leverages artificial intelligence to create authentic and high-performing partnerships between content creators and sponsors. Our solution automates the entire matching, analysis, and connection process while ensuring optimal compatibility based on deep behavioral data.
+
+What is it? VibeMatch is an app designed to revolutionize the way content creators and sponsors connect. Even today, this process remains somewhat outdated: most brand-creator partnerships still begin through emails and scattered communications. Our goal is to streamline these interactions, enabling both content creators and brands to connect more efficiently, collaborate more seamlessly, and ultimately build authentic, lasting partnerships that drive real impact.
 
 ### Problem We Solve
 
