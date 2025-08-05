@@ -52,7 +52,13 @@ export function DemoOverlay() {
             
             // Handle specific actions
             if (currentStep.action === 'navigate-to-matches') {
-              window.location.href = '/matches';
+              // Don't prevent default here - we want to advance the step first
+              console.log('Navigating to matches - advancing demo step first');
+              nextStep(); // Advance to swipe step first
+              // Use setTimeout to allow state to update before navigation
+              setTimeout(() => {
+                window.location.href = '/matches';
+              }, 100);
               return;
             } else if (currentStep.action === 'navigate-campaigns') {
               window.location.href = '/campaigns';
@@ -129,8 +135,14 @@ export function DemoOverlay() {
           y = rect.top + rect.height / 2 - tooltipHeight / 2;
           break;
         case 'right':
-          x = rect.right + 20;
-          y = rect.top + rect.height / 2 - tooltipHeight / 2;
+          // For AI Matches button, position further right to avoid covering it
+          if (currentStep.id === 'ai-matches-button') {
+            x = rect.right + 30;
+            y = rect.top - 50; // Position slightly above to avoid overlap
+          } else {
+            x = rect.right + 20;
+            y = rect.top + rect.height / 2 - tooltipHeight / 2;
+          }
           break;
         default: // bottom
           y = rect.bottom + 20;

@@ -12,7 +12,8 @@ export function useDemoInteractions() {
     const currentStep = demoState.steps[demoState.currentStep];
     
     // Handle swipe interactions on Matches page
-    if (window.location.pathname === '/matches' && currentStep?.action === 'swipe-action') {
+    if (window.location.pathname === '/matches' && 
+        (currentStep?.action === 'swipe-action' || currentStep?.id === 'swipe-interaction')) {
       const handleSwipeDetection = () => {
         console.log('Demo swipe interaction detected');
         // Show "return to dashboard" message
@@ -36,7 +37,8 @@ export function useDemoInteractions() {
           setTimeout(() => {
             returnToDashboard.remove();
             navigate('/dashboard');
-            setTimeout(() => nextStep(), 500);
+            // Wait longer for navigation to complete before advancing demo
+            setTimeout(() => nextStep(), 1000);
           }, 3000);
         }, 1000);
       };
