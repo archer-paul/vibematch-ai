@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { setDemoMode } from '@/data/demoData';
 
 export interface DemoStep {
   id: string;
@@ -70,8 +71,11 @@ export function DemoProvider({ children }: { children: ReactNode }) {
         console.log('Demo step completed, current phase:', prev.phase);
         switch (prev.phase) {
           case 'landing':
-            // Move to creator auth phase
+            // Move to creator auth phase and set demo mode immediately
             console.log('Moving to creator-auth phase');
+            setDemoMode(true);
+            setDemoUser('creator');
+            localStorage.setItem('demo-user-type', 'creator');
             setTimeout(() => setPhase('creator-auth'), 100);
             break;
           case 'creator-auth':

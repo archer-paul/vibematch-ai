@@ -31,30 +31,9 @@ export default function Auth() {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Handle demo auto-login - bypass auth entirely
-  if (isDemoMode && demoState.phase === 'creator-auth') {
-    // Auto-redirect to dashboard in demo mode
-    setTimeout(() => {
-      window.location.href = '/dashboard';
-    }, 1500);
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle>Demo Mode</CardTitle>
-            <CardDescription>
-              Setting up your demo account...
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center py-8">
-            <div className="animate-spin mx-auto w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full mb-4"></div>
-            <p className="text-sm text-muted-foreground">
-              Logging you in as Alex Rivera (Demo Creator)
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  // In demo mode, redirect immediately to dashboard
+  if (isDemoMode) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   const handleLogin = async (e: React.FormEvent) => {

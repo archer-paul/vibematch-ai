@@ -16,53 +16,31 @@ export function useDemoAuth() {
 
     // Handle demo authentication phases
     if (demoState.phase === 'creator-auth') {
-      console.log('Setting up demo creator');
-      // Immediately set demo mode and user type
-      setDemoMode(true);
-      setDemoUser('creator');
-      localStorage.setItem('demo-user-type', 'creator');
-      
-      // Navigate to dashboard immediately
-      setTimeout(() => {
-        console.log('Navigating to dashboard');
-        navigate('/dashboard');
-        setPhase('creator-tour');
-      }, 100);
+      console.log('Setting up demo creator - navigating immediately');
+      // Navigate to dashboard immediately - demo mode already set in DemoContext
+      navigate('/dashboard');
+      setPhase('creator-tour');
     }
     
     if (demoState.phase === 'sponsor-tour') {
-      console.log('Setting up demo sponsor');
-      // Switch to sponsor demo user
-      setDemoUser('sponsor');
-      localStorage.setItem('demo-user-type', 'sponsor');
-      
-      // Navigate to sponsor dashboard
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 500);
+      console.log('Setting up demo sponsor - navigating immediately');
+      // Navigate to sponsor dashboard immediately
+      navigate('/dashboard');
     }
-  }, [demoState.phase, demoState.isActive, navigate, setPhase, setDemoUser]);
+  }, [demoState.phase, demoState.isActive, navigate, setPhase]);
 
-  // Auto-navigate for demo phases
+  // Handle demo transitions
   useEffect(() => {
     if (!demoState.isActive) return;
 
-    console.log('Demo phase changed to:', demoState.phase);
-
-    switch (demoState.phase) {
-      case 'creator-auth':
-        console.log('Navigating to /auth for demo creator login');
-        navigate('/auth');
-        break;
-      case 'transition':
-        console.log('Demo transition phase - switching to sponsor');
-        // Brief pause before switching to sponsor
-        setTimeout(() => {
-          setPhase('sponsor-tour');
-        }, 2000);
-        break;
+    if (demoState.phase === 'transition') {
+      console.log('Demo transition phase - switching to sponsor');
+      // Brief pause before switching to sponsor
+      setTimeout(() => {
+        setPhase('sponsor-tour');
+      }, 2000);
     }
-  }, [demoState.phase, demoState.isActive, navigate, setPhase]);
+  }, [demoState.phase, demoState.isActive, setPhase]);
 
   return {
     isDemoMode: demoState.isActive,
