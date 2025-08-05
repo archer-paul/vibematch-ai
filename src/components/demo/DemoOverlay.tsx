@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowRight, ArrowLeft, SkipForward, Play } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useDemo } from '@/contexts/DemoContext';
 
 export function DemoOverlay() {
   const { demoState, nextStep, previousStep, skipStep, exitDemo } = useDemo();
-  const navigate = useNavigate();
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const [overlayPosition, setOverlayPosition] = useState({ x: 0, y: 0 });
   const [tooltipDimensions, setTooltipDimensions] = useState({ width: 400, height: 240 });
@@ -57,13 +55,13 @@ export function DemoOverlay() {
               // Don't prevent default here - we want to advance the step first
               console.log('Navigating to matches - advancing demo step first');
               nextStep(); // Advance to swipe step first
-              // Use React Router navigate instead of window.location.href
+              // Use setTimeout to allow state to update before navigation
               setTimeout(() => {
-                navigate('/matches');
+                window.location.href = '/matches';
               }, 100);
               return;
             } else if (currentStep.action === 'navigate-campaigns') {
-              navigate('/campaigns');
+              window.location.href = '/campaigns';
               return;
             } else if (currentStep.action === 'open-modal') {
               // Find and click the Apply Now button to open modal
@@ -76,8 +74,8 @@ export function DemoOverlay() {
               console.log('Setting up sponsor demo');
               // Clear creator demo data and setup sponsor
               localStorage.setItem('demo-user-type', 'sponsor');
-              // Navigate to auth to setup sponsor profile using React Router
-              navigate('/auth');
+              // Navigate to auth to setup sponsor profile
+              window.location.href = '/auth';
               return;
             }
             
