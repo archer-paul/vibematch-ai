@@ -5,17 +5,17 @@ export const demoCreatorProfile: Profile = {
   id: 'demo-creator-1',
   user_id: 'demo-creator-user',
   user_type: 'creator',
-  email: 'demo.creator@example.com',
-  full_name: 'Alex Rivera',
-  display_name: 'AlexCreates',
+  email: 'sophia.martinez@example.com',
+  full_name: 'Sophia Martinez',
+  display_name: 'SophiaCreates',
   avatar_url: '/avatars/avatar1.svg',
   bio: 'Content creator passionate about technology, lifestyle, and sustainability. I love creating engaging content that makes a difference.',
   tagline: 'Creating content that inspires change',
   location: { country: 'United States', city: 'Los Angeles' },
   social_handles: {
-    instagram: '@alexcreates',
-    tiktok: '@alexrivera',
-    youtube: 'AlexCreatesContent'
+    instagram: '@sophiacreates',
+    tiktok: '@sophiamartinez',
+    youtube: 'SophiaCreatesContent'
   },
   social_platforms: ['instagram', 'tiktok', 'youtube'],
   follower_counts: {

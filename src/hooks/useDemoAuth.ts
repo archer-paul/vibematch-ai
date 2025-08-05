@@ -14,16 +14,15 @@ export function useDemoAuth() {
 
     console.log('Demo auth phase changed to:', demoState.phase);
 
-    // Handle demo authentication phases
-    if (demoState.phase === 'creator-auth') {
-      console.log('Setting up demo creator - navigating immediately');
+    // Handle demo navigation phases
+    if (demoState.phase === 'creator-tour') {
+      console.log('Setting up demo creator - navigating to dashboard');
       // Navigate to dashboard immediately - demo mode already set in DemoContext
       navigate('/dashboard');
-      setPhase('creator-tour');
     }
     
     if (demoState.phase === 'sponsor-tour') {
-      console.log('Setting up demo sponsor - navigating immediately');
+      console.log('Setting up demo sponsor - navigating to dashboard');
       // Navigate to sponsor dashboard immediately
       navigate('/dashboard');
     }

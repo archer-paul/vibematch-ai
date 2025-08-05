@@ -71,16 +71,11 @@ export function DemoProvider({ children }: { children: ReactNode }) {
         console.log('Demo step completed, current phase:', prev.phase);
         switch (prev.phase) {
           case 'landing':
-            // Move to creator auth phase and set demo mode immediately
-            console.log('Moving to creator-auth phase');
+            // Move directly to creator tour and set demo mode immediately
+            console.log('Moving directly to creator-tour phase');
             setDemoMode(true);
             setDemoUser('creator');
             localStorage.setItem('demo-user-type', 'creator');
-            setTimeout(() => setPhase('creator-auth'), 100);
-            break;
-          case 'creator-auth':
-            // Move to creator tour
-            console.log('Moving to creator-tour phase');
             setTimeout(() => setPhase('creator-tour'), 100);
             break;
           case 'creator-tour':
@@ -131,17 +126,6 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       let totalSteps = 0;
 
       switch (phase) {
-        case 'creator-auth':
-          newSteps = [
-            {
-              id: 'auto-login',
-              title: 'Demo Account Setup',
-              description: 'We\'re logging you in with a demo creator account. Please wait...',
-              position: 'top'
-            }
-          ];
-          totalSteps = 1;
-          break;
         case 'creator-tour':
           newSteps = [
             {

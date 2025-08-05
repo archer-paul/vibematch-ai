@@ -105,10 +105,14 @@ const Index = () => {
             transition={{ delay: 1.5, duration: 0.8 }}
           >
             <InteractiveButton 
-              href="/auth" 
+              href={demoState.isActive && demoState.phase === 'landing' ? undefined : "/auth"}
               variant="primary" 
               className="text-lg px-8"
               data-demo="creator-button"
+              onClick={demoState.isActive && demoState.phase === 'landing' ? (() => {
+                // Click detected in demo mode, proceed to next step
+                console.log('Creator button clicked in demo mode');
+              }) : undefined}
             >
               <Sparkles className="mr-2 h-5 w-5" />
               Content Creator

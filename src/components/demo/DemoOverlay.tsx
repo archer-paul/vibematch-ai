@@ -23,6 +23,20 @@ export function DemoOverlay() {
       if (element) {
         setTargetElement(element);
         
+        // Add click event listener for the Creator button during demo
+        if (currentStep.target === '[data-demo="creator-button"]') {
+          const handleCreatorClick = (e: Event) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Creator button clicked during demo, proceeding to next step');
+            nextStep();
+          };
+          element.addEventListener('click', handleCreatorClick);
+          
+          // Cleanup function will be handled in the outer effect cleanup
+          element.dataset.demoClickHandler = 'true';
+        }
+        
         // Calculate position for the tooltip
         const rect = element.getBoundingClientRect();
         const tooltipWidth = 350;
@@ -71,12 +85,18 @@ export function DemoOverlay() {
     
     return () => {
       clearTimeout(timeout);
-      // Clean up highlighting
+      // Clean up highlighting and event listeners
       if (targetElement) {
         targetElement.style.position = '';
         targetElement.style.zIndex = '';
         targetElement.style.boxShadow = '';
         targetElement.style.borderRadius = '';
+        
+        // Remove click event listener if it was added
+        if (targetElement.dataset.demoClickHandler) {
+          targetElement.removeEventListener('click', () => {});
+          delete targetElement.dataset.demoClickHandler;
+        }
       }
     };
   }, [currentStep, demoState.currentStep]);
@@ -204,13 +224,12 @@ export function DemoOverlay() {
                   )}
                   
                   <Button
-                    variant="outline"
+                    variant="destructive"
                     size="sm"
-                    onClick={skipStep}
-                    className="text-xs text-gray-600"
+                    onClick={exitDemo}
+                    className="text-xs"
                   >
-                    <SkipForward className="h-3 w-3 mr-1" />
-                    Skip
+                    Exit Demo
                   </Button>
                   
                   <Button
@@ -218,17 +237,8 @@ export function DemoOverlay() {
                     onClick={nextStep}
                     className="text-xs bg-purple-600 hover:bg-purple-700"
                   >
-                    {isLastStep ? (
-                      <>
-                        <Play className="h-3 w-3 mr-1" />
-                        Continue
-                      </>
-                    ) : (
-                      <>
-                        Next
-                        <ArrowRight className="h-3 w-3 ml-1" />
-                      </>
-                    )}
+                    {isLastStep ? 'Continue Demo' : 'Continue'}
+                    <ArrowRight className="h-3 w-3 ml-1" />
                   </Button>
                 </div>
               </div>
