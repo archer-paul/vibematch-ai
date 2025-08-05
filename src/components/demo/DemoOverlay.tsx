@@ -9,13 +9,28 @@ export function DemoOverlay() {
   const { demoState, nextStep, previousStep, skipStep, exitDemo } = useDemo();
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const [overlayPosition, setOverlayPosition] = useState({ x: 0, y: 0 });
-  const [tooltipDimensions, setTooltipDimensions] = useState({ width: 350, height: 200 });
+  const [tooltipDimensions, setTooltipDimensions] = useState({ width: 400, height: 240 });
 
   const currentStep = demoState.steps[demoState.currentStep];
 
   useEffect(() => {
-    if (!demoState.isActive || !currentStep?.target) {
+    if (!demoState.isActive || !currentStep) {
       setTargetElement(null);
+      return;
+    }
+
+    // Handle special cases without targets (like transition steps)
+    if (!currentStep.target) {
+      // For sponsor transition, center the tooltip
+      if (currentStep.id === 'sponsor-transition') {
+        const tooltipWidth = 450;
+        const tooltipHeight = 200;
+        setTooltipDimensions({ width: tooltipWidth, height: tooltipHeight });
+        setOverlayPosition({ 
+          x: window.innerWidth / 2 - tooltipWidth / 2, 
+          y: window.innerHeight / 2 - tooltipHeight / 2 
+        });
+      }
       return;
     }
 
@@ -66,48 +81,77 @@ export function DemoOverlay() {
         
         // Calculate position for the tooltip
         const rect = element.getBoundingClientRect();
-        // Dynamic tooltip sizing based on content
-        const baseWidth = 350;
-        const baseHeight = 220;
-        const contentLength = (currentStep.title + currentStep.description).length;
-        const extraHeight = Math.max(0, (contentLength - 100) * 0.8);
-        const tooltipWidth = Math.min(baseWidth + (contentLength > 150 ? 50 : 0), 450);
-        const tooltipHeight = Math.min(baseHeight + extraHeight, 350);
         
-        setTooltipDimensions({ width: tooltipWidth, height: tooltipHeight });
+        // Auto-scroll to element if not visible
+        const viewportHeight = window.innerHeight;
+        const elementBottom = rect.bottom;
+        const elementTop = rect.top;
         
-        let x = rect.left + rect.width / 2 - tooltipWidth / 2;
-        let y = rect.bottom + 20;
-        
-        // Adjust position based on specified position
-        switch (currentStep.position) {
-          case 'top':
-            y = rect.top - tooltipHeight - 20;
-            break;
-          case 'left':
-            x = rect.left - tooltipWidth - 20;
-            y = rect.top + rect.height / 2 - tooltipHeight / 2;
-            break;
-          case 'right':
-            x = rect.right + 20;
-            y = rect.top + rect.height / 2 - tooltipHeight / 2;
-            break;
-          default: // bottom
-            y = rect.bottom + 20;
-            break;
+        if (elementBottom > viewportHeight - 100 || elementTop < 100) {
+          element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center', 
+            inline: 'nearest' 
+          });
+          // Wait for scroll to complete before positioning tooltip
+          setTimeout(() => {
+            const updatedRect = element.getBoundingClientRect();
+            updateTooltipPosition(updatedRect);
+          }, 500);
+          return;
         }
         
-        // Keep tooltip in viewport
-        x = Math.max(20, Math.min(x, window.innerWidth - tooltipWidth - 20));
-        y = Math.max(20, Math.min(y, window.innerHeight - tooltipHeight - 20));
-        
-        setOverlayPosition({ x, y });
-        
-        // Highlight the target element
-        element.style.position = 'relative';
-        element.style.zIndex = '9999';
-        element.style.boxShadow = '0 0 0 4px rgba(139, 92, 246, 0.5), 0 0 0 8px rgba(139, 92, 246, 0.2)';
-        element.style.borderRadius = '8px';
+        updateTooltipPosition(rect);
+      }
+    };
+
+    const updateTooltipPosition = (rect: DOMRect) => {
+      // Dynamic tooltip sizing based on content
+      const baseWidth = 400;
+      const baseHeight = 260;
+      const contentLength = (currentStep.title + currentStep.description).length;
+      const extraHeight = Math.max(0, (contentLength - 100) * 0.8);
+      const tooltipWidth = Math.min(baseWidth + (contentLength > 150 ? 80 : 0), 500);
+      const tooltipHeight = Math.min(baseHeight + extraHeight, 400);
+      
+      setTooltipDimensions({ width: tooltipWidth, height: tooltipHeight });
+      
+      let x = rect.left + rect.width / 2 - tooltipWidth / 2;
+      let y = rect.bottom + 20;
+      
+      // Adjust position based on specified position
+      switch (currentStep.position) {
+        case 'top':
+          y = rect.top - tooltipHeight - 20;
+          break;
+        case 'left':
+          x = rect.left - tooltipWidth - 20;
+          y = rect.top + rect.height / 2 - tooltipHeight / 2;
+          break;
+        case 'right':
+          x = rect.right + 20;
+          y = rect.top + rect.height / 2 - tooltipHeight / 2;
+          break;
+        default: // bottom
+          y = rect.bottom + 20;
+          break;
+      }
+      
+      // Keep tooltip in viewport
+      x = Math.max(20, Math.min(x, window.innerWidth - tooltipWidth - 20));
+      y = Math.max(20, Math.min(y, window.innerHeight - tooltipHeight - 20));
+      
+      setOverlayPosition({ x, y });
+      
+      // Highlight the target element (skip for special cases)
+      if (currentStep.id !== 'sponsor-transition') {
+        const element = document.querySelector(currentStep.target!) as HTMLElement;
+        if (element) {
+          element.style.position = 'relative';
+          element.style.zIndex = '9999';
+          element.style.boxShadow = '0 0 0 4px rgba(139, 92, 246, 0.5), 0 0 0 8px rgba(139, 92, 246, 0.2)';
+          element.style.borderRadius = '8px';
+        }
       }
     };
 
@@ -170,7 +214,7 @@ export function DemoOverlay() {
             <defs>
               <mask id="cutout-mask">
                 <rect width="100%" height="100%" fill="white" />
-                {targetElement && (
+                {targetElement && currentStep?.id !== 'sponsor-transition' && (
                   <rect
                     x={targetElement.getBoundingClientRect().left - 8}
                     y={targetElement.getBoundingClientRect().top - 8}
@@ -186,7 +230,7 @@ export function DemoOverlay() {
               width="100%" 
               height="100%" 
               fill="rgba(0, 0, 0, 0.7)" 
-              mask="url(#cutout-mask)"
+              mask={currentStep?.id === 'sponsor-transition' ? undefined : "url(#cutout-mask)"}
               style={{ backdropFilter: 'blur(2px)' }}
             />
           </svg>
@@ -252,10 +296,9 @@ export function DemoOverlay() {
                       variant="outline"
                       size="sm"
                       onClick={previousStep}
-                      className="text-xs"
+                      className="text-xs px-2"
                     >
-                      <ArrowLeft className="h-3 w-3 mr-1" />
-                      Back
+                      <ArrowLeft className="h-3 w-3" />
                     </Button>
                   )}
                   
@@ -263,18 +306,18 @@ export function DemoOverlay() {
                     variant="destructive"
                     size="sm"
                     onClick={exitDemo}
-                    className="text-xs"
+                    className="text-xs px-2"
                   >
-                    Exit Demo
+                    <X className="h-3 w-3" />
                   </Button>
                   
                   {!isDemoComplete && (
                     <Button
                       size="sm"
                       onClick={nextStep}
-                      className="text-xs bg-purple-600 hover:bg-purple-700"
+                      className="text-xs bg-purple-600 hover:bg-purple-700 px-3"
                     >
-                      {isLastStep && demoState.phase !== 'complete' ? 'Continue Demo' : 'Continue'}
+                      {isLastStep && demoState.phase !== 'complete' ? 'Continue' : 'Next'}
                       <ArrowRight className="h-3 w-3 ml-1" />
                     </Button>
                   )}

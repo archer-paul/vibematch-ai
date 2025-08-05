@@ -42,7 +42,18 @@ const initialDemoState: DemoState = {
 };
 
 export function DemoProvider({ children }: { children: ReactNode }) {
-  const [demoState, setDemoState] = useState<DemoState>(initialDemoState);
+  const [demoState, setDemoState] = useState<DemoState>(() => {
+    // Restore demo state from localStorage if it exists
+    const savedState = localStorage.getItem('demo-state');
+    if (savedState) {
+      try {
+        return JSON.parse(savedState);
+      } catch (e) {
+        return initialDemoState;
+      }
+    }
+    return initialDemoState;
+  });
 
   const startDemo = () => {
     setDemoState({
@@ -98,10 +109,14 @@ export function DemoProvider({ children }: { children: ReactNode }) {
         }
       }
       
-      return {
+      const newState = {
         ...prev,
         currentStep: newStep
       };
+      
+      // Save state to localStorage for persistence
+      localStorage.setItem('demo-state', JSON.stringify(newState));
+      return newState;
     });
   };
 
@@ -122,6 +137,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     setDemoMode(false);
     localStorage.removeItem('demo-mode');
     localStorage.removeItem('demo-user-type');
+    localStorage.removeItem('demo-state');
     sessionStorage.removeItem('demo-refreshed');
     // Navigate to landing page without reload to avoid loops
     window.location.href = '/';
@@ -223,8 +239,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               id: 'sponsor-transition',
               title: 'Now Let\'s See the Sponsor Side',
               description: 'Experience how brands discover and collaborate with creators like you. Click "Sponsor / Brand" to continue.',
-              target: '[data-demo="brand-button"]',
-              position: 'bottom'
+              position: 'top'
             }
           ];
           totalSteps = 1;
@@ -282,7 +297,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
           break;
       }
 
-      return {
+      const newState = {
         ...prev,
         isActive: true, // Ensure demo is active when setting phase
         phase,
@@ -290,6 +305,10 @@ export function DemoProvider({ children }: { children: ReactNode }) {
         totalSteps,
         currentStep: 0
       };
+      
+      // Save state to localStorage for persistence
+      localStorage.setItem('demo-state', JSON.stringify(newState));
+      return newState;
     });
   };
 

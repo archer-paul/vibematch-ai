@@ -15,12 +15,30 @@ export function useDemoInteractions() {
     if (window.location.pathname === '/matches' && currentStep?.action === 'swipe-action') {
       const handleSwipeDetection = () => {
         console.log('Demo swipe interaction detected');
-        // Return to dashboard after swipe
+        // Show "return to dashboard" message
         setTimeout(() => {
-          navigate('/dashboard');
-          // Move to next step in demo
-          setTimeout(() => nextStep(), 500);
-        }, 1500);
+          const returnToDashboard = document.createElement('div');
+          returnToDashboard.innerHTML = `
+            <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                        background: white; padding: 20px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                        z-index: 10001; text-align: center; max-width: 300px;">
+              <h3 style="margin: 0 0 10px 0; color: #6b46c1;">Great Match!</h3>
+              <p style="margin: 0 0 15px 0; color: #374151;">Now let's return to the dashboard to continue the tour.</p>
+              <button style="background: #6b46c1; color: white; border: none; padding: 8px 16px; 
+                            border-radius: 6px; cursor: pointer;" onclick="this.parentElement.parentElement.remove(); window.location.href='/dashboard';">
+                Return to Dashboard
+              </button>
+            </div>
+          `;
+          document.body.appendChild(returnToDashboard);
+          
+          // Auto navigate after 3 seconds
+          setTimeout(() => {
+            returnToDashboard.remove();
+            navigate('/dashboard');
+            setTimeout(() => nextStep(), 500);
+          }, 3000);
+        }, 1000);
       };
 
       // Listen for any swipe button clicks
@@ -49,10 +67,43 @@ export function useDemoInteractions() {
                   element.getAttribute('role') === 'dialog' ||
                   element.classList.contains('modal')) {
                 console.log('Demo modal opened');
-                // Auto-advance demo after modal opens
+                
+                // Wait a bit for modal to fully render, then show message to click "Send Message"
                 setTimeout(() => {
-                  nextStep();
-                }, 2000);
+                  const sendButton = document.querySelector('button[type="submit"]') || 
+                                   document.querySelector('button:contains("Send")') ||
+                                   document.querySelector('button:contains("Message")');
+                  
+                  if (sendButton) {
+                    // Add demo highlighting to send button
+                    (sendButton as HTMLElement).style.position = 'relative';
+                    (sendButton as HTMLElement).style.zIndex = '10001';
+                    (sendButton as HTMLElement).style.boxShadow = '0 0 0 4px rgba(139, 92, 246, 0.5)';
+                    (sendButton as HTMLElement).style.borderRadius = '8px';
+                    
+                    // Add click handler
+                    const handleSendClick = () => {
+                      console.log('Demo send message clicked');
+                      // Remove highlighting
+                      (sendButton as HTMLElement).style.position = '';
+                      (sendButton as HTMLElement).style.zIndex = '';
+                      (sendButton as HTMLElement).style.boxShadow = '';
+                      
+                      // Close modal and advance demo
+                      setTimeout(() => {
+                        const closeButton = document.querySelector('[data-dismiss="modal"]') || 
+                                          document.querySelector('button[aria-label="Close"]') ||
+                                          element.querySelector('button:last-child');
+                        if (closeButton) {
+                          (closeButton as HTMLElement).click();
+                        }
+                        nextStep();
+                      }, 1000);
+                    };
+                    
+                    sendButton.addEventListener('click', handleSendClick);
+                  }
+                }, 1500);
               }
             }
           });
