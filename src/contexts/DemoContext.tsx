@@ -84,9 +84,11 @@ export function DemoProvider({ children }: { children: ReactNode }) {
             setTimeout(() => setPhase('transition'), 100);
             break;
           case 'transition':
-            // Move to sponsor tour (skip sponsor auth)
-            console.log('Moving to sponsor-tour phase');
-            setTimeout(() => setPhase('sponsor-tour'), 100);
+            // Return to landing page and prepare brand demo
+            console.log('Moving to transition - returning to landing page');
+            setDemoUser('sponsor');
+            localStorage.setItem('demo-user-type', 'sponsor');
+            window.location.href = '/';
             break;
           case 'sponsor-tour':
             // Complete demo
@@ -117,6 +119,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   const exitDemo = () => {
     // Clear demo state and storage
     setDemoState(initialDemoState);
+    setDemoMode(false);
     localStorage.removeItem('demo-mode');
     localStorage.removeItem('demo-user-type');
     sessionStorage.removeItem('demo-refreshed');
@@ -149,9 +152,17 @@ export function DemoProvider({ children }: { children: ReactNode }) {
             {
               id: 'ai-matches-button',
               title: 'AI Matches',
-              description: 'Click here to discover brands that are perfectly matched to your content and audience.',
+              description: 'Click here to discover brands that are perfectly matched to your content and audience. Go ahead and click it!',
               target: '[data-demo="ai-matches"]',
-              position: 'right'
+              position: 'right',
+              action: 'navigate-to-matches'
+            },
+            {
+              id: 'swipe-interaction',
+              title: 'Swipe to Match',
+              description: 'Now swipe right to like a sponsor or left to pass. Try swiping right on the first sponsor!',
+              position: 'top',
+              action: 'swipe-action'
             },
             {
               id: 'performance-growth',
@@ -170,16 +181,24 @@ export function DemoProvider({ children }: { children: ReactNode }) {
             {
               id: 'apply-now-button',
               title: 'Apply to Partnerships',
-              description: 'Use the Apply Now button to start collaborations with brands that match your style.',
+              description: 'Use the Apply Now button to start collaborations with brands that match your style. Click it now!',
               target: '[data-demo="apply-now"]',
-              position: 'left'
+              position: 'left',
+              action: 'open-modal'
             },
             {
               id: 'nav-campaigns',
               title: 'My Campaigns',
-              description: 'Navigate to My Campaigns to manage your active collaborations.',
+              description: 'Navigate to My Campaigns to manage your active collaborations. Click on it to see your campaigns.',
               target: '[data-demo="nav-campaigns"]',
-              position: 'bottom'
+              position: 'bottom',
+              action: 'navigate-campaigns'
+            },
+            {
+              id: 'campaigns-overview',
+              title: 'Campaign Management',
+              description: 'Here you can track all your active campaigns and their progress. Great! Now let\'s continue with the tour.',
+              position: 'top'
             },
             {
               id: 'nav-messages',
@@ -196,15 +215,16 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               position: 'bottom'
             }
           ];
-          totalSteps = 9;
+          totalSteps = 11;
           break;
         case 'transition':
           newSteps = [
             {
               id: 'sponsor-transition',
               title: 'Now Let\'s See the Sponsor Side',
-              description: 'Experience how brands discover and collaborate with creators like you.',
-              position: 'top'
+              description: 'Experience how brands discover and collaborate with creators like you. Click "Sponsor / Brand" to continue.',
+              target: '[data-demo="brand-button"]',
+              position: 'bottom'
             }
           ];
           totalSteps = 1;

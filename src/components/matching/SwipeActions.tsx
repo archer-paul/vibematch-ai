@@ -36,6 +36,7 @@ export function SwipeActions({ onAction, canUseSuperLike, superLikesRemaining, d
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-50'}
         `}
         onClick={() => handleAction('dislike')}
+        data-testid="swipe-button"
       >
         <X className="w-7 h-7 text-red-500" />
         <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
@@ -55,6 +56,7 @@ export function SwipeActions({ onAction, canUseSuperLike, superLikesRemaining, d
           ${!canUseSuperLike ? 'opacity-50 cursor-not-allowed' : disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gradient-to-r hover:from-yellow-50 hover:to-orange-50'}
         `}
         onClick={() => handleAction('super_like')}
+        data-testid="swipe-button"
       >
         <div className="relative">
           <Star className="w-8 h-8 text-yellow-500" />
@@ -82,6 +84,7 @@ export function SwipeActions({ onAction, canUseSuperLike, superLikesRemaining, d
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-50'}
         `}
         onClick={() => handleAction('like')}
+        data-testid="swipe-button"
       >
         <Heart className="w-7 h-7 text-green-500" />
         <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">

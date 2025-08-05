@@ -16,6 +16,7 @@ import { MessageCenter } from '@/components/dashboard/MessageCenter';
 import { useDemoAuth } from '@/hooks/useDemoAuth';
 import { DemoOverlay } from '@/components/demo/DemoOverlay';
 import { useDemo } from '@/contexts/DemoContext';
+import { useDemoInteractions } from '@/hooks/useDemoInteractions';
 import { useEffect } from 'react';
 
 const creatorStats = [
@@ -36,6 +37,7 @@ export default function Dashboard() {
   const { profile } = useAuth();
   const { demoState, setPhase } = useDemo();
   useDemoAuth(); // Initialize demo auth handling
+  useDemoInteractions(); // Handle demo interactions
 
   // Resume demo tour after page refresh in demo mode
   useEffect(() => {

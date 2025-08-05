@@ -117,7 +117,15 @@ const Index = () => {
               <Sparkles className="mr-2 h-5 w-5" />
               Content Creator
             </InteractiveButton>
-            <InteractiveButton href="/auth" variant="secondary" className="text-lg px-8">
+            <InteractiveButton 
+              href={demoState.isActive && demoState.phase === 'transition' ? undefined : "/auth"} 
+              variant="secondary" 
+              className="text-lg px-8"
+              data-demo="brand-button"
+              onClick={demoState.isActive && demoState.phase === 'transition' ? (() => {
+                console.log('Brand button clicked in demo mode');
+              }) : undefined}
+            >
               <Building2 className="mr-2 h-5 w-5" />
               Sponsor / Brand
             </InteractiveButton>

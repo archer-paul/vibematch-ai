@@ -46,20 +46,56 @@ export function useDemoAuth() {
       }
     }
   }
+
+  // Handle special demo pages
+  if (window.location.pathname === '/matches' && demoState.phase === 'creator-tour') {
+    // Add swipe detection for demo
+    const handleSwipeAction = () => {
+      console.log('Swipe action detected during demo');
+      setTimeout(() => {
+        navigate('/dashboard');
+        setTimeout(() => setPhase('creator-tour'), 100);
+      }, 1000);
+    };
+
+    // Listen for swipe actions
+    const swipeButtons = document.querySelectorAll('[data-testid="swipe-button"]');
+    swipeButtons.forEach(button => {
+      button.addEventListener('click', handleSwipeAction);
+    });
+
+    return () => {
+      swipeButtons.forEach(button => {
+        button.removeEventListener('click', handleSwipeAction);
+      });
+    };
+  }
+
+  if (window.location.pathname === '/campaigns' && demoState.phase === 'creator-tour') {
+    // Quick return to dashboard after viewing campaigns
+    setTimeout(() => {
+      navigate('/dashboard');
+      setTimeout(() => setPhase('creator-tour'), 500);
+    }, 2000);
+  }
   }, [demoState.phase, demoState.isActive, navigate, setPhase]);
 
-  // Handle demo transitions
+  // Handle demo transitions and brand demo setup
   useEffect(() => {
     if (!demoState.isActive) return;
 
-    if (demoState.phase === 'transition') {
-      console.log('Demo transition phase - switching to sponsor');
-      // Brief pause before switching to sponsor
+    // Handle brand demo setup when coming back to landing page
+    const isDemoMode = localStorage.getItem('demo-mode') === 'true';
+    const demoUserType = localStorage.getItem('demo-user-type');
+    
+    if (isDemoMode && demoUserType === 'sponsor' && window.location.pathname === '/' && demoState.phase !== 'sponsor-tour') {
+      console.log('Setting up brand demo on landing page');
       setTimeout(() => {
         setPhase('sponsor-tour');
-      }, 2000);
+        setDemoUser('sponsor');
+      }, 500);
     }
-  }, [demoState.phase, demoState.isActive, setPhase]);
+  }, [demoState.phase, demoState.isActive, setPhase, setDemoUser]);
 
   return {
     isDemoMode: demoState.isActive,

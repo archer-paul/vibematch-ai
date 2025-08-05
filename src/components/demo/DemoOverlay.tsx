@@ -9,6 +9,7 @@ export function DemoOverlay() {
   const { demoState, nextStep, previousStep, skipStep, exitDemo } = useDemo();
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const [overlayPosition, setOverlayPosition] = useState({ x: 0, y: 0 });
+  const [tooltipDimensions, setTooltipDimensions] = useState({ width: 350, height: 200 });
 
   const currentStep = demoState.steps[demoState.currentStep];
 
@@ -23,24 +24,57 @@ export function DemoOverlay() {
       if (element) {
         setTargetElement(element);
         
-        // Add click event listener for the Creator button during demo
-        if (currentStep.target === '[data-demo="creator-button"]') {
-          const handleCreatorClick = (e: Event) => {
+        // Add click event listeners for interactive elements
+        if (currentStep.target === '[data-demo="creator-button"]' || 
+            currentStep.target === '[data-demo="brand-button"]' ||
+            currentStep.target === '[data-demo="ai-matches"]' ||
+            currentStep.target === '[data-demo="apply-now"]' ||
+            currentStep.target === '[data-demo="nav-campaigns"]') {
+          const handleElementClick = (e: Event) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Creator button clicked during demo, proceeding to next step');
+            console.log(`${currentStep.target} clicked during demo`);
+            
+            // Handle specific actions
+            if (currentStep.action === 'navigate-to-matches') {
+              window.location.href = '/matches';
+              return;
+            } else if (currentStep.action === 'navigate-campaigns') {
+              window.location.href = '/campaigns';
+              return;
+            } else if (currentStep.action === 'open-modal') {
+              // Find and click the Apply Now button to open modal
+              const applyButton = document.querySelector('[data-demo="apply-now"]');
+              if (applyButton) {
+                (applyButton as HTMLElement).click();
+              }
+            } else if (currentStep.target === '[data-demo="brand-button"]') {
+              // Handle brand button click - setup sponsor demo
+              console.log('Setting up sponsor demo');
+              // Clear creator demo data and setup sponsor
+              localStorage.setItem('demo-user-type', 'sponsor');
+              // Navigate to auth to setup sponsor profile
+              window.location.href = '/auth';
+              return;
+            }
+            
             nextStep();
           };
-          element.addEventListener('click', handleCreatorClick);
-          
-          // Cleanup function will be handled in the outer effect cleanup
+          element.addEventListener('click', handleElementClick);
           element.dataset.demoClickHandler = 'true';
         }
         
         // Calculate position for the tooltip
         const rect = element.getBoundingClientRect();
-        const tooltipWidth = 350;
-        const tooltipHeight = 200;
+        // Dynamic tooltip sizing based on content
+        const baseWidth = 350;
+        const baseHeight = 220;
+        const contentLength = (currentStep.title + currentStep.description).length;
+        const extraHeight = Math.max(0, (contentLength - 100) * 0.8);
+        const tooltipWidth = Math.min(baseWidth + (contentLength > 150 ? 50 : 0), 450);
+        const tooltipHeight = Math.min(baseHeight + extraHeight, 350);
+        
+        setTooltipDimensions({ width: tooltipWidth, height: tooltipHeight });
         
         let x = rect.left + rect.width / 2 - tooltipWidth / 2;
         let y = rect.bottom + 20;
@@ -119,6 +153,7 @@ export function DemoOverlay() {
 
   const isFirstStep = demoState.currentStep === 0;
   const isLastStep = demoState.currentStep === demoState.totalSteps - 1;
+  const isDemoComplete = demoState.phase === 'complete';
 
   return (
     <AnimatePresence>
@@ -163,18 +198,19 @@ export function DemoOverlay() {
           style={{
             left: overlayPosition.x,
             top: overlayPosition.y,
-            width: 350
+            width: tooltipDimensions.width,
+            maxHeight: tooltipDimensions.height
           }}
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
         >
-          <Card className="bg-white/95 backdrop-blur-md border border-purple-200 shadow-2xl">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <Card className="bg-white/95 backdrop-blur-md border border-purple-200 shadow-2xl overflow-hidden">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1 pr-2">
+                  <h3 className="text-base font-semibold text-gray-900 mb-2 leading-tight">
                     {currentStep.title}
                   </h3>
                   <p className="text-gray-700 text-sm leading-relaxed">
@@ -232,14 +268,16 @@ export function DemoOverlay() {
                     Exit Demo
                   </Button>
                   
-                  <Button
-                    size="sm"
-                    onClick={nextStep}
-                    className="text-xs bg-purple-600 hover:bg-purple-700"
-                  >
-                    {isLastStep ? 'Continue Demo' : 'Continue'}
-                    <ArrowRight className="h-3 w-3 ml-1" />
-                  </Button>
+                  {!isDemoComplete && (
+                    <Button
+                      size="sm"
+                      onClick={nextStep}
+                      className="text-xs bg-purple-600 hover:bg-purple-700"
+                    >
+                      {isLastStep && demoState.phase !== 'complete' ? 'Continue Demo' : 'Continue'}
+                      <ArrowRight className="h-3 w-3 ml-1" />
+                    </Button>
+                  )}
                 </div>
               </div>
             </CardContent>

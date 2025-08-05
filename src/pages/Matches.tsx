@@ -11,6 +11,7 @@ import { SwipeCard } from '@/components/matching/SwipeCard';
 import { SwipeActions } from '@/components/matching/SwipeActions';
 import { MatchingStats } from '@/components/matching/MatchingStats';
 import { useEnhancedDemoData } from '@/hooks/useEnhancedDemoData';
+import { useDemoInteractions } from '@/hooks/useDemoInteractions';
 
 interface SponsorProfile {
   id: string;
@@ -29,6 +30,7 @@ export default function Matches() {
   const { profile } = useAuth();
   const { useSuperLike, canUseSuperLike, getSuperLikesRemaining, quotas } = useGamification();
   const { getAllSponsors } = useEnhancedDemoData();
+  useDemoInteractions(); // Handle demo interactions
   const [sponsors, setSponsors] = useState<SponsorProfile[]>([]);
   const [currentSponsorIndex, setCurrentSponsorIndex] = useState(0);
   const [loading, setLoading] = useState(true);
