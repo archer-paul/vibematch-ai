@@ -109,8 +109,33 @@ export function DemoOverlay() {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
       >
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+        {/* Dark overlay with cutout for target element */}
+        <div className="absolute inset-0">
+          <svg width="100%" height="100%" className="absolute inset-0">
+            <defs>
+              <mask id="cutout-mask">
+                <rect width="100%" height="100%" fill="white" />
+                {targetElement && (
+                  <rect
+                    x={targetElement.getBoundingClientRect().left - 8}
+                    y={targetElement.getBoundingClientRect().top - 8}
+                    width={targetElement.getBoundingClientRect().width + 16}
+                    height={targetElement.getBoundingClientRect().height + 16}
+                    rx="12"
+                    fill="black"
+                  />
+                )}
+              </mask>
+            </defs>
+            <rect 
+              width="100%" 
+              height="100%" 
+              fill="rgba(0, 0, 0, 0.7)" 
+              mask="url(#cutout-mask)"
+              style={{ backdropFilter: 'blur(2px)' }}
+            />
+          </svg>
+        </div>
         
         {/* Demo tooltip */}
         <motion.div

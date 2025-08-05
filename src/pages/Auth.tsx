@@ -8,10 +8,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Sparkles, Building2 } from 'lucide-react';
+import { useDemoAuth } from '@/hooks/useDemoAuth';
+import { useDemo } from '@/contexts/DemoContext';
 
 export default function Auth() {
   const { user, signIn, signUp } = useAuth();
   const [loading, setLoading] = useState(false);
+  const { isDemoMode } = useDemoAuth();
+  const { demoState } = useDemo();
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState('');
@@ -25,6 +29,28 @@ export default function Auth() {
 
   if (user) {
     return <Navigate to="/dashboard" replace />;
+  }
+
+  // Handle demo auto-login
+  if (isDemoMode && demoState.phase === 'creator-auth') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle>Demo Mode</CardTitle>
+            <CardDescription>
+              Setting up your demo account...
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center py-8">
+            <div className="animate-spin mx-auto w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full mb-4"></div>
+            <p className="text-sm text-muted-foreground">
+              Logging you in as Alex Rivera (Demo Creator)
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   const handleLogin = async (e: React.FormEvent) => {

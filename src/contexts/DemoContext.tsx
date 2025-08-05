@@ -62,10 +62,40 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   };
 
   const nextStep = () => {
-    setDemoState(prev => ({
-      ...prev,
-      currentStep: Math.min(prev.currentStep + 1, prev.totalSteps - 1)
-    }));
+    setDemoState(prev => {
+      const newStep = Math.min(prev.currentStep + 1, prev.totalSteps - 1);
+      
+      // Handle phase transitions
+      if (newStep >= prev.totalSteps - 1) {
+        switch (prev.phase) {
+          case 'landing':
+            // Move to creator auth phase
+            setTimeout(() => setPhase('creator-auth'), 100);
+            break;
+          case 'creator-auth':
+            // Move to creator tour
+            setTimeout(() => setPhase('creator-tour'), 100);
+            break;
+          case 'creator-tour':
+            // Move to transition phase
+            setTimeout(() => setPhase('transition'), 100);
+            break;
+          case 'transition':
+            // Move to sponsor tour (skip sponsor auth)
+            setTimeout(() => setPhase('sponsor-tour'), 100);
+            break;
+          case 'sponsor-tour':
+            // Complete demo
+            setTimeout(() => setPhase('complete'), 100);
+            break;
+        }
+      }
+      
+      return {
+        ...prev,
+        currentStep: newStep
+      };
+    });
   };
 
   const previousStep = () => {

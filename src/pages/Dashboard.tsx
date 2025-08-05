@@ -13,6 +13,8 @@ import { CampaignManager } from '@/components/dashboard/CampaignManager';
 import { CreatorAnalytics } from '@/components/dashboard/CreatorAnalytics';
 import { NotificationCenter } from '@/components/dashboard/NotificationCenter';
 import { MessageCenter } from '@/components/dashboard/MessageCenter';
+import { useDemoAuth } from '@/hooks/useDemoAuth';
+import { DemoOverlay } from '@/components/demo/DemoOverlay';
 
 const creatorStats = [
   { title: 'AI Matches', value: '42', change: '+12%', icon: Sparkles },
@@ -30,6 +32,7 @@ const sponsorStats = [
 
 export default function Dashboard() {
   const { profile } = useAuth();
+  useDemoAuth(); // Initialize demo auth handling
 
   if (!profile) {
     return (
@@ -48,7 +51,8 @@ export default function Dashboard() {
 
   return (
     <div className={`space-y-8 ${!isCreator ? 'sponsor-theme' : 'creator-theme'}`}>
-      <div>
+      <DemoOverlay />
+      <div data-demo="dashboard">
         <h1 className="text-3xl font-bold">{welcomeTitle}</h1>
         <p className="text-muted-foreground mt-2">
           Hello {profile.full_name}! {welcomeDescription}
