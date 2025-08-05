@@ -1,8 +1,15 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { PerformanceChart } from "./PerformanceChart";
+import { useNotifications } from "@/hooks/useNotifications";
+import { CampaignBuilderModal } from "@/components/modals/CampaignBuilderModal";
+import { FilterReportModal } from "@/components/modals/FilterReportModal";
+import { ExportDataModal } from "@/components/modals/ExportDataModal";
+import { ReviewBudgetModal } from "@/components/modals/ReviewBudgetModal";
+import { ViewCreatorsModal } from "@/components/modals/ViewCreatorsModal";
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -78,6 +85,40 @@ const quickActions = [
 ];
 
 export function CampaignOverview() {
+  const [showCampaignBuilder, setShowCampaignBuilder] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [showBudgetModal, setShowBudgetModal] = useState(false);
+  const [showCreatorsModal, setShowCreatorsModal] = useState(false);
+  const { showSuccess } = useNotifications();
+
+  const handleQuickAction = (label: string) => {
+    switch (label) {
+      case "Create Campaign":
+        setShowCampaignBuilder(true);
+        break;
+      case "Filter Reports":
+        setShowFilterModal(true);
+        break;
+      case "Export Data":
+        setShowExportModal(true);
+        break;
+    }
+  };
+
+  const handleAlertAction = (action: string) => {
+    switch (action) {
+      case "Review Budget":
+        setShowBudgetModal(true);
+        break;
+      case "View Details":
+        showSuccess("Opening campaign details...");
+        break;
+      case "View Creators":
+        setShowCreatorsModal(true);
+        break;
+    }
+  };
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -88,7 +129,13 @@ export function CampaignOverview() {
         </div>
         <div className="flex gap-2">
           {quickActions.map((action, index) => (
-            <Button key={index} variant={action.variant} size="sm" className="gap-2">
+            <Button 
+              key={index} 
+              variant={action.variant} 
+              size="sm" 
+              className="gap-2"
+              onClick={() => handleQuickAction(action.label)}
+            >
               <action.icon className="h-4 w-4" />
               {action.label}
             </Button>
@@ -163,7 +210,12 @@ export function CampaignOverview() {
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-corporate-gray-dark">{alert.title}</p>
                   <p className="text-sm text-corporate-gray">{alert.message}</p>
-                  <Button variant="link" size="sm" className="h-auto p-0 mt-1 text-corporate-blue">
+                  <Button 
+                    variant="link" 
+                    size="sm" 
+                    className="h-auto p-0 mt-1 text-corporate-blue"
+                    onClick={() => handleAlertAction(alert.action)}
+                  >
                     {alert.action}
                   </Button>
                 </div>
@@ -206,6 +258,36 @@ export function CampaignOverview() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modals */}
+      <CampaignBuilderModal 
+        isOpen={showCampaignBuilder}
+        onClose={() => setShowCampaignBuilder(false)}
+      />
+      
+      <FilterReportModal 
+        isOpen={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        onApplyFilters={(filters) => {
+          showSuccess("Filters applied successfully!");
+          setShowFilterModal(false);
+        }}
+      />
+      
+      <ExportDataModal 
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+      />
+      
+      <ReviewBudgetModal 
+        isOpen={showBudgetModal}
+        onClose={() => setShowBudgetModal(false)}
+      />
+      
+      <ViewCreatorsModal 
+        isOpen={showCreatorsModal}
+        onClose={() => setShowCreatorsModal(false)}
+      />
     </div>
   );
 }

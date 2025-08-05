@@ -61,7 +61,19 @@ export function AppSidebar() {
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground';
 
-  const navItems = profile?.user_type === 'creator' ? creatorNavItems : sponsorNavItems;
+  // Filter out creator-only items for sponsors
+  const getNavItems = () => {
+    if (profile?.user_type === 'creator') {
+      return creatorNavItems;
+    } else {
+      // Remove AI Matches and Leaderboards for sponsors
+      return sponsorNavItems.filter(item => 
+        !item.title.includes('AI Matches') && !item.title.includes('Leaderboard')
+      );
+    }
+  };
+  
+  const navItems = getNavItems();
   const userTypeLabel = profile?.user_type === 'creator' ? 'Creator' : 'Sponsor';
 
   return (
