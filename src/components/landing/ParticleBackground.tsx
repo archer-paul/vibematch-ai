@@ -62,7 +62,7 @@ export function ParticleBackground() {
   const elementsRef = useRef<FloatingElement[]>([]);
   const connectionsRef = useRef<Connection[]>([]);
   const lastConnectionTimeRef = useRef(0);
-  const animationIdRef = useRef<number>();
+  const animationIdRef = useRef<number>(0);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -728,7 +728,7 @@ export function ParticleBackground() {
         background: 'transparent'
       }}
     >
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{__html: `
         .particle {
           transition: transform 0.1s ease-out, opacity 0.3s ease-in-out;
         }
@@ -786,7 +786,7 @@ export function ParticleBackground() {
           opacity: 1;
           transform: translate(-50%, -50%) scale(1.5);
         }
-      `}</style>
+      `}} />
     </div>
   );
 }

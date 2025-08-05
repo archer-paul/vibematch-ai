@@ -14,7 +14,7 @@ export function CursorTrail() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particles = useRef<Particle[]>([]);
   const mouse = useRef({ x: 0, y: 0 });
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number>(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
