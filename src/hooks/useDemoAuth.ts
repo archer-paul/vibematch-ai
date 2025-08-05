@@ -19,12 +19,22 @@ export function useDemoAuth() {
       console.log('Setting up demo creator - navigating to dashboard');
       // Navigate to dashboard immediately - demo mode already set in DemoContext
       navigate('/dashboard');
+      
+      // Force refresh after navigation to ensure proper state
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     }
     
     if (demoState.phase === 'sponsor-tour') {
       console.log('Setting up demo sponsor - navigating to dashboard');
       // Navigate to sponsor dashboard immediately
       navigate('/dashboard');
+      
+      // Force refresh after navigation to ensure proper state
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     }
   }, [demoState.phase, demoState.isActive, navigate, setPhase]);
 

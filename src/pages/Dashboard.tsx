@@ -15,6 +15,8 @@ import { NotificationCenter } from '@/components/dashboard/NotificationCenter';
 import { MessageCenter } from '@/components/dashboard/MessageCenter';
 import { useDemoAuth } from '@/hooks/useDemoAuth';
 import { DemoOverlay } from '@/components/demo/DemoOverlay';
+import { useDemo } from '@/contexts/DemoContext';
+import { useEffect } from 'react';
 
 const creatorStats = [
   { title: 'AI Matches', value: '42', change: '+12%', icon: Sparkles },
@@ -32,7 +34,23 @@ const sponsorStats = [
 
 export default function Dashboard() {
   const { profile } = useAuth();
+  const { demoState, setPhase } = useDemo();
   useDemoAuth(); // Initialize demo auth handling
+
+  // Resume demo tour after page refresh in demo mode
+  useEffect(() => {
+    const isDemoMode = localStorage.getItem('demo-mode') === 'true';
+    const demoUserType = localStorage.getItem('demo-user-type');
+    
+    if (isDemoMode && demoUserType && !demoState.isActive) {
+      console.log('Resuming demo after page refresh');
+      if (demoUserType === 'creator') {
+        setPhase('creator-tour');
+      } else if (demoUserType === 'sponsor') {
+        setPhase('sponsor-tour');
+      }
+    }
+  }, [demoState.isActive, setPhase]);
 
   if (!profile) {
     return (

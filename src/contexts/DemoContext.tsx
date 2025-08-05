@@ -211,6 +211,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
 
       return {
         ...prev,
+        isActive: true, // Ensure demo is active when setting phase
         phase,
         steps: newSteps,
         totalSteps,

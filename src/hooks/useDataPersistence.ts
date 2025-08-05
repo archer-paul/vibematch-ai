@@ -217,7 +217,9 @@ export function useDataPersistence() {
 
   // Seed database when hook is first used (only once)
   useEffect(() => {
-    if (profile) {
+    // Skip seeding in demo mode to avoid UUID errors
+    const isDemoMode = localStorage.getItem('demo-mode') === 'true';
+    if (profile && !isDemoMode) {
       // Seed demo data for all users (for demo purposes)
       seedDatabase();
       seedGhostProfiles();
