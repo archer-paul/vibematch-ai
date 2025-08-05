@@ -42,6 +42,7 @@ export default function Dashboard() {
     const isDemoMode = localStorage.getItem('demo-mode') === 'true';
     const demoUserType = localStorage.getItem('demo-user-type');
     
+    // Only resume demo if demo is not already active (to avoid loops)
     if (isDemoMode && demoUserType && !demoState.isActive) {
       console.log('Resuming demo after page refresh');
       if (demoUserType === 'creator') {
