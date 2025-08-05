@@ -11,6 +11,7 @@ import { ParticleField } from '@/components/landing/ParticleField';
 import { DemoOverlay } from '@/components/demo/DemoOverlay';
 import { Sparkles, Building2, Zap, Users, Target, BarChart3, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useDemoAuth } from '@/hooks/useDemoAuth';
 
 const features = [
   {
@@ -38,6 +39,7 @@ const features = [
 const Index = () => {
   const { user } = useAuth();
   const { startDemo, demoState } = useDemo();
+  useDemoAuth(); // Initialize demo auth handling
 
   if (user) {
     return <Navigate to="/dashboard" replace />;

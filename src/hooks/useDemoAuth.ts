@@ -12,8 +12,11 @@ export function useDemoAuth() {
   useEffect(() => {
     if (!demoState.isActive) return;
 
+    console.log('Demo auth phase changed to:', demoState.phase);
+
     // Handle demo authentication phases
     if (demoState.phase === 'creator-auth') {
+      console.log('Setting up demo creator');
       // Simulate auto-login for creator
       setDemoMode(true);
       setDemoUser('creator');
@@ -21,12 +24,14 @@ export function useDemoAuth() {
       
       // Navigate to dashboard after short delay
       setTimeout(() => {
+        console.log('Navigating to dashboard');
         navigate('/dashboard');
         setPhase('creator-tour');
-      }, 1500);
+      }, 2000); // Increased delay to show loading
     }
     
     if (demoState.phase === 'sponsor-tour') {
+      console.log('Setting up demo sponsor');
       // Switch to sponsor demo user
       setDemoUser('sponsor');
       localStorage.setItem('demo-user-type', 'sponsor');
@@ -42,11 +47,15 @@ export function useDemoAuth() {
   useEffect(() => {
     if (!demoState.isActive) return;
 
+    console.log('Demo phase changed to:', demoState.phase);
+
     switch (demoState.phase) {
       case 'creator-auth':
+        console.log('Navigating to /auth for demo creator login');
         navigate('/auth');
         break;
       case 'transition':
+        console.log('Demo transition phase - switching to sponsor');
         // Brief pause before switching to sponsor
         setTimeout(() => {
           setPhase('sponsor-tour');

@@ -67,25 +67,31 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       
       // Handle phase transitions
       if (newStep >= prev.totalSteps - 1) {
+        console.log('Demo step completed, current phase:', prev.phase);
         switch (prev.phase) {
           case 'landing':
             // Move to creator auth phase
+            console.log('Moving to creator-auth phase');
             setTimeout(() => setPhase('creator-auth'), 100);
             break;
           case 'creator-auth':
             // Move to creator tour
+            console.log('Moving to creator-tour phase');
             setTimeout(() => setPhase('creator-tour'), 100);
             break;
           case 'creator-tour':
             // Move to transition phase
+            console.log('Moving to transition phase');
             setTimeout(() => setPhase('transition'), 100);
             break;
           case 'transition':
             // Move to sponsor tour (skip sponsor auth)
+            console.log('Moving to sponsor-tour phase');
             setTimeout(() => setPhase('sponsor-tour'), 100);
             break;
           case 'sponsor-tour':
             // Complete demo
+            console.log('Demo completed');
             setTimeout(() => setPhase('complete'), 100);
             break;
         }
