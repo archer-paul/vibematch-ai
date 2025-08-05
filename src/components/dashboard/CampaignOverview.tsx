@@ -78,6 +78,12 @@ const quickActions = [
 ];
 
 export function CampaignOverview() {
+  const [showCampaignBuilder, setShowCampaignBuilder] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [showBudgetModal, setShowBudgetModal] = useState(false);
+  const [showCreatorsModal, setShowCreatorsModal] = useState(false);
+  const { showSuccess } = useNotifications();
   return (
     <div className="space-y-6">
       {/* Header */}
