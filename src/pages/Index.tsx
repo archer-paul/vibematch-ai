@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useDemo } from '@/contexts/DemoContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +8,8 @@ import { ParticleBackground } from '@/components/landing/ParticleBackground';
 import { AnimatedTitle } from '@/components/landing/AnimatedTitle';
 import { InteractiveButton } from '@/components/landing/InteractiveButton';
 import { ParticleField } from '@/components/landing/ParticleField';
-import { Sparkles, Building2, Zap, Users, Target, BarChart3 } from 'lucide-react';
+import { DemoOverlay } from '@/components/demo/DemoOverlay';
+import { Sparkles, Building2, Zap, Users, Target, BarChart3, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const features = [
@@ -35,6 +37,7 @@ const features = [
 
 const Index = () => {
   const { user } = useAuth();
+  const { startDemo, demoState } = useDemo();
 
   if (user) {
     return <Navigate to="/dashboard" replace />;
@@ -42,6 +45,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen immersive-bg relative overflow-hidden">
+      {/* Demo Overlay */}
+      <DemoOverlay />
+      
       {/* Animated Background Effects */}
       <ParticleBackground />
       {/* Header */}
@@ -96,13 +102,26 @@ const Index = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.5, duration: 0.8 }}
           >
-            <InteractiveButton href="/auth" variant="primary" className="text-lg px-8">
+            <InteractiveButton 
+              href="/auth" 
+              variant="primary" 
+              className="text-lg px-8"
+              data-demo="creator-button"
+            >
               <Sparkles className="mr-2 h-5 w-5" />
               Content Creator
             </InteractiveButton>
             <InteractiveButton href="/auth" variant="secondary" className="text-lg px-8">
               <Building2 className="mr-2 h-5 w-5" />
               Sponsor / Brand
+            </InteractiveButton>
+            <InteractiveButton 
+              variant="demo" 
+              className="text-lg px-8"
+              onClick={startDemo}
+            >
+              <Play className="mr-2 h-5 w-5" />
+              Try Demo
             </InteractiveButton>
           </motion.div>
         </div>

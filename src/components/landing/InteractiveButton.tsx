@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 interface InteractiveButtonProps {
   children: ReactNode;
   href?: string;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'demo';
   size?: 'sm' | 'lg';
   className?: string;
+  onClick?: () => void;
+  'data-demo'?: string;
 }
 
 export function InteractiveButton({ 
@@ -15,7 +17,9 @@ export function InteractiveButton({
   href, 
   variant = 'primary', 
   size = 'lg',
-  className = '' 
+  className = '',
+  onClick,
+  ...props
 }: InteractiveButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
@@ -41,7 +45,9 @@ export function InteractiveButton({
 
   const baseClasses = variant === 'primary' 
     ? "glass-button text-white border-white/20 hover:border-white/40 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 rounded-2xl px-8 py-4 text-lg font-semibold"
-    : "glass-button text-white border-white/20 hover:border-white/40 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30 rounded-2xl px-8 py-4 text-lg font-semibold";
+    : variant === 'secondary'
+    ? "glass-button text-white border-white/20 hover:border-white/40 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 hover:from-blue-500/30 hover:to-cyan-500/30 rounded-2xl px-8 py-4 text-lg font-semibold"
+    : "glass-button text-white border-white/40 hover:border-white/60 bg-white/20 hover:bg-white/30 rounded-2xl px-8 py-4 text-lg font-semibold";
 
   const buttonContent = (
     <motion.div
@@ -53,8 +59,9 @@ export function InteractiveButton({
       whileTap={{ scale: 0.95 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={handleClick}
+      onClick={onClick || handleClick}
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      {...props}
     >
       {/* Ripple effects */}
       {ripples.map(ripple => (
@@ -115,7 +122,7 @@ export function InteractiveButton({
   }
 
   return (
-    <Button size={size} className="p-0 h-auto bg-transparent border-none hover:bg-transparent">
+    <Button size={size} className="p-0 h-auto bg-transparent border-none hover:bg-transparent" onClick={onClick} {...props}>
       {buttonContent}
     </Button>
   );
