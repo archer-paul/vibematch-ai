@@ -103,7 +103,7 @@ export default function Dashboard() {
         <div className="space-y-6">
           {/* Top Row - AI Profile and Quick Actions */}
           <div className="grid gap-6 lg:grid-cols-3">
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1" data-demo="ai-profile-score">
               <AIProfileScore />
             </div>
             <div className="lg:col-span-2 space-y-6">
@@ -120,19 +120,23 @@ export default function Dashboard() {
                       <Users className="mr-2 h-4 w-4" />
                       Complete Profile
                     </Button>
-                    <Button className="w-full" variant="outline" onClick={() => window.location.href = '/matches'}>
+                    <Button className="w-full" variant="outline" onClick={() => window.location.href = '/matches'} data-demo="ai-matches">
                       <Sparkles className="mr-2 h-4 w-4" />
                       AI Matches
                     </Button>
                   </div>
                 </CardContent>
               </Card>
-              <PerformanceChart />
+              <div data-demo="performance-growth">
+                <PerformanceChart />
+              </div>
             </div>
           </div>
 
           {/* Middle Row - Recommended Sponsors */}
-          <RecommendedSponsors />
+          <div data-demo="recommended-sponsors">
+            <RecommendedSponsors />
+          </div>
 
           {/* Bottom Row - Collaborations */}
           <CollaborationsManager />

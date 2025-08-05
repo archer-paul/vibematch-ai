@@ -297,6 +297,7 @@ export function RecommendedSponsors() {
                     onClick={() => handleApply(sponsor.id)}
                     disabled={applyingSponsors.has(sponsor.id)}
                     className={applyingSponsors.has(sponsor.id) ? 'bg-green-600 hover:bg-green-600' : ''}
+                    data-demo="apply-now"
                   >
                     {applyingSponsors.has(sponsor.id) ? (
                       <>

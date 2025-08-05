@@ -115,8 +115,12 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   };
 
   const exitDemo = () => {
+    // Clear demo state and storage
     setDemoState(initialDemoState);
-    // Redirect to main landing page
+    localStorage.removeItem('demo-mode');
+    localStorage.removeItem('demo-user-type');
+    sessionStorage.removeItem('demo-refreshed');
+    // Navigate to landing page without reload to avoid loops
     window.location.href = '/';
   };
 
@@ -136,28 +140,63 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               position: 'top'
             },
             {
-              id: 'matches-feature',
-              title: 'Smart Matching',
-              description: 'Discover brands that align with your content and audience using our AI matching system.',
-              target: '[data-demo="matches"]',
+              id: 'ai-profile-score',
+              title: 'AI Profile Score',
+              description: 'Your AI-powered profile score helps brands discover you. Keep improving to get better matches!',
+              target: '[data-demo="ai-profile-score"]',
               position: 'right'
             },
             {
-              id: 'messages-center',
-              title: 'Communication Hub',
-              description: 'Manage all your brand communications in one centralized location.',
-              target: '[data-demo="messages"]',
+              id: 'ai-matches-button',
+              title: 'AI Matches',
+              description: 'Click here to discover brands that are perfectly matched to your content and audience.',
+              target: '[data-demo="ai-matches"]',
               position: 'right'
             },
             {
-              id: 'profile-settings',
-              title: 'Profile Management',
-              description: 'Keep your profile updated to get better matching results.',
-              target: '[data-demo="profile"]',
-              position: 'right'
+              id: 'performance-growth',
+              title: 'Performance Analytics - Growth',
+              description: 'Track your growth metrics and performance over time in the Growth tab.',
+              target: '[data-demo="performance-growth"]',
+              position: 'top'
+            },
+            {
+              id: 'recommended-sponsors',
+              title: 'Recommended Sponsors',
+              description: 'Browse through AI-curated sponsor recommendations and apply to partnerships.',
+              target: '[data-demo="recommended-sponsors"]',
+              position: 'top'
+            },
+            {
+              id: 'apply-now-button',
+              title: 'Apply to Partnerships',
+              description: 'Use the Apply Now button to start collaborations with brands that match your style.',
+              target: '[data-demo="apply-now"]',
+              position: 'left'
+            },
+            {
+              id: 'nav-campaigns',
+              title: 'My Campaigns',
+              description: 'Navigate to My Campaigns to manage your active collaborations.',
+              target: '[data-demo="nav-campaigns"]',
+              position: 'bottom'
+            },
+            {
+              id: 'nav-messages',
+              title: 'Messages',
+              description: 'Stay connected with brands through our integrated messaging system.',
+              target: '[data-demo="nav-messages"]',
+              position: 'bottom'
+            },
+            {
+              id: 'nav-analytics',
+              title: 'Analytics',
+              description: 'Access detailed analytics about your performance and engagement.',
+              target: '[data-demo="nav-analytics"]',
+              position: 'bottom'
             }
           ];
-          totalSteps = 4;
+          totalSteps = 9;
           break;
         case 'transition':
           newSteps = [
@@ -176,25 +215,39 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               id: 'sponsor-dashboard',
               title: 'Brand Dashboard',
               description: 'Brands can track their campaigns and discover new creators here.',
-              target: '[data-demo="sponsor-dashboard"]',
+              target: '[data-demo="dashboard"]',
               position: 'top'
             },
             {
-              id: 'creator-discovery',
-              title: 'Creator Discovery',
-              description: 'Find the perfect creators for your campaigns using advanced filters.',
-              target: '[data-demo="discovery"]',
+              id: 'sponsor-campaigns',
+              title: 'Campaign Management',
+              description: 'Create and manage your influencer marketing campaigns efficiently.',
+              target: '[data-demo="nav-campaigns"]',
               position: 'right'
             },
             {
-              id: 'campaign-management',
-              title: 'Campaign Tools',
-              description: 'Create and manage your influencer marketing campaigns efficiently.',
-              target: '[data-demo="campaigns"]',
+              id: 'sponsor-discovery',
+              title: 'Creator Discovery',
+              description: 'Find the perfect creators for your campaigns using advanced filters.',
+              target: '[data-demo="nav-discover"]',
+              position: 'right'
+            },
+            {
+              id: 'sponsor-messages',
+              title: 'Communication',
+              description: 'Manage all your creator communications in one place.',
+              target: '[data-demo="nav-messages"]',
+              position: 'right'
+            },
+            {
+              id: 'sponsor-analytics',
+              title: 'Analytics & Reports',
+              description: 'Track your campaign performance and ROI with detailed analytics.',
+              target: '[data-demo="nav-analytics"]',
               position: 'right'
             }
           ];
-          totalSteps = 3;
+          totalSteps = 5;
           break;
         case 'complete':
           newSteps = [
