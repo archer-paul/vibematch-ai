@@ -17,17 +17,17 @@ export function useDemoAuth() {
     // Handle demo authentication phases
     if (demoState.phase === 'creator-auth') {
       console.log('Setting up demo creator');
-      // Simulate auto-login for creator
+      // Immediately set demo mode and user type
       setDemoMode(true);
       setDemoUser('creator');
       localStorage.setItem('demo-user-type', 'creator');
       
-      // Navigate to dashboard after short delay
+      // Navigate to dashboard immediately
       setTimeout(() => {
         console.log('Navigating to dashboard');
         navigate('/dashboard');
         setPhase('creator-tour');
-      }, 2000); // Increased delay to show loading
+      }, 100);
     }
     
     if (demoState.phase === 'sponsor-tour') {

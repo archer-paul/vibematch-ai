@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth, UserType } from '@/hooks/useAuth';
+import { isDemoMode } from '@/data/demoData';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -19,7 +20,7 @@ export function ProtectedRoute({ children, requiredUserType, requireOnboarding =
     );
   }
 
-  if (!user) {
+  if (!user && !isDemoMode()) {
     return <Navigate to="/auth" replace />;
   }
 

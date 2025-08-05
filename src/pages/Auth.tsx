@@ -31,8 +31,12 @@ export default function Auth() {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Handle demo auto-login
+  // Handle demo auto-login - bypass auth entirely
   if (isDemoMode && demoState.phase === 'creator-auth') {
+    // Auto-redirect to dashboard in demo mode
+    setTimeout(() => {
+      window.location.href = '/dashboard';
+    }, 1500);
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
         <Card className="w-full max-w-md">
