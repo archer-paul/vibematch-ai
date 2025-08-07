@@ -88,6 +88,16 @@ export function DemoOverlay() {
             } else if (currentStep.action === 'navigate-campaigns') {
               navigate('/campaigns');
               return;
+            } else if (currentStep.action === 'navigate-to-dashboard') {
+              nextStep(); // Advance step first
+              setTimeout(() => {
+                navigate('/dashboard');
+              }, 100);
+              return;
+            } else if (currentStep.action === 'navigate-all-campaigns') {
+              // This will be handled by clicking the All Campaigns tab
+              nextStep();
+              return;
             } else if (currentStep.action === 'open-modal') {
               // Find and click the Apply Now button to open modal
               const applyButton = document.querySelector('[data-demo="apply-now"]');
@@ -100,8 +110,8 @@ export function DemoOverlay() {
                 }, 500);
               }
               return;
-            } else if (currentStep.target === '[data-demo="brand-button"]') {
-              // Handle brand button click - setup sponsor demo
+            } else if (currentStep.target === '[data-demo="brand-button"]' || currentStep.target === '[data-demo="sponsor-button"]') {
+              // Handle brand/sponsor button click - setup sponsor demo
               console.log('Setting up sponsor demo');
               // Clear creator demo data and setup sponsor
               localStorage.setItem('demo-user-type', 'sponsor');
@@ -177,7 +187,7 @@ export function DemoOverlay() {
         default: // bottom
           // Special positioning for the welcome step
           if (currentStep.id === 'welcome-demo') {
-            y = rect.bottom + 50; // Move further down to avoid covering buttons
+            y = rect.bottom + 80; // Move much further down to avoid covering buttons
           } else {
             y = rect.bottom + 20;
           }
@@ -262,8 +272,7 @@ export function DemoOverlay() {
               <mask id="cutout-mask">
                 <rect width="100%" height="100%" fill="white" />
                 {targetElement && 
-                 currentStep?.id !== 'sponsor-transition' && 
-                 currentStep?.id !== 'swipe-interaction' && (
+                 currentStep?.id !== 'sponsor-transition' && (
                   <rect
                     x={targetElement.getBoundingClientRect().left - 8}
                     y={targetElement.getBoundingClientRect().top - 8}
@@ -273,13 +282,13 @@ export function DemoOverlay() {
                     fill="black"
                   />
                 )}
-                {/* Special cutout for swipe interaction */}
+                {/* Special larger cutout for swipe interaction */}
                 {currentStep?.id === 'swipe-interaction' && targetElement && (
                   <rect
-                    x={targetElement.getBoundingClientRect().left - 20}
-                    y={targetElement.getBoundingClientRect().top - 20}
-                    width={targetElement.getBoundingClientRect().width + 40}
-                    height={targetElement.getBoundingClientRect().height + 40}
+                    x={targetElement.getBoundingClientRect().left - 40}
+                    y={targetElement.getBoundingClientRect().top - 40}
+                    width={targetElement.getBoundingClientRect().width + 80}
+                    height={targetElement.getBoundingClientRect().height + 80}
                     rx="20"
                     fill="black"
                   />
@@ -375,21 +384,35 @@ export function DemoOverlay() {
                 </Button>
                   
                   {!isDemoComplete && (
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        if (currentStep.id === 'sponsor-transition') {
-                          // Special handling for sponsor transition
-                          navigate('/');
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      if (currentStep.id === 'sponsor-transition') {
+                        // Special handling for sponsor transition - find the sponsor button and trigger it
+                        const sponsorButton = document.querySelector('[data-demo="sponsor-button"]') as HTMLElement;
+                        if (sponsorButton) {
+                          sponsorButton.click();
                         } else {
-                          nextStep();
+                          navigate('/');
                         }
-                      }}
-                      className="text-xs bg-purple-600 hover:bg-purple-700 px-3"
-                    >
-                      {isLastStep && demoState.phase !== 'complete' ? 'Continue' : 'Next'}
-                      <ArrowRight className="h-3 w-3 ml-1" />
-                    </Button>
+                      } else if (currentStep.action === 'swipe-action') {
+                        // Handle swipe action - find the first swipe card and trigger a swipe
+                        const swipeCard = document.querySelector('.swipe-card, [data-testid="swipe-card"]') as HTMLElement;
+                        if (swipeCard) {
+                          // Create a fake swipe event
+                          const swipeEvent = new CustomEvent('demo-swipe', { detail: { direction: 'right' } });
+                          swipeCard.dispatchEvent(swipeEvent);
+                        }
+                        nextStep();
+                      } else {
+                        nextStep();
+                      }
+                    }}
+                    className="text-xs bg-purple-600 hover:bg-purple-700 px-3"
+                  >
+                    {isLastStep && demoState.phase !== 'complete' ? 'Continue' : 'Next'}
+                    <ArrowRight className="h-3 w-3 ml-1" />
+                  </Button>
                   )}
                 </div>
               </div>

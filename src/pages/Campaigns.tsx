@@ -185,10 +185,15 @@ export default function Campaigns() {
         </Card>
       </div>
 
-      {/* Active Campaigns */}
+      {/* Campaign Tabs */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Active Campaigns</h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-2xl font-bold">My Campaigns</h2>
+            <Button variant="outline" size="sm" data-demo="nav-all-campaigns" onClick={() => window.location.href = '/market'}>
+              All Campaigns
+            </Button>
+          </div>
           <Button onClick={() => window.location.href = '/market'}>View All Opportunities</Button>
         </div>
 

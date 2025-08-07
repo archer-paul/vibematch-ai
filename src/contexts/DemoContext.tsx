@@ -183,6 +183,13 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               action: 'swipe-action'
             },
             {
+              id: 'back-to-dashboard',
+              title: 'Return to Dashboard',
+              description: 'Great job! Now let\'s return to the dashboard to explore more features.',
+              position: 'top',
+              action: 'navigate-to-dashboard'
+            },
+            {
               id: 'performance-growth',
               title: 'Performance Analytics - Growth',
               description: 'Track your growth metrics and performance over time in the Growth tab.',
@@ -212,17 +219,25 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               action: 'modal-interaction'
             },
             {
-              id: 'nav-all-campaigns',
-              title: 'All Campaigns',
-              description: 'Navigate to All Campaigns to discover new campaign opportunities. Click on it to see available campaigns.',
+              id: 'nav-my-campaigns',
+              title: 'My Campaigns',
+              description: 'Navigate to My Campaigns to track your active collaborations. Click on it!',
               target: '[data-demo="nav-campaigns"]',
               position: 'bottom',
               action: 'navigate-campaigns'
             },
             {
+              id: 'nav-all-campaigns',
+              title: 'All Campaigns',
+              description: 'Now click on "All Campaigns" tab to discover new opportunities.',
+              target: '[data-demo="nav-all-campaigns"]',
+              position: 'bottom',
+              action: 'navigate-all-campaigns'
+            },
+            {
               id: 'campaigns-overview',
               title: 'Campaign Management',
-              description: 'Here you can track all your active campaigns and their progress. Great! Now let\'s continue with the tour.',
+              description: 'Here you can discover all available campaigns and opportunities. Great! Now let\'s continue with the tour.',
               position: 'top'
             },
             {
@@ -240,7 +255,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               position: 'bottom'
             }
            ];
-           totalSteps = 12;
+           totalSteps = 14;
           break;
         case 'transition':
           newSteps = [

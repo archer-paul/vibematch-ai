@@ -43,6 +43,23 @@ export function SwipeCard({ sponsor, index, isTop, swipeDirection, onSwipe, anal
     setImageError(false);
   }, [sponsor.id]);
 
+  // Handle demo swipe event
+  useEffect(() => {
+    const cardElement = cardRef.current;
+    if (!cardElement) return;
+
+    const handleDemoSwipe = (e: any) => {
+      if (e.type === 'demo-swipe' && isTop) {
+        onSwipe(e.detail.direction);
+      }
+    };
+
+    cardElement.addEventListener('demo-swipe', handleDemoSwipe);
+    return () => {
+      cardElement.removeEventListener('demo-swipe', handleDemoSwipe);
+    };
+  }, [isTop, onSwipe]);
+
   // Function to get the correct logo path
   const getLogoPath = (companyName: string, avatarUrl?: string) => {
     if (avatarUrl && !imageError) {

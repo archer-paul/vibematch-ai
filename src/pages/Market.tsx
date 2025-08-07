@@ -228,7 +228,7 @@ export default function Market() {
       </div>
 
       <Tabs defaultValue="grid" className="w-full">
-        <TabsList>
+        <TabsList data-demo="nav-all-campaigns">
           <TabsTrigger value="grid">Grid View</TabsTrigger>
           <TabsTrigger value="list">List View</TabsTrigger>
         </TabsList>
