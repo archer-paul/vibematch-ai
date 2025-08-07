@@ -17,7 +17,7 @@ https://github.com/user-attachments/assets/8d731038-a078-4628-867a-c1bdb1700f8e
 
 ---
 
-Check out our app [here](https://vibematch-ai-79314808001.europe-west9.run.app/)
+Check out our app here: https://vibematch.tech
 
 ## About
 
