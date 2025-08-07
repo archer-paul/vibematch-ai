@@ -99,7 +99,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
             console.log('Moving to transition - returning to landing page');
             setDemoUser('sponsor');
             localStorage.setItem('demo-user-type', 'sponsor');
-            window.location.href = '/';
+            // Note: Navigation will be handled by the component using this context
             break;
           case 'sponsor-tour':
             // Complete demo
@@ -139,8 +139,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('demo-user-type');
     localStorage.removeItem('demo-state');
     sessionStorage.removeItem('demo-refreshed');
-    // Navigate to landing page without reload to avoid loops
-    window.location.href = '/';
+    // Note: Navigation will be handled by the component using this context
   };
 
   const setPhase = (phase: DemoState['phase']) => {
