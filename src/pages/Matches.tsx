@@ -12,6 +12,8 @@ import { SwipeActions } from '@/components/matching/SwipeActions';
 import { MatchingStats } from '@/components/matching/MatchingStats';
 import { useEnhancedDemoData } from '@/hooks/useEnhancedDemoData';
 import { useDemoInteractions } from '@/hooks/useDemoInteractions';
+import { DemoOverlay } from '@/components/demo/DemoOverlay';
+import { useDemoOverlayPersistence } from '@/hooks/useDemoOverlayPersistence';
 
 interface SponsorProfile {
   id: string;
@@ -31,6 +33,7 @@ export default function Matches() {
   const { useSuperLike, canUseSuperLike, getSuperLikesRemaining, quotas } = useGamification();
   const { getAllSponsors } = useEnhancedDemoData();
   useDemoInteractions(); // Handle demo interactions
+  useDemoOverlayPersistence();
   const [sponsors, setSponsors] = useState<SponsorProfile[]>([]);
   const [currentSponsorIndex, setCurrentSponsorIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -209,6 +212,7 @@ export default function Matches() {
 
   return (
     <div className="container max-w-2xl mx-auto p-6 space-y-6">
+      <DemoOverlay />
       {/* Stats Header */}
       <MatchingStats
         superLikesRemaining={getSuperLikesRemaining()}

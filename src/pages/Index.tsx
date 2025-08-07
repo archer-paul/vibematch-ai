@@ -141,6 +141,50 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Demo Video Section */}
+      <motion.section 
+        className="relative z-20 container mx-auto px-4 py-20"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true }}
+      >
+        <div className="text-center space-y-8 max-w-4xl mx-auto">
+          <motion.div 
+            className="space-y-4"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-white drop-shadow-lg">
+              See VibeMatch in Action
+            </h2>
+            <p className="text-xl text-white/80 max-w-2xl mx-auto">
+              Watch how our platform transforms influencer marketing with AI
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl bg-black/20 backdrop-blur-md border border-white/30"
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.8 }}
+            viewport={{ once: true }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <iframe
+              src="https://www.youtube.com/embed/byYYXNICKCA"
+              title="VibeMatch Demo Video"
+              className="w-full h-full"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </motion.div>
+        </div>
+      </motion.section>
+
       {/* Features Section */}
       <motion.section 
         className="relative z-20 container mx-auto px-4 py-20"

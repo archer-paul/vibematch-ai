@@ -120,6 +120,71 @@ export function useDemoInteractions() {
       return () => observer.disconnect();
     }
 
+    // Handle message modal interaction step
+    if (currentStep?.action === 'modal-interaction') {
+      // Look for the modal and send button
+      const modal = document.querySelector('[role="dialog"]');
+      if (modal) {
+        const sendButton = modal.querySelector('button[type="submit"]') as HTMLButtonElement;
+        if (sendButton && !sendButton.disabled) {
+          console.log('Modal interaction: highlighting send button');
+          sendButton.style.position = 'relative';
+          sendButton.style.zIndex = '10001';
+          sendButton.style.boxShadow = '0 0 0 4px rgba(139, 92, 246, 0.5), 0 0 0 8px rgba(139, 92, 246, 0.2)';
+          sendButton.style.borderRadius = '8px';
+          
+          const handleSendClick = () => {
+            console.log('Send button clicked during modal interaction demo');
+            // Clean up highlighting
+            sendButton.style.position = '';
+            sendButton.style.zIndex = '';
+            sendButton.style.boxShadow = '';
+            sendButton.style.borderRadius = '';
+            
+            // Advance demo after a short delay to allow modal close
+            setTimeout(() => {
+              nextStep();
+            }, 1000);
+          };
+          
+          sendButton.addEventListener('click', handleSendClick, { once: true });
+          
+          return () => {
+            sendButton.removeEventListener('click', handleSendClick);
+            sendButton.style.position = '';
+            sendButton.style.zIndex = '';
+            sendButton.style.boxShadow = '';
+            sendButton.style.borderRadius = '';
+          };
+        }
+      }
+      
+      // If modal not found yet, try to find it with a delay
+      const findModal = () => {
+        const modal = document.querySelector('[role="dialog"]');
+        if (modal) {
+          const sendButton = modal.querySelector('button[type="submit"]') as HTMLButtonElement;
+          if (sendButton && !sendButton.disabled) {
+            console.log('Modal interaction: highlighting send button (delayed)');
+            sendButton.style.position = 'relative';
+            sendButton.style.zIndex = '10001';
+            sendButton.style.boxShadow = '0 0 0 4px rgba(139, 92, 246, 0.5), 0 0 0 8px rgba(139, 92, 246, 0.2)';
+            sendButton.style.borderRadius = '8px';
+            
+            const handleSendClick = () => {
+              console.log('Send button clicked during modal interaction demo (delayed)');
+              setTimeout(() => nextStep(), 1000);
+            };
+            
+            sendButton.addEventListener('click', handleSendClick, { once: true });
+          }
+        }
+      };
+      
+      setTimeout(findModal, 500);
+      setTimeout(findModal, 1000);
+    }
+
   }, [demoState.currentStep, demoState.isActive, nextStep, navigate]);
 
   return null;

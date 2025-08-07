@@ -84,15 +84,17 @@ export function useDemoAuth() {
   useEffect(() => {
     if (!demoState.isActive) return;
 
-    // Handle brand demo setup when coming back to landing page
+    // Handle brand demo setup when coming back to landing page or demo route
     const isDemoMode = localStorage.getItem('demo-mode') === 'true';
     const demoUserType = localStorage.getItem('demo-user-type');
     
-    if (isDemoMode && demoUserType === 'sponsor' && window.location.pathname === '/' && demoState.phase !== 'sponsor-tour') {
+    if (isDemoMode && demoUserType === 'sponsor' && (window.location.pathname === '/' || window.location.pathname === '/demo') && demoState.phase !== 'sponsor-tour') {
       console.log('Setting up brand demo on landing page');
       setTimeout(() => {
         setPhase('sponsor-tour');
         setDemoUser('sponsor');
+        // Navigate to auth for sponsor setup
+        navigate('/auth');
       }, 500);
     }
   }, [demoState.phase, demoState.isActive, setPhase, setDemoUser]);

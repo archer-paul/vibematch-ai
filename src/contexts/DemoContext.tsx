@@ -99,7 +99,11 @@ export function DemoProvider({ children }: { children: ReactNode }) {
             console.log('Moving to transition - returning to landing page');
             setDemoUser('sponsor');
             localStorage.setItem('demo-user-type', 'sponsor');
-            // Note: Navigation will be handled by the component using this context
+            // Use proper navigation
+            setTimeout(() => {
+              // Navigate to demo route instead of root to maintain demo context
+              window.location.href = '/demo';
+            }, 100);
             break;
           case 'sponsor-tour':
             // Complete demo
@@ -169,7 +173,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               title: 'AI Matches',
               description: 'Click here to discover brands that are perfectly matched to your content and audience. Go ahead and click it!',
               target: '[data-demo="ai-matches"]',
-              position: 'right',
+              position: 'bottom',
               action: 'navigate-to-matches'
             },
             {
@@ -198,8 +202,15 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               title: 'Apply to Partnerships',
               description: 'Use the Apply Now button to start collaborations with brands that match your style. Click it now!',
               target: '[data-demo="apply-now"]',
-              position: 'left',
+              position: 'top',
               action: 'open-modal'
+            },
+            {
+              id: 'message-modal-interaction',
+              title: 'Send Your Application',
+              description: 'The modal has opened! Now click the "Send" button to submit your application to the sponsor.',
+              position: 'top',
+              action: 'modal-interaction'
             },
             {
               id: 'nav-campaigns',
@@ -229,8 +240,8 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               target: '[data-demo="nav-analytics"]',
               position: 'bottom'
             }
-          ];
-          totalSteps = 11;
+           ];
+           totalSteps = 12;
           break;
         case 'transition':
           newSteps = [

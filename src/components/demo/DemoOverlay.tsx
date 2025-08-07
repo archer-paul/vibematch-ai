@@ -57,7 +57,7 @@ export function DemoOverlay() {
               // Don't prevent default here - we want to advance the step first
               console.log('Navigating to matches - advancing demo step first');
               nextStep(); // Advance to swipe step first
-              // Use React Router navigate instead of window.location.href
+              // Navigate without losing demo state
               setTimeout(() => {
                 navigate('/matches');
               }, 100);
@@ -69,8 +69,14 @@ export function DemoOverlay() {
               // Find and click the Apply Now button to open modal
               const applyButton = document.querySelector('[data-demo="apply-now"]');
               if (applyButton) {
+                console.log('Clicking Apply Now button to open modal');
                 (applyButton as HTMLElement).click();
+                // Wait for modal to open, then advance step
+                setTimeout(() => {
+                  nextStep();
+                }, 500);
               }
+              return;
             } else if (currentStep.target === '[data-demo="brand-button"]') {
               // Handle brand button click - setup sponsor demo
               console.log('Setting up sponsor demo');
@@ -137,10 +143,10 @@ export function DemoOverlay() {
           y = rect.top + rect.height / 2 - tooltipHeight / 2;
           break;
         case 'right':
-          // For AI Matches button, position further right to avoid covering it
+          // For AI Matches button, position below to avoid covering it
           if (currentStep.id === 'ai-matches-button') {
-            x = rect.right + 30;
-            y = rect.top - 50; // Position slightly above to avoid overlap
+            x = rect.left + rect.width / 2 - tooltipWidth / 2;
+            y = rect.bottom + 20; // Position below the button
           } else {
             x = rect.right + 20;
             y = rect.top + rect.height / 2 - tooltipHeight / 2;
