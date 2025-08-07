@@ -99,10 +99,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
             console.log('Moving to transition - returning to landing page');
             setDemoUser('sponsor');
             localStorage.setItem('demo-user-type', 'sponsor');
-            // Use proper navigation to return to root with demo overlay active
-            setTimeout(() => {
-              window.location.href = '/';
-            }, 100);
+            // Don't navigate here - let the button handle it
             break;
           case 'sponsor-tour':
             // Complete demo
@@ -142,7 +139,10 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('demo-user-type');
     localStorage.removeItem('demo-state');
     sessionStorage.removeItem('demo-refreshed');
-    // Note: Navigation will be handled by the component using this context
+    // Always navigate to landing page when exiting demo
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 100);
   };
 
   const setPhase = (phase: DemoState['phase']) => {
@@ -215,7 +215,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               id: 'nav-all-campaigns',
               title: 'All Campaigns',
               description: 'Navigate to All Campaigns to discover new campaign opportunities. Click on it to see available campaigns.',
-              target: '[data-demo="nav-all-campaigns"]',
+              target: '[data-demo="nav-campaigns"]',
               position: 'bottom',
               action: 'navigate-campaigns'
             },
@@ -248,7 +248,8 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               id: 'sponsor-transition',
               title: 'Now Let\'s See the Sponsor Side',
               description: 'Experience how brands discover and collaborate with creators like you. Click "Sponsor / Brand" to continue.',
-              position: 'top'
+              target: '[data-demo="sponsor-button"]',
+              position: 'bottom'
             }
           ];
           totalSteps = 1;

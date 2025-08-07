@@ -26,12 +26,18 @@ export function DemoOverlay() {
       // For sponsor transition, center the tooltip
       if (currentStep.id === 'sponsor-transition') {
         const tooltipWidth = 450;
-        const tooltipHeight = 200;
+        const tooltipHeight = 220;
         setTooltipDimensions({ width: tooltipWidth, height: tooltipHeight });
         setOverlayPosition({ 
           x: window.innerWidth / 2 - tooltipWidth / 2, 
           y: window.innerHeight / 2 - tooltipHeight / 2 
         });
+        
+        // Find and highlight the sponsor button if on landing page
+        const sponsorButton = document.querySelector('[data-demo="sponsor-button"]') as HTMLElement;
+        if (sponsorButton) {
+          setTargetElement(sponsorButton);
+        }
       }
       // For swipe interaction step, position tooltip at top and highlight swipe cards
       if (currentStep.id === 'swipe-interaction') {
@@ -62,7 +68,8 @@ export function DemoOverlay() {
             currentStep.target === '[data-demo="brand-button"]' ||
             currentStep.target === '[data-demo="ai-matches"]' ||
             currentStep.target === '[data-demo="apply-now"]' ||
-            currentStep.target === '[data-demo="nav-campaigns"]') {
+            currentStep.target === '[data-demo="nav-campaigns"]' ||
+            currentStep.target === '[data-demo="sponsor-button"]') {
           const handleElementClick = (e: Event) => {
             e.preventDefault();
             e.stopPropagation();
@@ -100,6 +107,11 @@ export function DemoOverlay() {
               localStorage.setItem('demo-user-type', 'sponsor');
               // Navigate to auth to setup sponsor profile using React Router
               navigate('/auth');
+              return;
+            } else if (currentStep.id === 'sponsor-transition') {
+              // Handle sponsor transition - navigate to landing page
+              console.log('Sponsor transition - navigating to landing');
+              navigate('/');
               return;
             }
             
@@ -365,7 +377,14 @@ export function DemoOverlay() {
                   {!isDemoComplete && (
                     <Button
                       size="sm"
-                      onClick={nextStep}
+                      onClick={() => {
+                        if (currentStep.id === 'sponsor-transition') {
+                          // Special handling for sponsor transition
+                          navigate('/');
+                        } else {
+                          nextStep();
+                        }
+                      }}
                       className="text-xs bg-purple-600 hover:bg-purple-700 px-3"
                     >
                       {isLastStep && demoState.phase !== 'complete' ? 'Continue' : 'Next'}
