@@ -33,6 +33,22 @@ export function DemoOverlay() {
           y: window.innerHeight / 2 - tooltipHeight / 2 
         });
       }
+      // For swipe interaction step, position tooltip at top and highlight swipe cards
+      if (currentStep.id === 'swipe-interaction') {
+        const tooltipWidth = 400;
+        const tooltipHeight = 160;
+        setTooltipDimensions({ width: tooltipWidth, height: tooltipHeight });
+        setOverlayPosition({ 
+          x: window.innerWidth / 2 - tooltipWidth / 2, 
+          y: 60 // Position at top
+        });
+        
+        // Find and highlight the swipe card
+        const swipeCard = document.querySelector('.swipe-card, [data-testid="swipe-card"]') as HTMLElement;
+        if (swipeCard) {
+          setTargetElement(swipeCard);
+        }
+      }
       return;
     }
 
@@ -143,17 +159,16 @@ export function DemoOverlay() {
           y = rect.top + rect.height / 2 - tooltipHeight / 2;
           break;
         case 'right':
-          // For AI Matches button, position below to avoid covering it
-          if (currentStep.id === 'ai-matches-button') {
-            x = rect.left + rect.width / 2 - tooltipWidth / 2;
-            y = rect.bottom + 20; // Position below the button
-          } else {
-            x = rect.right + 20;
-            y = rect.top + rect.height / 2 - tooltipHeight / 2;
-          }
+          x = rect.right + 20;
+          y = rect.top + rect.height / 2 - tooltipHeight / 2;
           break;
         default: // bottom
-          y = rect.bottom + 20;
+          // Special positioning for the welcome step
+          if (currentStep.id === 'welcome-demo') {
+            y = rect.bottom + 50; // Move further down to avoid covering buttons
+          } else {
+            y = rect.bottom + 20;
+          }
           break;
       }
       
@@ -234,13 +249,26 @@ export function DemoOverlay() {
             <defs>
               <mask id="cutout-mask">
                 <rect width="100%" height="100%" fill="white" />
-                {targetElement && currentStep?.id !== 'sponsor-transition' && (
+                {targetElement && 
+                 currentStep?.id !== 'sponsor-transition' && 
+                 currentStep?.id !== 'swipe-interaction' && (
                   <rect
                     x={targetElement.getBoundingClientRect().left - 8}
                     y={targetElement.getBoundingClientRect().top - 8}
                     width={targetElement.getBoundingClientRect().width + 16}
                     height={targetElement.getBoundingClientRect().height + 16}
                     rx="12"
+                    fill="black"
+                  />
+                )}
+                {/* Special cutout for swipe interaction */}
+                {currentStep?.id === 'swipe-interaction' && targetElement && (
+                  <rect
+                    x={targetElement.getBoundingClientRect().left - 20}
+                    y={targetElement.getBoundingClientRect().top - 20}
+                    width={targetElement.getBoundingClientRect().width + 40}
+                    height={targetElement.getBoundingClientRect().height + 40}
+                    rx="20"
                     fill="black"
                   />
                 )}
@@ -322,14 +350,17 @@ export function DemoOverlay() {
                     </Button>
                   )}
                   
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={exitDemo}
-                    className="text-xs px-2"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => {
+                    exitDemo();
+                    navigate('/');
+                  }}
+                  className="text-xs px-2"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
                   
                   {!isDemoComplete && (
                     <Button
@@ -356,7 +387,10 @@ export function DemoOverlay() {
         >
           <Button
             variant="secondary"
-            onClick={exitDemo}
+            onClick={() => {
+              exitDemo();
+              navigate('/');
+            }}
             className="bg-white/90 hover:bg-white text-gray-900 shadow-lg"
           >
             Exit Demo

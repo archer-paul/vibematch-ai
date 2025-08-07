@@ -62,7 +62,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       phase: 'landing',
       steps: [
         {
-          id: 'welcome',
+          id: 'welcome-demo',
           title: 'Welcome to VibeMatch Demo',
           description: 'Let us show you how VibeMatch revolutionizes influencer marketing. Click "Content Creator" to start your journey.',
           target: '[data-demo="creator-button"]',
@@ -99,10 +99,9 @@ export function DemoProvider({ children }: { children: ReactNode }) {
             console.log('Moving to transition - returning to landing page');
             setDemoUser('sponsor');
             localStorage.setItem('demo-user-type', 'sponsor');
-            // Use proper navigation
+            // Use proper navigation to return to root with demo overlay active
             setTimeout(() => {
-              // Navigate to demo route instead of root to maintain demo context
-              window.location.href = '/demo';
+              window.location.href = '/';
             }, 100);
             break;
           case 'sponsor-tour':
@@ -213,10 +212,10 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               action: 'modal-interaction'
             },
             {
-              id: 'nav-campaigns',
-              title: 'My Campaigns',
-              description: 'Navigate to My Campaigns to manage your active collaborations. Click on it to see your campaigns.',
-              target: '[data-demo="nav-campaigns"]',
+              id: 'nav-all-campaigns',
+              title: 'All Campaigns',
+              description: 'Navigate to All Campaigns to discover new campaign opportunities. Click on it to see available campaigns.',
+              target: '[data-demo="nav-all-campaigns"]',
               position: 'bottom',
               action: 'navigate-campaigns'
             },

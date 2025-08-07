@@ -88,14 +88,14 @@ export function useDemoAuth() {
     const isDemoMode = localStorage.getItem('demo-mode') === 'true';
     const demoUserType = localStorage.getItem('demo-user-type');
     
-    if (isDemoMode && demoUserType === 'sponsor' && (window.location.pathname === '/' || window.location.pathname === '/demo') && demoState.phase !== 'sponsor-tour') {
+    if (isDemoMode && demoUserType === 'sponsor' && (window.location.pathname === '/' || window.location.pathname === '/demo')) {
       console.log('Setting up brand demo on landing page');
-      setTimeout(() => {
-        setPhase('sponsor-tour');
-        setDemoUser('sponsor');
-        // Navigate to auth for sponsor setup
-        navigate('/auth');
-      }, 500);
+      if (demoState.phase !== 'transition' && demoState.phase !== 'sponsor-tour') {
+        setTimeout(() => {
+          setPhase('transition');
+          setDemoUser('sponsor');
+        }, 500);
+      }
     }
   }, [demoState.phase, demoState.isActive, setPhase, setDemoUser]);
 

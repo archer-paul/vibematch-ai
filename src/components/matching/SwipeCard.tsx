@@ -233,7 +233,7 @@ export function SwipeCard({ sponsor, index, isTop, swipeDirection, onSwipe, anal
   return (
     <div
       ref={cardRef}
-      className="absolute inset-0 cursor-grab active:cursor-grabbing"
+      className="swipe-card absolute inset-0 cursor-grab active:cursor-grabbing"
       style={getCardStyle()}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
@@ -242,6 +242,7 @@ export function SwipeCard({ sponsor, index, isTop, swipeDirection, onSwipe, anal
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      data-testid="swipe-card"
     >
       <Card className="h-full relative overflow-hidden bg-gradient-to-br from-background to-muted/30 border-2">
         {/* Overlay */}
