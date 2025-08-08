@@ -235,12 +235,6 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               action: 'navigate-all-campaigns'
             },
             {
-              id: 'campaigns-overview',
-              title: 'Campaign Management',
-              description: 'Here you can discover all available campaigns and opportunities. Great! Now let\'s continue with the tour.',
-              position: 'top'
-            },
-            {
               id: 'nav-messages',
               title: 'Messages',
               description: 'Stay connected with brands through our integrated messaging system.',
@@ -255,7 +249,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               position: 'bottom'
             }
            ];
-           totalSteps = 14;
+           totalSteps = 13;
           break;
         case 'transition':
           newSteps = [

@@ -16,11 +16,12 @@ export function useDemoAuth() {
 
   // Handle demo navigation phases
   if (demoState.phase === 'creator-tour') {
-    console.log('Setting up demo creator - navigating to dashboard');
-    // Only navigate if not already on dashboard
-    if (window.location.pathname !== '/dashboard') {
+    console.log('Setting up demo creator - navigating as needed');
+    const path = window.location.pathname;
+    const step = demoState.steps[demoState.currentStep];
+    const isSwipeFlow = path === '/matches' && (step?.id === 'swipe-interaction' || step?.action === 'swipe-action');
+    if (path !== '/dashboard' && !isSwipeFlow) {
       navigate('/dashboard');
-      // Single refresh needed for demo mode to load properly
       const hasRefreshed = sessionStorage.getItem('demo-refreshed');
       if (!hasRefreshed) {
         sessionStorage.setItem('demo-refreshed', 'true');

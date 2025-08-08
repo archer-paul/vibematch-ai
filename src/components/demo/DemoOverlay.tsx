@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useDemo } from '@/contexts/DemoContext';
 
 export function DemoOverlay() {
-  const { demoState, nextStep, previousStep, skipStep, exitDemo } = useDemo();
+  const { demoState, nextStep, previousStep, skipStep, exitDemo, setPhase } = useDemo();
   const navigate = useNavigate();
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const [overlayPosition, setOverlayPosition] = useState({ x: 0, y: 0 });
@@ -112,16 +112,22 @@ export function DemoOverlay() {
               return;
             } else if (currentStep.target === '[data-demo="brand-button"]' || currentStep.target === '[data-demo="sponsor-button"]') {
               // Handle brand/sponsor button click - setup sponsor demo
-              console.log('Setting up sponsor demo');
-              // Clear creator demo data and setup sponsor
+              console.log('Setting up sponsor demo (via landing)');
+              // Set sponsor user for demo
               localStorage.setItem('demo-user-type', 'sponsor');
-              // Navigate to auth to setup sponsor profile using React Router
-              navigate('/auth');
+              // Navigate to landing, then start sponsor tour
+              navigate('/');
+              setTimeout(() => {
+                setPhase('sponsor-tour');
+              }, 200);
               return;
             } else if (currentStep.id === 'sponsor-transition') {
-              // Handle sponsor transition - navigate to landing page
-              console.log('Sponsor transition - navigating to landing');
+              // Ensure we pass through the landing page during transition
+              console.log('Sponsor transition - navigating to landing and starting sponsor tour');
               navigate('/');
+              setTimeout(() => {
+                setPhase('sponsor-tour');
+              }, 300);
               return;
             }
             
@@ -187,7 +193,7 @@ export function DemoOverlay() {
         default: // bottom
           // Special positioning for the welcome step
           if (currentStep.id === 'welcome-demo') {
-            y = rect.bottom + 80; // Move much further down to avoid covering buttons
+            y = rect.bottom + 120; // Move further down to avoid covering buttons
           } else {
             y = rect.bottom + 20;
           }
@@ -271,8 +277,7 @@ export function DemoOverlay() {
             <defs>
               <mask id="cutout-mask">
                 <rect width="100%" height="100%" fill="white" />
-                {targetElement && 
-                 currentStep?.id !== 'sponsor-transition' && (
+                {targetElement && (
                   <rect
                     x={targetElement.getBoundingClientRect().left - 8}
                     y={targetElement.getBoundingClientRect().top - 8}
@@ -299,7 +304,7 @@ export function DemoOverlay() {
               width="100%" 
               height="100%" 
               fill="rgba(0, 0, 0, 0.7)" 
-              mask={currentStep?.id === 'sponsor-transition' ? undefined : "url(#cutout-mask)"}
+              mask={targetElement ? "url(#cutout-mask)" : undefined}
               style={{ backdropFilter: 'blur(2px)' }}
             />
           </svg>
