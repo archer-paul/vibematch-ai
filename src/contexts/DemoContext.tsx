@@ -215,6 +215,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               id: 'message-modal-interaction',
               title: 'Send Your Application',
               description: 'The modal has opened! Now click the "Send" button to submit your application to the sponsor.',
+              target: '[data-demo="send-message"]',
               position: 'top',
               action: 'modal-interaction'
             },

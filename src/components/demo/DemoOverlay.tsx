@@ -104,10 +104,18 @@ export function DemoOverlay() {
               if (applyButton) {
                 console.log('Clicking Apply Now button to open modal');
                 (applyButton as HTMLElement).click();
-                // Wait for modal to open, then advance step
-                setTimeout(() => {
-                  nextStep();
-                }, 500);
+                // Wait until the Send button exists, then advance to the next step
+                let attempts = 0;
+                const interval = setInterval(() => {
+                  const sendBtn = document.querySelector('[data-demo="send-message"]');
+                  attempts++;
+                  if (sendBtn) {
+                    clearInterval(interval);
+                    nextStep();
+                  } else if (attempts > 20) { // ~2s fallback
+                    clearInterval(interval);
+                  }
+                }, 100);
               }
               return;
             } else if (currentStep.target === '[data-demo="brand-button"]' || currentStep.target === '[data-demo="sponsor-button"]') {
@@ -391,6 +399,7 @@ export function DemoOverlay() {
                   {!isDemoComplete && (
                   <Button
                     size="sm"
+                    disabled={currentStep.id === 'swipe-interaction'}
                     onClick={() => {
                       if (currentStep.id === 'sponsor-transition') {
                         // Special handling for sponsor transition - find the sponsor button and trigger it
@@ -401,21 +410,15 @@ export function DemoOverlay() {
                           navigate('/');
                         }
                       } else if (currentStep.action === 'swipe-action') {
-                        // Handle swipe action - find the first swipe card and trigger a swipe
-                        const swipeCard = document.querySelector('.swipe-card, [data-testid="swipe-card"]') as HTMLElement;
-                        if (swipeCard) {
-                          // Create a fake swipe event
-                          const swipeEvent = new CustomEvent('demo-swipe', { detail: { direction: 'right' } });
-                          swipeCard.dispatchEvent(swipeEvent);
-                        }
-                        nextStep();
+                        // Prevent skipping swipe step via Next
+                        return;
                       } else {
                         nextStep();
                       }
                     }}
                     className="text-xs bg-purple-600 hover:bg-purple-700 px-3"
                   >
-                    {isLastStep && demoState.phase !== 'complete' ? 'Continue' : 'Next'}
+                    {currentStep.id === 'swipe-interaction' ? 'Swipe to continue' : (isLastStep && demoState.phase !== 'complete' ? 'Continue' : 'Next')}
                     <ArrowRight className="h-3 w-3 ml-1" />
                   </Button>
                   )}

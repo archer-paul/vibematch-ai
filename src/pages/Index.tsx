@@ -121,7 +121,7 @@ const Index = () => {
               href={demoState.isActive && demoState.phase === 'transition' ? undefined : "/auth"} 
               variant="secondary" 
               className="text-lg px-8"
-              data-demo="brand-button"
+              data-demo="sponsor-button"
               onClick={demoState.isActive && demoState.phase === 'transition' ? (() => {
                 console.log('Brand button clicked in demo mode');
               }) : undefined}

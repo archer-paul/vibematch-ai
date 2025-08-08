@@ -113,6 +113,7 @@ export function SendMessageModal({ partnership, isOpen, onClose, onSend }: SendM
               onClick={handleSend} 
               disabled={!message.trim() || isSending}
               className="flex-1"
+              data-demo="send-message"
             >
               <Send className="mr-2 h-4 w-4" />
               {isSending ? 'Sending...' : 'Send Message'}

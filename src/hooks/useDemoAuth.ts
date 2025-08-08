@@ -81,24 +81,14 @@ export function useDemoAuth() {
   }
   }, [demoState.phase, demoState.isActive, navigate, setPhase]);
 
-  // Handle demo transitions and brand demo setup
+  // Handle demo transitions and brand demo setup (disabled to avoid conflicts)
   useEffect(() => {
     if (!demoState.isActive) return;
 
-    // Handle brand demo setup when coming back to landing page or demo route
-    const isDemoMode = localStorage.getItem('demo-mode') === 'true';
-    const demoUserType = localStorage.getItem('demo-user-type');
-    
-    if (isDemoMode && demoUserType === 'sponsor' && (window.location.pathname === '/' || window.location.pathname === '/demo')) {
-      console.log('Setting up brand demo on landing page');
-      if (demoState.phase !== 'transition' && demoState.phase !== 'sponsor-tour') {
-        setTimeout(() => {
-          setPhase('transition');
-          setDemoUser('sponsor');
-        }, 500);
-      }
-    }
-  }, [demoState.phase, demoState.isActive, setPhase, setDemoUser]);
+    // Do not auto-switch phases on landing; the overlay drives the transition.
+    // This prevents loops where phase toggles between transition and sponsor-tour.
+    // Intentionally left blank.
+  }, [demoState.isActive]);
 
   return {
     isDemoMode: demoState.isActive,
