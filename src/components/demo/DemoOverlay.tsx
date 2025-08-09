@@ -70,79 +70,83 @@ export function DemoOverlay() {
             currentStep.target === '[data-demo="apply-now"]' ||
             currentStep.target === '[data-demo="nav-campaigns"]' ||
             currentStep.target === '[data-demo="sponsor-button"]') {
-          const handleElementClick = (e: Event) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log(`${currentStep.target} clicked during demo`);
-            
-            // Handle specific actions
-            if (currentStep.action === 'navigate-to-matches') {
-              // Don't prevent default here - we want to advance the step first
-              console.log('Navigating to matches - advancing demo step first');
-              nextStep(); // Advance to swipe step first
-              // Navigate without losing demo state
-              setTimeout(() => {
-                navigate('/matches');
-              }, 100);
-              return;
-            } else if (currentStep.action === 'navigate-campaigns') {
-              navigate('/campaigns');
-              return;
-            } else if (currentStep.action === 'navigate-to-dashboard') {
-              nextStep(); // Advance step first
-              setTimeout(() => {
-                navigate('/dashboard');
-              }, 100);
-              return;
-            } else if (currentStep.action === 'navigate-all-campaigns') {
-              // This will be handled by clicking the All Campaigns tab
-              nextStep();
-              return;
-            } else if (currentStep.action === 'open-modal') {
-              // Find and click the Apply Now button to open modal
-              const applyButton = document.querySelector('[data-demo="apply-now"]');
-              if (applyButton) {
-                console.log('Clicking Apply Now button to open modal');
-                (applyButton as HTMLElement).click();
-                // Wait until the Send button exists, then advance to the next step
-                let attempts = 0;
-                const interval = setInterval(() => {
-                  const sendBtn = document.querySelector('[data-demo="send-message"]');
-                  attempts++;
-                  if (sendBtn) {
-                    clearInterval(interval);
-                    nextStep();
-                  } else if (attempts > 20) { // ~2s fallback
-                    clearInterval(interval);
-                  }
-                }, 100);
-              }
-              return;
-            } else if (currentStep.target === '[data-demo="brand-button"]' || currentStep.target === '[data-demo="sponsor-button"]') {
-              // Handle brand/sponsor button click - setup sponsor demo
-              console.log('Setting up sponsor demo (via landing)');
-              // Set sponsor user for demo
-              localStorage.setItem('demo-user-type', 'sponsor');
-              // Navigate to landing, then start sponsor tour
-              navigate('/');
-              setTimeout(() => {
-                setPhase('sponsor-tour');
-              }, 200);
-              return;
-            } else if (currentStep.id === 'sponsor-transition') {
-              // Ensure we pass through the landing page during transition
-              console.log('Sponsor transition - navigating to landing and starting sponsor tour');
-              navigate('/');
-              setTimeout(() => {
-                setPhase('sponsor-tour');
-              }, 300);
-              return;
-            }
-            
-            nextStep();
-          };
-          element.addEventListener('click', handleElementClick);
-          element.dataset.demoClickHandler = 'true';
+           const handleElementClick = (e: Event) => {
+             e.preventDefault();
+             e.stopPropagation();
+             (e as any).stopImmediatePropagation?.();
+             console.log(`${currentStep.target} clicked during demo`);
+             
+             // Handle specific actions
+             if (currentStep.action === 'navigate-to-matches') {
+               // Don't prevent default here - we want to advance the step first
+               console.log('Navigating to matches - advancing demo step first');
+               nextStep(); // Advance to swipe step first
+               // Navigate without losing demo state
+               setTimeout(() => {
+                 navigate('/matches');
+               }, 100);
+               return;
+             } else if (currentStep.action === 'navigate-campaigns') {
+               navigate('/campaigns');
+               return;
+             } else if (currentStep.action === 'navigate-to-dashboard') {
+               nextStep(); // Advance step first
+               setTimeout(() => {
+                 navigate('/dashboard');
+               }, 100);
+               return;
+             } else if (currentStep.action === 'navigate-all-campaigns') {
+               // This will be handled by clicking the All Campaigns tab
+               nextStep();
+               return;
+             } else if (currentStep.action === 'open-modal') {
+               // Find and click the Apply Now button to open modal
+               const applyButton = document.querySelector('[data-demo="apply-now"]');
+               if (applyButton) {
+                 console.log('Clicking Apply Now button to open modal');
+                 (applyButton as HTMLElement).click();
+                 // Wait until the Send button exists, then advance to the next step
+                 let attempts = 0;
+                 const interval = setInterval(() => {
+                   const sendBtn = document.querySelector('[data-demo="send-message"]');
+                   attempts++;
+                   if (sendBtn) {
+                     clearInterval(interval);
+                     nextStep();
+                   } else if (attempts > 20) { // ~2s fallback
+                     clearInterval(interval);
+                   }
+                 }, 100);
+               }
+               return;
+             } else if (currentStep.target === '[data-demo="brand-button"]' || currentStep.target === '[data-demo="sponsor-button"]') {
+               // Handle brand/sponsor button click - setup sponsor demo
+               console.log('Setting up sponsor demo (via landing)');
+               // Set sponsor user for demo
+               localStorage.setItem('demo-user-type', 'sponsor');
+               // Navigate to landing, then start sponsor tour
+               navigate('/');
+               setTimeout(() => {
+                 setPhase('sponsor-tour');
+               }, 200);
+               return;
+             } else if (currentStep.id === 'sponsor-transition') {
+               // Ensure we pass through the landing page during transition
+               console.log('Sponsor transition - navigating to landing and starting sponsor tour');
+               navigate('/');
+               setTimeout(() => {
+                 setPhase('sponsor-tour');
+               }, 300);
+               return;
+             }
+             
+             nextStep();
+           };
+           element.addEventListener('click', (ev) => {
+             (ev as any).stopImmediatePropagation?.();
+             handleElementClick(ev);
+           }, { once: true });
+           element.dataset.demoClickHandler = 'true';
         }
         
         // Calculate position for the tooltip
@@ -402,13 +406,11 @@ export function DemoOverlay() {
                     disabled={currentStep.id === 'swipe-interaction'}
                     onClick={() => {
                       if (currentStep.id === 'sponsor-transition') {
-                        // Special handling for sponsor transition - find the sponsor button and trigger it
-                        const sponsorButton = document.querySelector('[data-demo="sponsor-button"]') as HTMLElement;
-                        if (sponsorButton) {
-                          sponsorButton.click();
-                        } else {
-                          navigate('/');
-                        }
+                        // Sponsor transition: ensure landing, then start sponsor tour
+                        navigate('/');
+                        setTimeout(() => {
+                          setPhase('sponsor-tour');
+                        }, 300);
                       } else if (currentStep.action === 'swipe-action') {
                         // Prevent skipping swipe step via Next
                         return;
