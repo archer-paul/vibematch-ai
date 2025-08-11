@@ -49,11 +49,23 @@ export function DemoOverlay() {
           y: 60 // Position at top
         });
         
-        // Find and highlight the swipe card
-        const swipeCard = document.querySelector('.swipe-card, [data-testid="swipe-card"]') as HTMLElement;
-        if (swipeCard) {
-          setTargetElement(swipeCard);
-        }
+        // Try to target the top swipe card; fallback to loading placeholder
+        const topCard = document.querySelector('[data-demo="swipe-card-top"], .swipe-card, [data-testid="swipe-card"]') as HTMLElement;
+        const loadingCard = document.querySelector('[data-demo="swipe-loading"]') as HTMLElement;
+        if (topCard) setTargetElement(topCard);
+        else if (loadingCard) setTargetElement(loadingCard);
+
+        // Observe DOM to retarget when the real card appears after loading
+        const observer = new MutationObserver(() => {
+          const newTop = document.querySelector('[data-demo="swipe-card-top"], .swipe-card, [data-testid="swipe-card"]') as HTMLElement;
+          if (newTop) {
+            setTargetElement(newTop);
+          }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        
+        // Cleanup
+        return () => observer.disconnect();
       }
       return;
     }
@@ -99,45 +111,49 @@ export function DemoOverlay() {
                // This will be handled by clicking the All Campaigns tab
                nextStep();
                return;
-             } else if (currentStep.action === 'open-modal') {
-               // Find and click the Apply Now button to open modal
-               const applyButton = document.querySelector('[data-demo="apply-now"]');
-               if (applyButton) {
-                 console.log('Clicking Apply Now button to open modal');
-                 (applyButton as HTMLElement).click();
-                 // Wait until the Send button exists, then advance to the next step
-                 let attempts = 0;
-                 const interval = setInterval(() => {
-                   const sendBtn = document.querySelector('[data-demo="send-message"]');
-                   attempts++;
-                   if (sendBtn) {
-                     clearInterval(interval);
-                     nextStep();
-                   } else if (attempts > 20) { // ~2s fallback
-                     clearInterval(interval);
-                   }
-                 }, 100);
-               }
-               return;
-             } else if (currentStep.target === '[data-demo="brand-button"]' || currentStep.target === '[data-demo="sponsor-button"]') {
-               // Handle brand/sponsor button click - setup sponsor demo
-               console.log('Setting up sponsor demo (via landing)');
-               // Set sponsor user for demo
-               localStorage.setItem('demo-user-type', 'sponsor');
-               // Navigate to landing, then start sponsor tour
-               navigate('/');
-               setTimeout(() => {
-                 setPhase('sponsor-tour');
-               }, 200);
-               return;
-             } else if (currentStep.id === 'sponsor-transition') {
-               // Ensure we pass through the landing page during transition
-               console.log('Sponsor transition - navigating to landing and starting sponsor tour');
-               navigate('/');
-               setTimeout(() => {
-                 setPhase('sponsor-tour');
-               }, 300);
-               return;
+              } else if (currentStep.action === 'open-modal') {
+                // Find and click the Apply Now button to open modal
+                const applyButton = document.querySelector('[data-demo="apply-now"]');
+                if (applyButton) {
+                  console.log('Clicking Apply Now button to open modal');
+                  (applyButton as HTMLElement).click();
+                  // Wait until the Send button exists, then advance to the next step and retarget overlay
+                  let attempts = 0;
+                  const interval = setInterval(() => {
+                    const sendBtn = document.querySelector('[data-demo="send-message"]');
+                    attempts++;
+                    if (sendBtn) {
+                      clearInterval(interval);
+                      nextStep();
+                      // Retarget immediately to the send button
+                      setTargetElement(sendBtn as HTMLElement);
+                    } else if (attempts > 30) { // ~3s fallback
+                      clearInterval(interval);
+                    }
+                  }, 100);
+                }
+                return;
+              } else if (currentStep.target === '[data-demo="brand-button"]' || currentStep.target === '[data-demo="sponsor-button"]') {
+                // Handle brand/sponsor button click - setup sponsor demo
+                console.log('Setting up sponsor demo (via landing)');
+                // Set sponsor user for demo
+                localStorage.setItem('demo-user-type', 'sponsor');
+                // Notify auth to swap demo profile immediately
+                window.dispatchEvent(new CustomEvent('demo-user-changed', { detail: { userType: 'sponsor' } }));
+                // Navigate to landing, then start sponsor tour
+                navigate('/');
+                setTimeout(() => {
+                  setPhase('sponsor-tour');
+                }, 200);
+                return;
+              } else if (currentStep.id === 'sponsor-transition') {
+                // Ensure we pass through the landing page during transition
+                console.log('Sponsor transition - navigating to landing and starting sponsor tour');
+                navigate('/');
+                setTimeout(() => {
+                  setPhase('sponsor-tour');
+                }, 300);
+                return;
              }
              
              nextStep();
@@ -233,11 +249,26 @@ export function DemoOverlay() {
     // Try to find the target immediately
     findTarget();
     
+    // Observe DOM changes to handle dynamic targets like modals
+    let observer: MutationObserver | null = null;
+    if (currentStep.id === 'message-modal-interaction') {
+      observer = new MutationObserver(() => {
+        const el = document.querySelector(currentStep.target!) as HTMLElement;
+        if (el) {
+          setTargetElement(el);
+          const rect = el.getBoundingClientRect();
+          updateTooltipPosition(rect);
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
+    
     // If not found, try again after a short delay (for dynamic content)
     const timeout = setTimeout(findTarget, 100);
     
     return () => {
       clearTimeout(timeout);
+      if (observer) observer.disconnect();
       // Clean up highlighting and event listeners
       if (targetElement) {
         targetElement.style.position = '';
@@ -388,18 +419,30 @@ export function DemoOverlay() {
                     </Button>
                   )}
                   
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => {
-                    exitDemo();
-                    navigate('/');
-                  }}
-                  className="text-xs px-2"
-                >
-                  <X className="h-3 w-3" />
-                </Button>
+                  {/* Allow skipping the swipe step if needed */}
+                  {currentStep.id === 'swipe-interaction' && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={nextStep}
+                      className="text-xs px-2"
+                    >
+                      Continuer
+                    </Button>
+                  )}
                   
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => {
+                      exitDemo();
+                      navigate('/');
+                    }}
+                    className="text-xs px-2"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                    
                   {!isDemoComplete && (
                   <Button
                     size="sm"

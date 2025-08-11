@@ -223,7 +223,7 @@ export default function Matches() {
 
       {/* Loading State */}
       {loading && (
-        <Card className="h-[600px] flex items-center justify-center bg-gradient-to-br from-background to-muted/30">
+        <Card className="h-[600px] flex items-center justify-center bg-gradient-to-br from-background to-muted/30" data-demo="swipe-loading">
           <div className="text-center space-y-6">
             <div className="relative">
               <Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" />

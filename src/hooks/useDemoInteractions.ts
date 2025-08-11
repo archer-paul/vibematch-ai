@@ -18,28 +18,57 @@ export function useDemoInteractions() {
         console.log('Demo swipe interaction detected');
         // Show "return to dashboard" message
         setTimeout(() => {
-          const returnToDashboard = document.createElement('div');
-          returnToDashboard.innerHTML = `
-            <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-                        background: white; padding: 20px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-                        z-index: 10001; text-align: center; max-width: 300px;">
-              <h3 style="margin: 0 0 10px 0; color: #6b46c1;">Great Match!</h3>
-              <p style="margin: 0 0 15px 0; color: #374151;">Now let's return to the dashboard to continue the tour.</p>
-              <button style="background: #6b46c1; color: white; border: none; padding: 8px 16px; 
-                            border-radius: 6px; cursor: pointer;" onclick="this.parentElement.parentElement.remove(); window.location.href='/dashboard';">
-                Return to Dashboard
-              </button>
-            </div>
-          `;
-          document.body.appendChild(returnToDashboard);
-          
-          // Auto navigate after 3 seconds
-          setTimeout(() => {
-            returnToDashboard.remove();
+          const wrapper = document.createElement('div');
+          wrapper.style.position = 'fixed';
+          wrapper.style.top = '50%';
+          wrapper.style.left = '50%';
+          wrapper.style.transform = 'translate(-50%, -50%)';
+          wrapper.style.background = 'white';
+          wrapper.style.padding = '20px';
+          wrapper.style.borderRadius = '8px';
+          wrapper.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+          wrapper.style.zIndex = '10001';
+          wrapper.style.textAlign = 'center';
+          wrapper.style.maxWidth = '300px';
+
+          const title = document.createElement('h3');
+          title.textContent = 'Great Match!';
+          title.style.margin = '0 0 10px 0';
+          title.style.color = '#6b46c1';
+
+          const msg = document.createElement('p');
+          msg.textContent = "Now let's return to the dashboard to continue the tour.";
+          msg.style.margin = '0 0 15px 0';
+          msg.style.color = '#374151';
+
+          const btn = document.createElement('button');
+          btn.textContent = 'Return to Dashboard';
+          btn.style.background = '#6b46c1';
+          btn.style.color = 'white';
+          btn.style.border = 'none';
+          btn.style.padding = '8px 16px';
+          btn.style.borderRadius = '6px';
+          btn.style.cursor = 'pointer';
+          btn.id = 'demo-return-btn';
+
+          wrapper.appendChild(title);
+          wrapper.appendChild(msg);
+          wrapper.appendChild(btn);
+          document.body.appendChild(wrapper);
+
+          const cleanup = () => {
+            wrapper.remove();
+          };
+
+          const handleReturn = () => {
+            cleanup();
             navigate('/dashboard');
-            // Wait longer for navigation to complete before advancing demo
             setTimeout(() => nextStep(), 1000);
-          }, 3000);
+          };
+          btn.addEventListener('click', handleReturn, { once: true });
+
+          // Auto navigate after 3 seconds
+          setTimeout(handleReturn, 3000);
         }, 1000);
       };
 
@@ -49,10 +78,15 @@ export function useDemoInteractions() {
         button.addEventListener('click', handleSwipeDetection);
       });
 
+      // Listen for swipe gestures dispatched from SwipeCard
+      const handleDemoSwipe = () => handleSwipeDetection();
+      window.addEventListener('demo-swipe' as any, handleDemoSwipe as any);
+
       return () => {
         swipeButtons.forEach(button => {
           button.removeEventListener('click', handleSwipeDetection);
         });
+        window.removeEventListener('demo-swipe' as any, handleDemoSwipe as any);
       };
     }
 

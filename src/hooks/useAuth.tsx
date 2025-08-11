@@ -151,6 +151,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  // In demo mode, react to demo-user changes to swap profile instantly
+  useEffect(() => {
+    const handler = () => {
+      if (isDemoMode()) {
+        const demoUserType = localStorage.getItem('demo-user-type') as 'creator' | 'sponsor' || 'creator';
+        const demoProfile = getDemoProfile(demoUserType);
+        setProfile(demoProfile);
+      }
+    };
+    window.addEventListener('demo-user-changed' as any, handler as any);
+    return () => window.removeEventListener('demo-user-changed' as any, handler as any);
+  }, []);
+
   const signUp = async (email: string, password: string, fullName: string, userType: UserType) => {
     const redirectUrl = `${window.location.origin}/`;
     

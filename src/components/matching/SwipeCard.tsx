@@ -127,20 +127,21 @@ export function SwipeCard({ sponsor, index, isTop, swipeDirection, onSwipe, anal
 
   const handleMouseUp = () => {
     if (!isDragging || !isTop) return;
-    
     setIsDragging(false);
-    
+
     // Determine swipe action based on final position
     if (Math.abs(dragOffset.x) > 100 || Math.abs(dragOffset.y) > 100) {
       if (dragOffset.y < -150) {
         onSwipe('super');
+        window.dispatchEvent(new CustomEvent('demo-swipe', { detail: { direction: 'super' } }));
       } else if (dragOffset.x > 100) {
         onSwipe('right');
+        window.dispatchEvent(new CustomEvent('demo-swipe', { detail: { direction: 'right' } }));
       } else if (dragOffset.x < -100) {
         onSwipe('left');
       }
     }
-    
+
     // Reset position
     setDragOffset({ x: 0, y: 0 });
     setRotation(0);
@@ -260,6 +261,7 @@ export function SwipeCard({ sponsor, index, isTop, swipeDirection, onSwipe, anal
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       data-testid="swipe-card"
+      data-demo={isTop ? 'swipe-card-top' : undefined}
     >
       <Card className="h-full relative overflow-hidden bg-gradient-to-br from-background to-muted/30 border-2">
         {/* Overlay */}
