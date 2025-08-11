@@ -83,9 +83,12 @@ export function DemoOverlay() {
             currentStep.target === '[data-demo="nav-campaigns"]' ||
             currentStep.target === '[data-demo="sponsor-button"]') {
            const handleElementClick = (e: Event) => {
-             e.preventDefault();
-             e.stopPropagation();
-             (e as any).stopImmediatePropagation?.();
+             const isOpenModal = currentStep.action === 'open-modal';
+             if (!isOpenModal) {
+               e.preventDefault();
+               e.stopPropagation();
+               (e as any).stopImmediatePropagation?.();
+             }
              console.log(`${currentStep.target} clicked during demo`);
              
              // Handle specific actions
@@ -112,26 +115,25 @@ export function DemoOverlay() {
                nextStep();
                return;
               } else if (currentStep.action === 'open-modal') {
-                // Find and click the Apply Now button to open modal
-                const applyButton = document.querySelector('[data-demo="apply-now"]');
-                if (applyButton) {
-                  console.log('Clicking Apply Now button to open modal');
-                  (applyButton as HTMLElement).click();
-                  // Wait until the Send button exists, then advance to the next step and retarget overlay
-                  let attempts = 0;
-                  const interval = setInterval(() => {
-                    const sendBtn = document.querySelector('[data-demo="send-message"]');
-                    attempts++;
-                    if (sendBtn) {
-                      clearInterval(interval);
-                      nextStep();
-                      // Retarget immediately to the send button
-                      setTargetElement(sendBtn as HTMLElement);
-                    } else if (attempts > 30) { // ~3s fallback
-                      clearInterval(interval);
+                // Let the native click open the modal; just observe and advance when it appears
+                const observer = new MutationObserver(() => {
+                  const modal = document.querySelector('[role="dialog"][data-state="open"], [role="dialog"]') as HTMLElement;
+                  const sendBtn = document.querySelector('[data-demo="send-message"]') as HTMLElement;
+                  if (modal || sendBtn) {
+                    observer.disconnect();
+                    // Retarget to the modal first so the cutout adapts immediately
+                    if (modal) {
+                      setTargetElement(modal);
                     }
-                  }, 100);
-                }
+                    // Immediately move to the next step (which targets the Send button)
+                    nextStep();
+                    // If the send button is already present, retarget to it
+                    if (sendBtn) {
+                      setTargetElement(sendBtn);
+                    }
+                  }
+                });
+                observer.observe(document.body, { childList: true, subtree: true });
                 return;
               } else if (currentStep.target === '[data-demo="brand-button"]' || currentStep.target === '[data-demo="sponsor-button"]') {
                 // Handle brand/sponsor button click - setup sponsor demo
@@ -159,7 +161,10 @@ export function DemoOverlay() {
              nextStep();
            };
            element.addEventListener('click', (ev) => {
-             (ev as any).stopImmediatePropagation?.();
+             const isOpenModal = currentStep.action === 'open-modal';
+             if (!isOpenModal) {
+               (ev as any).stopImmediatePropagation?.();
+             }
              handleElementClick(ev);
            }, { once: true });
            element.dataset.demoClickHandler = 'true';
@@ -251,8 +256,19 @@ export function DemoOverlay() {
     
     // Observe DOM changes to handle dynamic targets like modals
     let observer: MutationObserver | null = null;
-    if (currentStep.id === 'message-modal-interaction') {
+    if (currentStep.id === 'message-modal-interaction' || currentStep.action === 'open-modal') {
       observer = new MutationObserver(() => {
+        if (currentStep.action === 'open-modal') {
+          const modal = document.querySelector('[role="dialog"][data-state="open"], [role="dialog"]') as HTMLElement;
+          if (modal) {
+            setTargetElement(modal);
+            const rect = modal.getBoundingClientRect();
+            updateTooltipPosition(rect);
+            // As soon as the modal appears, advance to the Send step
+            nextStep();
+            return;
+          }
+        }
         const el = document.querySelector(currentStep.target!) as HTMLElement;
         if (el) {
           setTargetElement(el);
