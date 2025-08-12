@@ -41,7 +41,7 @@ const Index = () => {
   const { startDemo, demoState } = useDemo();
   useDemoAuth(); // Initialize demo auth handling
 
-  if (user) {
+  if (user && !(demoState.isActive && demoState.phase === 'transition')) {
     return <Navigate to="/dashboard" replace />;
   }
 

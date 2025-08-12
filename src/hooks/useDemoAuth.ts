@@ -48,6 +48,20 @@ export function useDemoAuth() {
     }
   }
 
+  // Ensure we go through landing during transition and switch to sponsor profile
+  if (demoState.phase === 'transition') {
+    console.log('Transition phase: navigating to landing and switching to sponsor demo user');
+    try {
+      localStorage.setItem('demo-user-type', 'sponsor');
+      window.dispatchEvent(new CustomEvent('demo-user-changed', { detail: { userType: 'sponsor' } }));
+    } catch (e) {
+      // ignore
+    }
+    if (window.location.pathname !== '/') {
+      navigate('/');
+    }
+  }
+
   // Handle special demo pages
   if (window.location.pathname === '/matches' && demoState.phase === 'creator-tour') {
     // Add swipe detection for demo

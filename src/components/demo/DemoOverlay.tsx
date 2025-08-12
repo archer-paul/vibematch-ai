@@ -264,8 +264,7 @@ export function DemoOverlay() {
             setTargetElement(modal);
             const rect = modal.getBoundingClientRect();
             updateTooltipPosition(rect);
-            // As soon as the modal appears, advance to the Send step
-            nextStep();
+            // Do not advance the step here to avoid double-advancing
             return;
           }
         }
