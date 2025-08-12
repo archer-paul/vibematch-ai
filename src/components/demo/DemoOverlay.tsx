@@ -214,11 +214,11 @@ export function DemoOverlay() {
           y = rect.top + rect.height / 2 - tooltipHeight / 2;
           break;
         default: // bottom
-          // Special positioning for the welcome step
-          if (currentStep.id === 'welcome-demo') {
+          // Special positioning for steps that need to avoid covering cutouts
+          if (currentStep.id === 'welcome-demo' || currentStep.id === 'dashboard-overview') {
             // Calculate the true bottom of the cutout (element + 8px margin + 16px cutout padding)
             const cutoutBottom = rect.bottom + 8 + 16;
-            // Position tooltip with large gap to ensure it doesn't overlap the Content Creator button
+            // Position tooltip with large gap to ensure it doesn't overlap the cutout
             y = cutoutBottom + 100;
             
             // If tooltip would go below viewport, position it to the side instead
@@ -238,12 +238,12 @@ export function DemoOverlay() {
           break;
       }
       
-      // Keep tooltip in viewport - but for welcome step, prioritize avoiding overlap over viewport constraints
-      if (currentStep.id !== 'welcome-demo') {
+      // Keep tooltip in viewport - but for special steps, prioritize avoiding overlap over viewport constraints
+      if (currentStep.id !== 'welcome-demo' && currentStep.id !== 'dashboard-overview') {
         x = Math.max(20, Math.min(x, window.innerWidth - tooltipWidth - 20));
         y = Math.max(20, Math.min(y, window.innerHeight - tooltipHeight - 20));
       } else {
-        // For welcome step, only constrain horizontally to avoid covering the button
+        // For special steps, only constrain horizontally to avoid covering the cutout
         x = Math.max(20, Math.min(x, window.innerWidth - tooltipWidth - 20));
         // Don't constrain y to allow positioning below the cutout
       }
