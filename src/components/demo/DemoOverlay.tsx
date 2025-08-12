@@ -216,9 +216,9 @@ export function DemoOverlay() {
         default: // bottom
           // Special positioning for the welcome step
           if (currentStep.id === 'welcome-demo') {
-            // Place tooltip just below the cutout (cutout extends 8px beyond the element)
+            // Place tooltip well below the cutout to avoid covering "Content Creator" button
             const cutoutBottom = rect.bottom + 8;
-            y = cutoutBottom + 12; // 12px gap below cutout, avoids overlapping the button
+            y = cutoutBottom + 60; // Much larger gap to ensure no overlap with button
           } else {
             y = rect.bottom + 20;
           }
