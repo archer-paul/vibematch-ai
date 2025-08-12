@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowRight, ArrowLeft, SkipForward, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,7 @@ export function DemoOverlay() {
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
   const [overlayPosition, setOverlayPosition] = useState({ x: 0, y: 0 });
   const [tooltipDimensions, setTooltipDimensions] = useState({ width: 400, height: 240 });
+  const modalAdvanceRef = useRef(false);
 
   const currentStep = demoState.steps[demoState.currentStep];
 
@@ -114,43 +115,49 @@ export function DemoOverlay() {
                // This will be handled by clicking the All Campaigns tab
                nextStep();
                return;
-               } else if (currentStep.action === 'open-modal') {
-                 // Let the native click open the modal; observe and advance exactly once when it appears
-                 let advanced = false;
-                 const observer = new MutationObserver(() => {
-                   if (advanced) return;
-                   const modal = document.querySelector('[role="dialog"][data-state="open"], [role="dialog"]') as HTMLElement;
-                   const sendBtn = document.querySelector('[data-demo="send-message"]') as HTMLElement;
-                   if (modal || sendBtn) {
-                     advanced = true;
-                     observer.disconnect();
-                     if (modal) {
-                       setTargetElement(modal);
-                       const rect = modal.getBoundingClientRect();
-                       updateTooltipPosition(rect);
-                     }
-                     nextStep();
-                     if (sendBtn) {
-                       setTargetElement(sendBtn);
-                       const r2 = sendBtn.getBoundingClientRect();
-                       updateTooltipPosition(r2);
-                     }
-                   }
-                 });
-                 observer.observe(document.body, { childList: true, subtree: true });
-                 return;
-               }
+                } else if (currentStep.action === 'open-modal') {
+                  // Let the native click open the modal; observe and advance exactly once when it appears
+                  if (modalAdvanceRef.current) return;
+                  let advanced = false;
+                  const observer = new MutationObserver(() => {
+                    if (advanced || modalAdvanceRef.current) return;
+                    const modal = document.querySelector('[role="dialog"][data-state="open"], [role="dialog"]') as HTMLElement | null;
+                    const sendBtn = document.querySelector('[data-demo="send-message"]') as HTMLElement | null;
+                    if (modal || sendBtn) {
+                      advanced = true;
+                      modalAdvanceRef.current = true; // guard: advance only once
+                      (window as any).__demoModalEl = modal || sendBtn;
+                      observer.disconnect();
+                      if (modal) {
+                        setTargetElement(modal);
+                        const rect = modal.getBoundingClientRect();
+                        updateTooltipPosition(rect);
+                      }
+                      // Advance to the modal interaction step exactly once
+                      nextStep();
+                      if (sendBtn) {
+                        setTargetElement(sendBtn);
+                        const r2 = sendBtn.getBoundingClientRect();
+                        updateTooltipPosition(r2);
+                      }
+                    }
+                  });
+                  observer.observe(document.body, { childList: true, subtree: true });
+                  return;
+                }
              
              nextStep();
            };
-           element.addEventListener('click', (ev) => {
-             const isOpenModal = currentStep.action === 'open-modal';
-             if (!isOpenModal) {
-               (ev as any).stopImmediatePropagation?.();
-             }
-             handleElementClick(ev);
-           }, { once: true });
-           element.dataset.demoClickHandler = 'true';
+           if (element.dataset.demoClickHandler !== 'true') {
+             element.addEventListener('click', (ev) => {
+               const isOpenModal = currentStep.action === 'open-modal';
+               if (!isOpenModal) {
+                 (ev as any).stopImmediatePropagation?.();
+               }
+               handleElementClick(ev);
+             }, { once: true });
+             element.dataset.demoClickHandler = 'true';
+           }
         }
         
         // Calculate position for the tooltip
@@ -285,6 +292,11 @@ export function DemoOverlay() {
     };
   }, [targetElement]);
 
+  // Reset modal advancement guard on step change
+  useEffect(() => {
+    modalAdvanceRef.current = false;
+  }, [demoState.currentStep]);
+
   if (!demoState.isActive || !currentStep) {
     return null;
   }
@@ -311,7 +323,7 @@ export function DemoOverlay() {
                 {targetElement && (
                   <rect
                     x={targetElement.getBoundingClientRect().left - 8}
-                    y={targetElement.getBoundingClientRect().top - 8 + (currentStep?.id === 'sponsor-transition' ? 8 : 0)}
+                    y={targetElement.getBoundingClientRect().top - 8 + (currentStep?.id === 'sponsor-transition' ? 12 : 0)}
                     width={targetElement.getBoundingClientRect().width + 16}
                     height={targetElement.getBoundingClientRect().height + 16}
                     rx="12"
