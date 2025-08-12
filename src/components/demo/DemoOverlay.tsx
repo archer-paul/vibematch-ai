@@ -216,7 +216,7 @@ export function DemoOverlay() {
         default: // bottom
           // Special positioning for the welcome step
           if (currentStep.id === 'welcome-demo') {
-            y = rect.bottom + 120; // Move further down to avoid covering buttons
+            y = rect.bottom + 140; // Slightly lower to avoid covering the "Content Creator" button
           } else {
             y = rect.bottom + 20;
           }

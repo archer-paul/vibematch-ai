@@ -12,7 +12,7 @@ import { DemoOverlay } from '@/components/demo/DemoOverlay';
 import { Sparkles, Building2, Zap, Users, Target, BarChart3, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useDemoAuth } from '@/hooks/useDemoAuth';
-
+import { useEffect, useRef } from 'react';
 const features = [
   {
     icon: Zap,
@@ -40,6 +40,31 @@ const Index = () => {
   const { user } = useAuth();
   const { startDemo, demoState } = useDemo();
   useDemoAuth(); // Initialize demo auth handling
+
+  // Autoplay video when in view
+  const videoRef = useRef<HTMLIFrameElement>(null);
+  useEffect(() => {
+    const iframe = videoRef.current;
+    if (!iframe) return;
+    const observer = new IntersectionObserver((entries, obs) => {
+      const entry = entries[0];
+      if (entry.isIntersecting) {
+        try {
+          iframe.contentWindow?.postMessage(
+            JSON.stringify({ event: 'command', func: 'mute', args: [] }),
+            '*'
+          );
+          iframe.contentWindow?.postMessage(
+            JSON.stringify({ event: 'command', func: 'playVideo', args: [] }),
+            '*'
+          );
+        } catch {}
+        obs.unobserve(iframe);
+      }
+    }, { threshold: 0.4 });
+    observer.observe(iframe);
+    return () => observer.disconnect();
+  }, []);
 
   if (user && !(demoState.isActive && demoState.phase === 'transition')) {
     return <Navigate to="/dashboard" replace />;
@@ -232,7 +257,8 @@ const Index = () => {
             whileHover={{ scale: 1.02 }}
           >
             <iframe
-              src="https://www.youtube.com/embed/byYYXNICKCA"
+              ref={videoRef}
+              src="https://www.youtube.com/embed/byYYXNICKCA?enablejsapi=1&rel=0&modestbranding=1&playsinline=1"
               title="VibeMatch Demo Video"
               className="w-full h-full"
               frameBorder="0"
