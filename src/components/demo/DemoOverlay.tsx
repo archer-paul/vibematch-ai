@@ -114,49 +114,32 @@ export function DemoOverlay() {
                // This will be handled by clicking the All Campaigns tab
                nextStep();
                return;
-              } else if (currentStep.action === 'open-modal') {
-                // Let the native click open the modal; just observe and advance when it appears
-                const observer = new MutationObserver(() => {
-                  const modal = document.querySelector('[role="dialog"][data-state="open"], [role="dialog"]') as HTMLElement;
-                  const sendBtn = document.querySelector('[data-demo="send-message"]') as HTMLElement;
-                  if (modal || sendBtn) {
-                    observer.disconnect();
-                    // Retarget to the modal first so the cutout adapts immediately
-                    if (modal) {
-                      setTargetElement(modal);
-                    }
-                    // Immediately move to the next step (which targets the Send button)
-                    nextStep();
-                    // If the send button is already present, retarget to it
-                    if (sendBtn) {
-                      setTargetElement(sendBtn);
-                    }
-                  }
-                });
-                observer.observe(document.body, { childList: true, subtree: true });
-                return;
-              } else if (currentStep.target === '[data-demo="brand-button"]' || currentStep.target === '[data-demo="sponsor-button"]') {
-                // Handle brand/sponsor button click - setup sponsor demo
-                console.log('Setting up sponsor demo (via landing)');
-                // Set sponsor user for demo
-                localStorage.setItem('demo-user-type', 'sponsor');
-                // Notify auth to swap demo profile immediately
-                window.dispatchEvent(new CustomEvent('demo-user-changed', { detail: { userType: 'sponsor' } }));
-                // Navigate to landing, then start sponsor tour
-                navigate('/');
-                setTimeout(() => {
-                  setPhase('sponsor-tour');
-                }, 200);
-                return;
-              } else if (currentStep.id === 'sponsor-transition') {
-                // Ensure we pass through the landing page during transition
-                console.log('Sponsor transition - navigating to landing and starting sponsor tour');
-                navigate('/');
-                setTimeout(() => {
-                  setPhase('sponsor-tour');
-                }, 300);
-                return;
-             }
+               } else if (currentStep.action === 'open-modal') {
+                 // Let the native click open the modal; observe and advance exactly once when it appears
+                 let advanced = false;
+                 const observer = new MutationObserver(() => {
+                   if (advanced) return;
+                   const modal = document.querySelector('[role="dialog"][data-state="open"], [role="dialog"]') as HTMLElement;
+                   const sendBtn = document.querySelector('[data-demo="send-message"]') as HTMLElement;
+                   if (modal || sendBtn) {
+                     advanced = true;
+                     observer.disconnect();
+                     if (modal) {
+                       setTargetElement(modal);
+                       const rect = modal.getBoundingClientRect();
+                       updateTooltipPosition(rect);
+                     }
+                     nextStep();
+                     if (sendBtn) {
+                       setTargetElement(sendBtn);
+                       const r2 = sendBtn.getBoundingClientRect();
+                       updateTooltipPosition(r2);
+                     }
+                   }
+                 });
+                 observer.observe(document.body, { childList: true, subtree: true });
+                 return;
+               }
              
              nextStep();
            };
@@ -256,18 +239,8 @@ export function DemoOverlay() {
     
     // Observe DOM changes to handle dynamic targets like modals
     let observer: MutationObserver | null = null;
-    if (currentStep.id === 'message-modal-interaction' || currentStep.action === 'open-modal') {
+    if (currentStep.id === 'message-modal-interaction') {
       observer = new MutationObserver(() => {
-        if (currentStep.action === 'open-modal') {
-          const modal = document.querySelector('[role="dialog"][data-state="open"], [role="dialog"]') as HTMLElement;
-          if (modal) {
-            setTargetElement(modal);
-            const rect = modal.getBoundingClientRect();
-            updateTooltipPosition(rect);
-            // Do not advance the step here to avoid double-advancing
-            return;
-          }
-        }
         const el = document.querySelector(currentStep.target!) as HTMLElement;
         if (el) {
           setTargetElement(el);
@@ -338,7 +311,7 @@ export function DemoOverlay() {
                 {targetElement && (
                   <rect
                     x={targetElement.getBoundingClientRect().left - 8}
-                    y={targetElement.getBoundingClientRect().top - 8}
+                    y={targetElement.getBoundingClientRect().top - 8 + (currentStep?.id === 'sponsor-transition' ? 8 : 0)}
                     width={targetElement.getBoundingClientRect().width + 16}
                     height={targetElement.getBoundingClientRect().height + 16}
                     rx="12"
