@@ -216,18 +216,37 @@ export function DemoOverlay() {
         default: // bottom
           // Special positioning for the welcome step
           if (currentStep.id === 'welcome-demo') {
-            // Place tooltip well below the cutout to avoid covering "Content Creator" button
-            const cutoutBottom = rect.bottom + 8;
-            y = cutoutBottom + 60; // Much larger gap to ensure no overlap with button
+            // Calculate the true bottom of the cutout (element + 8px margin + 16px cutout padding)
+            const cutoutBottom = rect.bottom + 8 + 16;
+            // Position tooltip with large gap to ensure it doesn't overlap the Content Creator button
+            y = cutoutBottom + 100;
+            
+            // If tooltip would go below viewport, position it to the side instead
+            if (y + tooltipHeight > window.innerHeight - 20) {
+              // Try positioning to the right of the target
+              if (rect.right + 20 + tooltipWidth < window.innerWidth - 20) {
+                x = rect.right + 20;
+                y = rect.top + rect.height / 2 - tooltipHeight / 2;
+              } else {
+                // Force position at bottom of viewport with safe margin
+                y = window.innerHeight - tooltipHeight - 40;
+              }
+            }
           } else {
             y = rect.bottom + 20;
           }
           break;
       }
       
-      // Keep tooltip in viewport
-      x = Math.max(20, Math.min(x, window.innerWidth - tooltipWidth - 20));
-      y = Math.max(20, Math.min(y, window.innerHeight - tooltipHeight - 20));
+      // Keep tooltip in viewport - but for welcome step, prioritize avoiding overlap over viewport constraints
+      if (currentStep.id !== 'welcome-demo') {
+        x = Math.max(20, Math.min(x, window.innerWidth - tooltipWidth - 20));
+        y = Math.max(20, Math.min(y, window.innerHeight - tooltipHeight - 20));
+      } else {
+        // For welcome step, only constrain horizontally to avoid covering the button
+        x = Math.max(20, Math.min(x, window.innerWidth - tooltipWidth - 20));
+        // Don't constrain y to allow positioning below the cutout
+      }
       
       setOverlayPosition({ x, y });
       
