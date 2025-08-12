@@ -235,24 +235,12 @@ export function DemoOverlay() {
           } else if (currentStep.id === 'dashboard-overview') {
             // Calculate the true bottom of the cutout for dashboard
             const cutoutBottom = rect.bottom + 8 + 16;
-            // Position tooltip just below the cutout with smaller gap
-            y = cutoutBottom + 20;
+            // Position tooltip just below the cutout with small gap
+            y = cutoutBottom + 10;
             
-            // If tooltip would go below viewport, try with smaller gap first
+            // If tooltip would go below viewport, position at bottom with safe margin
             if (y + tooltipHeight > window.innerHeight - 20) {
-              y = cutoutBottom + 10;
-              
-              // If still out of bounds, position to the side
-              if (y + tooltipHeight > window.innerHeight - 20) {
-                // Try positioning to the right
-                if (rect.right + 20 + tooltipWidth < window.innerWidth - 20) {
-                  x = rect.right + 20;
-                  y = rect.top + rect.height / 2 - tooltipHeight / 2;
-                } else {
-                  // Force position at bottom of viewport with safe margin
-                  y = window.innerHeight - tooltipHeight - 40;
-                }
-              }
+              y = window.innerHeight - tooltipHeight - 40;
             }
           } else {
             y = rect.bottom + 20;
