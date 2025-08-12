@@ -194,7 +194,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               title: 'Performance Analytics - Growth',
               description: 'Track your growth metrics and performance over time in the Growth tab.',
               target: '[data-demo="performance-growth"]',
-              position: 'top'
+              position: 'left'
             },
             {
               id: 'recommended-sponsors',
@@ -212,20 +212,20 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               action: 'open-modal'
             },
             {
-              id: 'message-modal-interaction',
-              title: 'Send Your Application',
-              description: 'The modal has opened! Now click the "Send" button to submit your application to the sponsor.',
-              target: '[data-demo="send-message"]',
-              position: 'top',
-              action: 'modal-interaction'
+              id: 'message-modal-overview',
+              title: 'Application Message Ready',
+              description: 'Here is a pre-filled, personalized message with the brand and campaign name to save you time.',
+              target: '[role="dialog"]',
+              position: 'bottom',
+              action: 'modal-opened'
             },
             {
-              id: 'nav-my-campaigns',
-              title: 'My Campaigns',
-              description: 'Navigate to My Campaigns to track your active collaborations. Click on it!',
-              target: '[data-demo="nav-campaigns"]',
+              id: 'message-modal-interaction',
+              title: 'Send Your Application',
+              description: 'Now click the "Send Message" button to submit your application to the sponsor.',
+              target: '[data-demo="send-message"]',
               position: 'bottom',
-              action: 'navigate-campaigns'
+              action: 'modal-interaction'
             },
             {
               id: 'nav-all-campaigns',
@@ -250,7 +250,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               position: 'bottom'
             }
            ];
-           totalSteps = 13;
+           totalSteps = 14;
           break;
         case 'transition':
           newSteps = [
