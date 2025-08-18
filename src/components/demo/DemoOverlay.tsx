@@ -203,7 +203,16 @@ export function DemoOverlay() {
       // Adjust position based on specified position
       switch (currentStep.position) {
         case 'top':
-          y = rect.top - tooltipHeight - 20;
+          // Special handling for dashboard-overview step - position below cutout instead of above
+          if (currentStep.id === 'dashboard-overview') {
+            const cutoutBottom = rect.bottom + 8 + 16;
+            y = cutoutBottom + 10;
+            if (y + tooltipHeight > window.innerHeight - 20) {
+              y = window.innerHeight - tooltipHeight - 40;
+            }
+          } else {
+            y = rect.top - tooltipHeight - 20;
+          }
           break;
         case 'left':
           x = rect.left - tooltipWidth - 20;
