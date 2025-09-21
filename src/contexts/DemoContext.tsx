@@ -208,7 +208,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
               title: 'Apply to Partnerships',
               description: 'Use the Apply Now button to start collaborations with brands that match your style. Click it now!',
               target: '[data-demo="apply-now"]',
-              position: 'top',
+              position: 'left',
               action: 'open-modal'
             },
             {

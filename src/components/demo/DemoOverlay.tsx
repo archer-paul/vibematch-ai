@@ -529,6 +529,14 @@ export function DemoOverlay() {
                       } else if (currentStep.action === 'swipe-action') {
                         // Prevent skipping swipe step via Next
                         return;
+                      } else if (currentStep.action === 'open-modal') {
+                        // Step 8: Simulate clicking the "Apply Now" button
+                        const applyBtn = document.querySelector(currentStep.target || '[data-demo="apply-now"]') as HTMLElement | null;
+                        if (applyBtn) {
+                          applyBtn.click();
+                        }
+                        // Do NOT call nextStep here; it will advance when the modal opens
+                        return;
                       } else {
                         nextStep();
                       }
