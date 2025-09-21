@@ -1,6 +1,10 @@
 // server.js
-const express = require('express');
-const path = require('path');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -11,8 +15,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Servir les assets statiques en premier
-app.use('/assets', express.static(path.join(__dirname, 'dist/assets')));
+// Servir tous les fichiers statiques depuis le dossier dist (inclut assets, logos, avatars, etc.)
+app.use(express.static(path.join(__dirname, 'dist')));
 
 // Route de santé
 app.get('/health', (req, res) => {
