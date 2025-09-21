@@ -537,6 +537,12 @@ export function DemoOverlay() {
                         }
                         // Do NOT call nextStep here; it will advance when the modal opens
                         return;
+                      } else if (currentStep.action === 'modal-opened') {
+                        // Step 9: Just advance to next step, keep modal open
+                        nextStep();
+                      } else if (currentStep.action === 'modal-interaction') {
+                        // Step 10: Let the user click the send button or Next
+                        nextStep();
                       } else {
                         nextStep();
                       }

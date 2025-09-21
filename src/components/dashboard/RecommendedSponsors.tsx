@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { SponsorDetailsModal } from '@/components/modals/SponsorDetailsModal';
 import { SendMessageModal } from '@/components/modals/SendMessageModal';
+import { useDemo } from '@/contexts/DemoContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -79,6 +80,7 @@ export function RecommendedSponsors() {
   const [applyingSponsors, setApplyingSponsors] = useState<Set<string>>(new Set());
   const [likedSponsors, setLikedSponsors] = useState<Set<string>>(new Set());
   const { notifications, removeNotification, showLike, showSuccess } = useNotifications();
+  const { demoState } = useDemo();
 
   const handleLike = (sponsorId: string) => {
     // Toggle like state
@@ -364,6 +366,11 @@ export function RecommendedSponsors() {
         partnership={selectedPartnership}
         isOpen={isMessageModalOpen}
         onClose={() => {
+          // Don't close modal during demo steps 9 and 10
+          const currentStep = demoState.steps[demoState.currentStep];
+          if (demoState.isActive && (currentStep?.id === 'message-modal-overview' || currentStep?.id === 'message-modal-interaction')) {
+            return;
+          }
           setIsMessageModalOpen(false);
           setSelectedPartnership(null);
         }}
