@@ -72,6 +72,55 @@ export function DemoOverlay() {
     }
 
     const findTarget = () => {
+      // Handle special modal-opened action for step 9
+      if (currentStep.action === 'modal-opened') {
+        console.log('Demo: Looking for modal for modal-opened step');
+        const modal = document.querySelector('[role="dialog"]') as HTMLElement;
+        if (modal) {
+          console.log('Demo: Modal found for modal-opened step');
+          setTargetElement(modal);
+          // Auto-advance to step 10 after showing modal for 3 seconds
+          setTimeout(() => {
+            if (!modalAdvanceRef.current) {
+              console.log('Demo: Auto-advancing from modal-overview to modal-interaction');
+              modalAdvanceRef.current = true;
+              nextStep();
+            }
+          }, 3000);
+          return;
+        }
+        // If modal not found yet, try again
+        setTimeout(findTarget, 200);
+        return;
+      }
+
+      // Handle special modal-interaction action for step 10
+      if (currentStep.action === 'modal-interaction') {
+        console.log('Demo: Looking for send button for modal-interaction step');
+        const sendButton = document.querySelector('[data-demo="send-message"]') as HTMLElement;
+        if (sendButton) {
+          console.log('Demo: Send button found for modal-interaction step');
+          setTargetElement(sendButton);
+          
+          // Add click handler for send button to advance demo
+          if (!sendButton.dataset.demoClickHandler) {
+            const handleSendClick = (e: Event) => {
+              console.log('Demo: Send button clicked, advancing to next step');
+              // Let the normal click happen to send the message, then advance
+              setTimeout(() => {
+                nextStep();
+              }, 1000);
+            };
+            sendButton.addEventListener('click', handleSendClick, { once: true });
+            sendButton.dataset.demoClickHandler = 'true';
+          }
+          return;
+        }
+        // If button not found yet, try again
+        setTimeout(findTarget, 200);
+        return;
+      }
+
       const element = document.querySelector(currentStep.target!) as HTMLElement;
       if (element) {
         setTargetElement(element);
@@ -116,35 +165,24 @@ export function DemoOverlay() {
                nextStep();
                return;
                 } else if (currentStep.action === 'open-modal') {
-                  // Let the native click open the modal; observe and advance exactly once when it appears
-                  if (modalAdvanceRef.current) return;
-                  let advanced = false;
-                  const observer = new MutationObserver(() => {
-                    if (advanced || modalAdvanceRef.current) return;
-                    const modal = document.querySelector('[role="dialog"][data-state="open"], [role="dialog"]') as HTMLElement | null;
-                    const sendBtn = document.querySelector('[data-demo="send-message"]') as HTMLElement | null;
-                    if (modal || sendBtn) {
-                      advanced = true;
-                      modalAdvanceRef.current = true; // guard: advance only once
-                      (window as any).__demoModalEl = modal || sendBtn;
-                      observer.disconnect();
-                      if (modal) {
-                        setTargetElement(modal);
-                        const rect = modal.getBoundingClientRect();
-                        updateTooltipPosition(rect);
-                      }
-                      // Advance to the modal interaction step exactly once
-                      nextStep();
-                      if (sendBtn) {
-                        setTargetElement(sendBtn);
-                        const r2 = sendBtn.getBoundingClientRect();
-                        updateTooltipPosition(r2);
-                      }
-                    }
-                  });
-                  observer.observe(document.body, { childList: true, subtree: true });
-                  return;
-                }
+                   // Let the native click open the modal; advance only once when it appears
+                   if (modalAdvanceRef.current) return;
+                   console.log('Demo: Watching for modal to open...');
+                   
+                   const observer = new MutationObserver(() => {
+                     if (modalAdvanceRef.current) return;
+                     const modal = document.querySelector('[role="dialog"]') as HTMLElement | null;
+                     if (modal) {
+                       console.log('Demo: Modal detected, advancing to modal-overview step');
+                       modalAdvanceRef.current = true;
+                       observer.disconnect();
+                       // Advance to step 9 (modal-overview)
+                       nextStep();
+                     }
+                   });
+                   observer.observe(document.body, { childList: true, subtree: true });
+                   return;
+                 }
              
              nextStep();
            };
