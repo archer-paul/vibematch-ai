@@ -77,16 +77,16 @@ export function DemoOverlay() {
         console.log('Demo: Looking for modal for modal-opened step');
         const modal = document.querySelector('[role="dialog"]') as HTMLElement;
         if (modal) {
-          console.log('Demo: Modal found for modal-opened step');
+          console.log('Demo: Modal found for modal-opened step - showing for 4 seconds');
           setTargetElement(modal);
-          // Auto-advance to step 10 after showing modal for 3 seconds
+          // Auto-advance to step 10 after showing modal for 4 seconds
           setTimeout(() => {
-            if (!modalAdvanceRef.current) {
+            if (!modalAdvanceRef.current && demoState.currentStep === 8) { // Only advance if still on step 9
               console.log('Demo: Auto-advancing from modal-overview to modal-interaction');
               modalAdvanceRef.current = true;
               nextStep();
             }
-          }, 3000);
+          }, 4000); // Increased to 4 seconds
           return;
         }
         // If modal not found yet, try again
@@ -141,50 +141,51 @@ export function DemoOverlay() {
              }
              console.log(`${currentStep.target} clicked during demo`);
              
-             // Handle specific actions
-             if (currentStep.action === 'navigate-to-matches') {
-               // Don't prevent default here - we want to advance the step first
-               console.log('Navigating to matches - advancing demo step first');
-               nextStep(); // Advance to swipe step first
-               // Navigate without losing demo state
-               setTimeout(() => {
-                 navigate('/matches');
-               }, 100);
-               return;
-             } else if (currentStep.action === 'navigate-campaigns') {
-               navigate('/campaigns');
-               return;
-             } else if (currentStep.action === 'navigate-to-dashboard') {
-               nextStep(); // Advance step first
-               setTimeout(() => {
-                 navigate('/dashboard');
-               }, 100);
-               return;
-             } else if (currentStep.action === 'navigate-all-campaigns') {
-               // This will be handled by clicking the All Campaigns tab
-               nextStep();
-               return;
-                } else if (currentStep.action === 'open-modal') {
-                   // Let the native click open the modal; advance only once when it appears
-                   if (modalAdvanceRef.current) return;
-                   console.log('Demo: Watching for modal to open...');
-                   
-                   const observer = new MutationObserver(() => {
-                     if (modalAdvanceRef.current) return;
-                     const modal = document.querySelector('[role="dialog"]') as HTMLElement | null;
-                     if (modal) {
-                       console.log('Demo: Modal detected, advancing to modal-overview step');
-                       modalAdvanceRef.current = true;
-                       observer.disconnect();
-                       // Advance to step 9 (modal-overview)
-                       nextStep();
-                     }
-                   });
-                   observer.observe(document.body, { childList: true, subtree: true });
-                   return;
-                 }
+              // Handle specific actions
+              if (currentStep.action === 'navigate-to-matches') {
+                // Don't prevent default here - we want to advance the step first
+                console.log('Navigating to matches - advancing demo step first');
+                nextStep(); // Advance to swipe step first
+                // Navigate without losing demo state
+                setTimeout(() => {
+                  navigate('/matches');
+                }, 100);
+                return;
+              } else if (currentStep.action === 'navigate-campaigns') {
+                navigate('/campaigns');
+                return;
+              } else if (currentStep.action === 'navigate-to-dashboard') {
+                nextStep(); // Advance step first
+                setTimeout(() => {
+                  navigate('/dashboard');
+                }, 100);
+                return;
+              } else if (currentStep.action === 'navigate-all-campaigns') {
+                // This will be handled by clicking the All Campaigns tab
+                nextStep();
+                return;
+              } else if (currentStep.action === 'open-modal') {
+                // Let the native click open the modal; advance only once when it appears
+                if (modalAdvanceRef.current) return;
+                console.log('Demo: Watching for modal to open...');
+                
+                const observer = new MutationObserver(() => {
+                  if (modalAdvanceRef.current) return;
+                  const modal = document.querySelector('[role="dialog"]') as HTMLElement | null;
+                  if (modal) {
+                    console.log('Demo: Modal detected, advancing to modal-overview step');
+                    modalAdvanceRef.current = true;
+                    observer.disconnect();
+                    // Advance to step 9 (modal-overview)
+                    nextStep();
+                  }
+                });
+                observer.observe(document.body, { childList: true, subtree: true });
+                return; // IMPORTANT: Return here to avoid the nextStep() at the end
+              }
              
-             nextStep();
+              // Only advance step if no specific action was handled above
+              nextStep();
            };
            if (element.dataset.demoClickHandler !== 'true') {
              element.addEventListener('click', (ev) => {
