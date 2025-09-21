@@ -77,16 +77,9 @@ export function DemoOverlay() {
         console.log('Demo: Looking for modal for modal-opened step');
         const modal = document.querySelector('[role="dialog"]') as HTMLElement;
         if (modal) {
-          console.log('Demo: Modal found for modal-opened step - showing for 4 seconds');
+          console.log('Demo: Modal found for modal-opened step - waiting for user to click Next');
           setTargetElement(modal);
-          // Auto-advance to step 10 after showing modal for 4 seconds
-          setTimeout(() => {
-            if (!modalAdvanceRef.current && demoState.currentStep === 8) { // Only advance if still on step 9
-              console.log('Demo: Auto-advancing from modal-overview to modal-interaction');
-              modalAdvanceRef.current = true;
-              nextStep();
-            }
-          }, 4000); // Increased to 4 seconds
+          // Wait for user to click Next - no auto advance
           return;
         }
         // If modal not found yet, try again
