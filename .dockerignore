@@ -12,3 +12,5 @@ README.md
 .env.production.local
 dist
 bun.lockb
+nul
+.claude
