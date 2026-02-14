@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { analysisService } from '@/services/analysisService';
 import { ProgressIndicator } from '@/components/onboarding/ProgressIndicator';
 import { PersonalInfoStep } from '@/components/onboarding/steps/PersonalInfoStep';
 import { SocialMediaStep } from '@/components/onboarding/steps/SocialMediaStep';
@@ -212,9 +213,16 @@ export default function CreatorOnboarding() {
       if (error) throw error;
 
       toast({
-        title: "🎉 Welcome to VibeMatch!",
+        title: "Welcome to VibeMatch!",
         description: "Your creator profile is now set up. AI analysis of your profile will begin."
       });
+
+      // Trigger background YouTube analysis if handle is provided (fire-and-forget)
+      if (data.social_handles.youtube && profile?.id) {
+        analysisService.analyzeProfile(data.social_handles.youtube, profile.id)
+          .then(() => console.log('Background YouTube analysis completed'))
+          .catch((err) => console.warn('Background analysis failed (non-blocking):', err));
+      }
 
       // Redirect to dashboard
       navigate('/dashboard');

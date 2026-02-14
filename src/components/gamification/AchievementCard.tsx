@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Achievement } from '@/hooks/useGamification';
 import { Trophy, Star, Zap, Target, Heart, Crown, Flame } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
 
 interface AchievementCardProps {
   achievement: Achievement;
@@ -31,34 +31,34 @@ export function AchievementCard({ achievement, isNewlyUnlocked = false }: Achiev
   const getAchievementTitle = (type: string) => {
     switch (type) {
       case 'first_match':
-        return 'Premier Match';
+        return 'First Match';
       case 'super_matcher':
         return 'Super Matcher';
       case 'streak_master':
-        return 'Maître du Streak';
+        return 'Streak Master';
       case 'ai_power_user':
-        return 'Expert IA';
+        return 'AI Power User';
       case 'top_performer':
         return 'Top Performer';
       default:
-        return 'Achievement Débloqué';
+        return 'Achievement Unlocked';
     }
   };
 
   const getAchievementDescription = (type: string, data: any) => {
     switch (type) {
       case 'first_match':
-        return 'Votre tout premier match réussi !';
+        return 'Your very first successful match!';
       case 'super_matcher':
-        return `${data?.matches || 10} matches obtenus ce mois-ci`;
+        return `${data?.matches || 10} matches achieved this month`;
       case 'streak_master':
-        return `Streak de ${data?.streak_days || 7} jours maintenu`;
+        return `${data?.streak_days || 7}-day streak maintained`;
       case 'ai_power_user':
-        return 'Utilisation avancée de l\'IA Cerebras';
+        return 'Advanced use of VibeMatch AI';
       case 'top_performer':
-        return 'Performance exceptionnelle ce mois-ci';
+        return 'Exceptional performance this month';
       default:
-        return data?.description || 'Achievement débloqué avec succès !';
+        return data?.description || 'Achievement unlocked successfully!';
     }
   };
 
@@ -82,17 +82,17 @@ export function AchievementCard({ achievement, isNewlyUnlocked = false }: Achiev
   const getRarity = (type: string) => {
     switch (type) {
       case 'first_match':
-        return 'Commun';
+        return 'Common';
       case 'super_matcher':
         return 'Rare';
       case 'streak_master':
-        return 'Épique';
+        return 'Epic';
       case 'ai_power_user':
-        return 'Légendaire';
+        return 'Legendary';
       case 'top_performer':
-        return 'Mythique';
+        return 'Mythic';
       default:
-        return 'Commun';
+        return 'Common';
     }
   };
 
@@ -119,7 +119,7 @@ export function AchievementCard({ achievement, isNewlyUnlocked = false }: Achiev
               </CardTitle>
               {isNewlyUnlocked && (
                 <Badge className="bg-yellow-500 text-white animate-pulse">
-                  NOUVEAU !
+                  NEW!
                 </Badge>
               )}
             </div>
@@ -137,11 +137,11 @@ export function AchievementCard({ achievement, isNewlyUnlocked = false }: Achiev
         </p>
         
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Débloqué</span>
+          <span>Unlocked</span>
           <span>
             {formatDistanceToNow(new Date(achievement.unlocked_at), {
               addSuffix: true,
-              locale: fr
+              locale: enUS
             })}
           </span>
         </div>
@@ -149,7 +149,7 @@ export function AchievementCard({ achievement, isNewlyUnlocked = false }: Achiev
         {/* Achievement Score */}
         <div className="pt-2 border-t">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Points obtenus:</span>
+            <span className="text-xs text-muted-foreground">Points earned:</span>
             <div className="flex items-center gap-1">
               <Star className="w-3 h-3 text-yellow-500" />
               <span className="font-medium text-sm">

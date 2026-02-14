@@ -1,3 +1,11 @@
+/**
+ * @deprecated This Edge Function is deprecated.
+ * Analysis is now handled server-side via Express routes:
+ *   - POST /api/analyze/profile  (YouTube + LDA + OpenAI analysis)
+ *   - POST /api/match/score      (creator-sponsor compatibility)
+ * See server/analyze.js and server/match.js for the replacements.
+ */
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const corsHeaders = {

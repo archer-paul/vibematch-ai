@@ -43,6 +43,7 @@ COPY --from=builder /app/dist ./dist
 
 # Copier le serveur
 COPY server.js ./
+COPY server/ ./server/
 
 # Exposer le port 8080
 EXPOSE 8080

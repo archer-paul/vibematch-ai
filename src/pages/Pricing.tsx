@@ -9,35 +9,35 @@ const creatorPlans = [
     name: 'Creator Free',
     price: '0',
     currency: '€',
-    period: '/mois',
+    period: '/mo',
     icon: <Star className="w-6 h-6" />,
     popular: false,
     features: [
-      '3 matchings par mois',
-      'Profil basique',
-      'Recherche standard',
-      'Support communautaire'
+      '3 matchings per month',
+      'Basic profile',
+      'Standard search',
+      'Community support'
     ],
     limitations: [
-      'Pas d\'accès aux ghost profiles',
-      'Analytics limités',
-      'Pas de priority matching'
+      'No ghost profiles access',
+      'Limited analytics',
+      'No priority matching'
     ]
   },
   {
     name: 'Creator Pro',
     price: '29',
     currency: '€',
-    period: '/mois',
+    period: '/mo',
     icon: <Zap className="w-6 h-6" />,
     popular: true,
     features: [
-      'Matchings illimités',
-      'Analytics avancés',
-      'Accès aux ghost profiles',
+      'Unlimited matchings',
+      'Advanced analytics',
+      'Ghost profiles access',
       'Priority matching',
-      'Support prioritaire',
-      'Optimisation AI du profil'
+      'Priority support',
+      'AI profile optimization'
     ],
     limitations: []
   },
@@ -45,15 +45,15 @@ const creatorPlans = [
     name: 'Creator Elite',
     price: '99',
     currency: '€',
-    period: '/mois',
+    period: '/mo',
     icon: <Crown className="w-6 h-6" />,
     popular: false,
     features: [
-      'Tout de Creator Pro',
-      'Ghost matching avancé',
-      'Simulation de campagnes',
+      'Everything in Creator Pro',
+      'Advanced ghost matching',
+      'Campaign simulation',
       'Priority AI analysis',
-      'Support dédié',
+      'Dedicated support',
       'White label options',
       'API access'
     ],
@@ -66,52 +66,52 @@ const sponsorPlans = [
     name: 'Starter',
     price: '199',
     currency: '€',
-    period: '/mois',
+    period: '/mo',
     icon: <Star className="w-6 h-6" />,
     popular: false,
     features: [
-      '10 campagnes actives',
+      '10 active campaigns',
       'Basic AI matching',
-      'Analytics standards',
-      'Support email'
+      'Standard analytics',
+      'Email support'
     ],
     limitations: [
-      'Pas de ROI predictor',
-      'Pas d\'accès ghost profiles'
+      'No ROI predictor',
+      'No ghost profiles access'
     ]
   },
   {
     name: 'Business',
     price: '499',
     currency: '€',
-    period: '/mois',
+    period: '/mo',
     icon: <Zap className="w-6 h-6" />,
     popular: true,
     features: [
-      'Campagnes illimitées',
-      'ROI predictor avancé',
+      'Unlimited campaigns',
+      'Advanced ROI predictor',
       'Ghost profiles discovery',
-      'Analytics temps réel',
-      'Support prioritaire',
-      'Cerebras AI insights'
+      'Real-time analytics',
+      'Priority support',
+      'VibeMatch AI insights'
     ],
     limitations: []
   },
   {
     name: 'Enterprise',
-    price: 'Sur devis',
+    price: 'Custom',
     currency: '',
     period: '',
     icon: <Crown className="w-6 h-6" />,
     popular: false,
     features: [
-      'Tout de Business',
-      'API complète',
+      'Everything in Business',
+      'Full API access',
       'White label',
-      'Real-time Cerebras analysis',
-      'Account manager dédié',
-      'SLA garantis',
-      'Intégrations custom'
+      'Real-time VibeMatch AI analysis',
+      'Dedicated account manager',
+      'Guaranteed SLAs',
+      'Custom integrations'
     ],
     limitations: []
   }
@@ -121,19 +121,19 @@ export default function Pricing() {
   const { profile } = useAuth();
 
   const plans = profile?.user_type === 'sponsor' ? sponsorPlans : creatorPlans;
-  const currentUserType = profile?.user_type === 'sponsor' ? 'Sponsor' : 'Créateur';
+  const currentUserType = profile?.user_type === 'sponsor' ? 'Sponsor' : 'Creator';
 
   return (
     <div className="container max-w-6xl mx-auto p-6 space-y-8">
       {/* Header */}
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold">Plans & Tarifs {currentUserType}</h1>
+        <h1 className="text-4xl font-bold">{currentUserType} Plans & Pricing</h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Choisissez le plan qui correspond à vos besoins. Toutes nos analyses sont alimentées par Cerebras AI pour des résultats ultra-rapides.
+          Choose the plan that fits your needs. All our analyses are powered by VibeMatch AI for ultra-fast results.
         </p>
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Bot className="w-4 h-4" />
-          <span>Powered by Cerebras ultra-fast inference</span>
+          <span>Powered by VibeMatch AI ultra-fast inference</span>
         </div>
       </div>
 
@@ -145,24 +145,24 @@ export default function Pricing() {
               <Bot className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold">Intelligence Artificielle Cerebras</h3>
+              <h3 className="font-semibold">VibeMatch AI Engine</h3>
               <p className="text-sm text-muted-foreground">
-                Analyse de compatibilité en moins de 100ms
+                Compatibility analysis in under 100ms
               </p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-green-600" />
-              <span>Matching ultra-rapide</span>
+              <span>Ultra-fast matching</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-green-600" />
-              <span>Analyse prédictive avancée</span>
+              <span>Advanced predictive analysis</span>
             </div>
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-green-600" />
-              <span>Optimisation continue</span>
+              <span>Continuous optimization</span>
             </div>
           </div>
         </CardContent>
@@ -182,7 +182,7 @@ export default function Pricing() {
             {plan.popular && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                 <Badge className="bg-primary text-primary-foreground px-4 py-1">
-                  Le plus populaire
+                  Most popular
                 </Badge>
               </div>
             )}
@@ -239,9 +239,9 @@ export default function Pricing() {
                   }`}
                   variant={plan.popular ? 'default' : 'outline'}
                 >
-                  {plan.name === 'Creator Free' ? 'Plan actuel' : 
-                   plan.name === 'Enterprise' ? 'Nous contacter' : 
-                   'Choisir ce plan'}
+                  {plan.name === 'Creator Free' ? 'Current plan' :
+                   plan.name === 'Enterprise' ? 'Contact us' :
+                   'Choose this plan'}
                 </Button>
               </div>
 
@@ -249,7 +249,7 @@ export default function Pricing() {
               <div className="text-center pt-2">
                 <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700">
                   <Bot className="w-3 h-3 mr-1" />
-                  Cerebras AI inclus
+                  VibeMatch AI included
                 </Badge>
               </div>
             </CardContent>
@@ -259,53 +259,53 @@ export default function Pricing() {
 
       {/* FAQ Section */}
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-center">Questions fréquentes</h2>
+        <h2 className="text-2xl font-bold text-center">Frequently Asked Questions</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Qu'est-ce que Cerebras AI ?</CardTitle>
+              <CardTitle className="text-lg">What is VibeMatch AI?</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Cerebras AI est notre moteur d'intelligence artificielle ultra-rapide qui analyse 
-                la compatibilité entre créateurs et sponsors en moins de 100ms.
+                VibeMatch AI is our ultra-fast artificial intelligence engine that analyzes
+                compatibility between creators and sponsors in under 100ms.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Puis-je changer de plan ?</CardTitle>
+              <CardTitle className="text-lg">Can I change my plan?</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Oui, vous pouvez upgrader ou downgrader votre plan à tout moment. 
-                Les changements prennent effet immédiatement.
+                Yes, you can upgrade or downgrade your plan at any time.
+                Changes take effect immediately.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Qu'est-ce que les Ghost Profiles ?</CardTitle>
+              <CardTitle className="text-lg">What are Ghost Profiles?</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Les Ghost Profiles sont des créateurs découverts par notre IA sur les réseaux sociaux 
-                mais pas encore inscrits sur VibeMatch. Vous pouvez les inviter !
+                Ghost Profiles are creators discovered by our AI on social media
+                but not yet registered on VibeMatch. You can invite them!
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Support inclus ?</CardTitle>
+              <CardTitle className="text-lg">Is support included?</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Tous les plans incluent un support. Les plans Pro et Elite bénéficient 
-                d'un support prioritaire avec des temps de réponse garantis.
+                All plans include support. Pro and Elite plans benefit from
+                priority support with guaranteed response times.
               </p>
             </CardContent>
           </Card>

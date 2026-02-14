@@ -52,9 +52,9 @@ export function EditProfileModal({ isOpen, onClose, onSave }: EditProfileModalPr
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Modifier le profil</DialogTitle>
+          <DialogTitle>Edit profile</DialogTitle>
           <DialogDescription>
-            Mettez à jour vos informations de profil pour améliorer vos matchings.
+            Update your profile information to improve your matchings.
           </DialogDescription>
         </DialogHeader>
 
@@ -69,14 +69,14 @@ export function EditProfileModal({ isOpen, onClose, onSave }: EditProfileModalPr
             </Avatar>
             <Button variant="outline" size="sm">
               <Camera className="w-4 h-4 mr-2" />
-              Changer la photo
+              Change photo
             </Button>
           </div>
 
           {/* Form Fields */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="full_name">Nom complet</Label>
+              <Label htmlFor="full_name">Full name</Label>
               <Input
                 id="full_name"
                 value={formData.full_name}
@@ -84,7 +84,7 @@ export function EditProfileModal({ isOpen, onClose, onSave }: EditProfileModalPr
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="display_name">Nom d'affichage</Label>
+              <Label htmlFor="display_name">Display name</Label>
               <Input
                 id="display_name"
                 value={formData.display_name}
@@ -94,20 +94,20 @@ export function EditProfileModal({ isOpen, onClose, onSave }: EditProfileModalPr
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="tagline">Slogan</Label>
+            <Label htmlFor="tagline">Tagline</Label>
             <Input
               id="tagline"
-              placeholder="Une phrase qui vous décrit..."
+              placeholder="A sentence that describes you..."
               value={formData.tagline}
               onChange={(e) => setFormData(prev => ({ ...prev, tagline: e.target.value }))}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="bio">Biographie</Label>
+            <Label htmlFor="bio">Bio</Label>
             <Textarea
               id="bio"
-              placeholder="Parlez-nous de vous..."
+              placeholder="Tell us about yourself..."
               value={formData.bio}
               onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
               rows={4}
@@ -118,7 +118,7 @@ export function EditProfileModal({ isOpen, onClose, onSave }: EditProfileModalPr
             <>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="company_name">Nom de l'entreprise</Label>
+                  <Label htmlFor="company_name">Company name</Label>
                   <Input
                     id="company_name"
                     value={formData.company_name}
@@ -126,7 +126,7 @@ export function EditProfileModal({ isOpen, onClose, onSave }: EditProfileModalPr
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="industry">Secteur d'activité</Label>
+                  <Label htmlFor="industry">Industry</Label>
                   <Input
                     id="industry"
                     value={formData.industry}
@@ -141,11 +141,11 @@ export function EditProfileModal({ isOpen, onClose, onSave }: EditProfileModalPr
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={onClose}>
               <X className="w-4 h-4 mr-2" />
-              Annuler
+              Cancel
             </Button>
             <Button onClick={handleSave} disabled={isLoading}>
               <Save className="w-4 h-4 mr-2" />
-              {isLoading ? 'Sauvegarde...' : 'Sauvegarder'}
+              {isLoading ? 'Saving...' : 'Save'}
             </Button>
           </div>
         </div>

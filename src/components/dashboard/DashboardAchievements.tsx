@@ -18,7 +18,7 @@ export function DashboardAchievements() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Trophy className="w-5 h-5" />
-            Vos Performances
+            Your Performance
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -48,7 +48,7 @@ export function DashboardAchievements() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Trophy className="w-5 h-5 text-yellow-500" />
-          Vos Performances
+          Your Performance
         </CardTitle>
       </CardHeader>
       
@@ -61,7 +61,7 @@ export function DashboardAchievements() {
           </div>
           <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border border-blue-200">
             <div className="text-2xl font-bold text-blue-700">#{userRank || '---'}</div>
-            <div className="text-xs text-blue-600">Classement</div>
+            <div className="text-xs text-blue-600">Ranking</div>
           </div>
         </div>
 
@@ -70,7 +70,7 @@ export function DashboardAchievements() {
           <div className="space-y-3">
             <h4 className="font-medium text-sm flex items-center gap-2">
               <Star className="w-4 h-4 text-yellow-500" />
-              Achievements récents
+              Recent Achievements
             </h4>
             {recentAchievements.map((achievement) => {
               const getAchievementIcon = (type: string) => {
@@ -93,13 +93,13 @@ export function DashboardAchievements() {
               const getAchievementTitle = (type: string) => {
                 switch (type) {
                   case 'first_match':
-                    return 'Premier Match';
+                    return 'First Match';
                   case 'super_matcher':
                     return 'Super Matcher';
                   case 'streak_master':
-                    return 'Maître du Streak';
+                    return 'Streak Master';
                   case 'ai_power_user':
-                    return 'Expert IA';
+                    return 'AI Power User';
                   case 'top_performer':
                     return 'Top Performer';
                   default:
@@ -113,7 +113,7 @@ export function DashboardAchievements() {
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-sm">{getAchievementTitle(achievement.achievement_type)}</div>
                     <div className="text-xs text-muted-foreground truncate">
-                      {achievement.achievement_data?.description || 'Achievement débloqué'}
+                      {achievement.achievement_data?.description || 'Achievement unlocked'}
                     </div>
                   </div>
                   <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 text-xs">
@@ -131,10 +131,10 @@ export function DashboardAchievements() {
           <div className="text-center py-4">
             <Award className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">
-              Aucun achievement débloqué
+              No achievements unlocked yet
             </p>
             <p className="text-xs text-muted-foreground">
-              Commencez par faire des matches !
+              Start by making some matches!
             </p>
           </div>
         )}
@@ -142,7 +142,7 @@ export function DashboardAchievements() {
         {/* Total Points */}
         <div className="pt-2 border-t">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Points totaux:</span>
+            <span className="text-muted-foreground">Total points:</span>
             <div className="flex items-center gap-1 font-medium">
               <Star className="w-4 h-4 text-yellow-500" />
               {totalPoints.toLocaleString()}
@@ -154,7 +154,7 @@ export function DashboardAchievements() {
         <Button asChild variant="outline" className="w-full gap-2" size="sm">
           <Link to="/leaderboard?tab=achievements">
             <TrendingUp className="w-4 h-4" />
-            Voir le classement complet
+            View full leaderboard
             <ArrowRight className="w-4 h-4" />
           </Link>
         </Button>

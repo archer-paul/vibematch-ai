@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useGamification } from '@/hooks/useGamification';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { cerebrasService } from '@/services/cerebrasService';
+import { analysisService } from '@/services/analysisService';
 import { SwipeCard } from '@/components/matching/SwipeCard';
 import { SwipeActions } from '@/components/matching/SwipeActions';
 import { MatchingStats } from '@/components/matching/MatchingStats';
@@ -52,7 +52,7 @@ export default function Matches() {
     setAnalyzing(true);
     
     try {
-      // Simulate Cerebras analysis with realistic timing
+      // Simulate AI analysis with realistic timing
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       const { data, error } = await supabase
@@ -119,7 +119,7 @@ export default function Matches() {
           });
       }
 
-      // Analyze compatibility with Cerebras for likes
+      // Analyze compatibility for likes
       if (action !== 'dislike') {
         // Show immediate feedback
         if (action === 'super_like') {
@@ -130,12 +130,12 @@ export default function Matches() {
         } else {
           toast({
             title: "💖 Like sent!",
-            description: "Cerebras AI is analyzing compatibility in real-time...",
+            description: "VibeMatch AI is analyzing compatibility in real-time...",
           });
         }
 
-        // Background Cerebras analysis
-        cerebrasService.analyzeProfileCompatibility(
+        // Background AI analysis
+        analysisService.analyzeProfileCompatibility(
           {
             id: profile.user_id!,
             niches: profile.niches || [],
@@ -230,7 +230,7 @@ export default function Matches() {
               <Sparkles className="w-6 h-6 absolute -top-2 -right-2 text-yellow-500 animate-pulse" />
             </div>
             <div className="space-y-3">
-              <p className="font-semibold text-lg">Cerebras AI at work...</p>
+              <p className="font-semibold text-lg">VibeMatch AI at work...</p>
               <p className="text-sm text-muted-foreground max-w-md mx-auto">
                 Intelligent analysis of 100+ sponsor profiles to find you the best matches
               </p>
@@ -280,7 +280,7 @@ export default function Matches() {
             </div>
             <h2 className="text-2xl font-bold">Excellent work!</h2>
             <p className="text-muted-foreground max-w-sm mx-auto">
-              You've discovered all available sponsors. Cerebras AI analyzes new ones daily.
+              You've discovered all available sponsors. VibeMatch AI analyzes new ones daily.
             </p>
             <div className="space-y-3">
               <p className="text-sm font-medium text-muted-foreground">

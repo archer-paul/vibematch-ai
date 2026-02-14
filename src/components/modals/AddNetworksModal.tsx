@@ -88,9 +88,9 @@ export function AddNetworksModal({ isOpen, onClose, onSave }: AddNetworksModalPr
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Ajouter vos réseaux sociaux</DialogTitle>
+          <DialogTitle>Add your social networks</DialogTitle>
           <DialogDescription>
-            Connectez vos comptes pour améliorer vos statistiques et votre visibilité.
+            Connect your accounts to improve your stats and visibility.
           </DialogDescription>
         </DialogHeader>
 
@@ -98,7 +98,7 @@ export function AddNetworksModal({ isOpen, onClose, onSave }: AddNetworksModalPr
           {/* Connected Networks */}
           {Object.keys(networks).length > 0 && (
             <div className="space-y-3">
-              <Label>Réseaux connectés</Label>
+              <Label>Connected networks</Label>
               <div className="space-y-2">
                 {Object.entries(networks).map(([platform, handle]) => {
                   const platformConfig = platforms.find(p => p.name.toLowerCase() === platform.toLowerCase());
@@ -132,7 +132,7 @@ export function AddNetworksModal({ isOpen, onClose, onSave }: AddNetworksModalPr
 
           {/* Add New Networks */}
           <div className="space-y-4">
-            <Label>Ajouter un réseau</Label>
+            <Label>Add a network</Label>
             {platforms.map((platform) => {
               const isConnected = networks[platform.name.toLowerCase()];
               const Icon = platform.icon;
@@ -155,7 +155,7 @@ export function AddNetworksModal({ isOpen, onClose, onSave }: AddNetworksModalPr
                     <div>
                       <Input
                         type="number"
-                        placeholder="Nombre de followers"
+                        placeholder="Follower count"
                         onChange={(e) => updateFollowers(platform.name.toLowerCase(), e.target.value)}
                       />
                     </div>
@@ -169,11 +169,11 @@ export function AddNetworksModal({ isOpen, onClose, onSave }: AddNetworksModalPr
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={onClose}>
               <X className="w-4 h-4 mr-2" />
-              Annuler
+              Cancel
             </Button>
             <Button onClick={handleSave} disabled={isLoading}>
               <Save className="w-4 h-4 mr-2" />
-              {isLoading ? 'Sauvegarde...' : 'Sauvegarder'}
+              {isLoading ? 'Saving...' : 'Save'}
             </Button>
           </div>
         </div>

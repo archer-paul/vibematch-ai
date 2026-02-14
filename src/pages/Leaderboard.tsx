@@ -74,7 +74,7 @@ export default function Leaderboard() {
         <div className="flex items-center justify-center gap-2">
           <Sparkles className="w-4 h-4 text-yellow-500" />
           <span className="text-sm text-muted-foreground">
-            Powered by Cerebras AI pour une expérience de matching optimisée
+            Powered by VibeMatch AI for an optimized matching experience
           </span>
         </div>
       </div>

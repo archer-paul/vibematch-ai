@@ -53,9 +53,9 @@ export function GhostProfileCard({ profile, onInvite, showInviteButton = true }:
   const getStatusBadge = () => {
     switch (status) {
       case 'invited':
-        return <Badge variant="secondary" className="bg-blue-100 text-blue-700">Invité</Badge>;
+        return <Badge variant="secondary" className="bg-blue-100 text-blue-700">Invited</Badge>;
       case 'joined':
-        return <Badge variant="secondary" className="bg-green-100 text-green-700">Rejoint</Badge>;
+        return <Badge variant="secondary" className="bg-green-100 text-green-700">Joined</Badge>;
       default:
         return <Badge variant="secondary" className="bg-purple-100 text-purple-700">
           <Bot className="w-3 h-3 mr-1" />
@@ -66,11 +66,11 @@ export function GhostProfileCard({ profile, onInvite, showInviteButton = true }:
 
   const handleInvite = () => {
     onInvite?.(profile.id);
-    showSuccess('🎉 Invitation envoyée! Le créateur recevra une notification pour rejoindre la plateforme.');
+    showSuccess('Invitation sent! The creator will receive a notification to join the platform.');
   };
 
   const handleViewProfile = () => {
-    showInfo('👀 Profil analysé par Cerebras AI - Données mises à jour en temps réel');
+    showInfo('Profile analyzed by VibeMatch AI - Data updated in real time');
   };
 
   return (
@@ -139,7 +139,7 @@ export function GhostProfileCard({ profile, onInvite, showInviteButton = true }:
         {/* Compatibility Scores */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Compatibilité AI</span>
+            <span className="text-sm font-medium">AI Compatibility</span>
             <Badge className={`text-xs ${getScoreColor(compatibility_scores.overall)}`}>
               {compatibility_scores.overall}%
             </Badge>
@@ -156,16 +156,16 @@ export function GhostProfileCard({ profile, onInvite, showInviteButton = true }:
             </div>
             <div className="text-center">
               <div className="font-medium">{compatibility_scores.content_quality}%</div>
-              <div className="text-muted-foreground">Qualité</div>
+              <div className="text-muted-foreground">Quality</div>
             </div>
           </div>
         </div>
 
-        {/* Cerebras Branding */}
+        {/* VibeMatch AI Branding */}
         <div className="text-xs text-muted-foreground text-center py-2 border-t">
           <div className="flex items-center justify-center gap-1">
             <Bot className="w-3 h-3" />
-            <span>Powered by Cerebras ultra-fast inference</span>
+            <span>Powered by VibeMatch AI ultra-fast inference</span>
           </div>
         </div>
 
@@ -179,14 +179,14 @@ export function GhostProfileCard({ profile, onInvite, showInviteButton = true }:
                 className="flex-1"
               >
                 <Eye className="w-4 h-4 mr-2" />
-                Voir le profil
+                View profile
               </Button>
               <Button 
                 onClick={handleInvite}
                 className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
               >
                 <Mail className="w-4 h-4 mr-2" />
-                Inviter
+                Invite
               </Button>
             </div>
           </div>
@@ -195,14 +195,14 @@ export function GhostProfileCard({ profile, onInvite, showInviteButton = true }:
         {status === 'invited' && (
           <div className="text-center py-2">
             <span className="text-sm text-muted-foreground">
-              Invitation envoyée • En attente de réponse
+              Invitation sent - Awaiting response
             </span>
           </div>
         )}
 
         {status === 'joined' && (
           <Button variant="outline" className="w-full" disabled>
-            ✓ A rejoint la plateforme
+            Joined the platform
           </Button>
         )}
       </CardContent>

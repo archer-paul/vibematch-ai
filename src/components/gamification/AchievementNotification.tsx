@@ -105,7 +105,7 @@ export function AchievementNotification({
               </p>
               
               <p className="text-sm text-yellow-600 mt-1">
-                {achievement.achievement_data?.description || 'Félicitations pour cet achievement !'}
+                {achievement.achievement_data?.description || 'Congratulations on this achievement!'}
               </p>
 
               {/* Points earned */}
@@ -119,7 +119,7 @@ export function AchievementNotification({
                 <div className="flex items-center gap-1 bg-orange-100 px-2 py-1 rounded-full">
                   <Gift className="w-3 h-3 text-orange-600" />
                   <span className="text-xs font-medium text-orange-700">
-                    Récompense débloquée
+                    Reward Unlocked
                   </span>
                 </div>
               </div>

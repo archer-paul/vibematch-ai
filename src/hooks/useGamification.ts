@@ -189,8 +189,8 @@ export function useGamification() {
 
     if (quotas.super_likes_used_today >= limit + bonusLikes) {
       toast({
-        title: "Super Likes utilisés",
-        description: `Limite quotidienne atteinte. Upgrade ton plan pour plus !`,
+        title: "Super Likes Used",
+        description: "Daily limit reached. Upgrade your plan for more!",
         variant: "destructive"
       });
       return false;

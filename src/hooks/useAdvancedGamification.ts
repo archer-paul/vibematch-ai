@@ -52,7 +52,7 @@ export function useAdvancedGamification() {
         {
           id: 'daily-1',
           title: 'Daily Explorer',
-          description: 'Découvrez 5 nouveaux sponsors aujourd\'hui',
+          description: 'Discover 5 new sponsors today',
           type: 'daily',
           target_value: 5,
           current_progress: Math.floor(Math.random() * 5),
@@ -65,7 +65,7 @@ export function useAdvancedGamification() {
         {
           id: 'weekly-1',
           title: 'Match Master',
-          description: 'Obtenez 10 matches cette semaine',
+          description: 'Get 10 matches this week',
           type: 'weekly',
           target_value: 10,
           current_progress: Math.floor(Math.random() * 10),
@@ -78,7 +78,7 @@ export function useAdvancedGamification() {
         {
           id: 'weekly-2',
           title: 'Streak Legend',
-          description: 'Maintenez un streak de 7 jours',
+          description: 'Maintain a 7-day streak',
           type: 'weekly',
           target_value: 7,
           current_progress: Math.floor(Math.random() * 7),
@@ -91,7 +91,7 @@ export function useAdvancedGamification() {
         {
           id: 'monthly-1',
           title: 'AI Champion',
-          description: 'Atteignez un score de compatibilité moyen de 85%',
+          description: 'Reach an average compatibility score of 85%',
           type: 'monthly',
           target_value: 85,
           current_progress: Math.floor(Math.random() * 85),
@@ -104,7 +104,7 @@ export function useAdvancedGamification() {
         {
           id: 'weekly-3',
           title: 'Super Liker',
-          description: 'Utilisez 15 Super Likes cette semaine',
+          description: 'Use 15 Super Likes this week',
           type: 'weekly',
           target_value: 15,
           current_progress: Math.floor(Math.random() * 15),
@@ -222,8 +222,8 @@ export function useAdvancedGamification() {
         if (!userInLeaderboard) {
           demoLeaderboard.push({
             user_id: user.id,
-            full_name: user.user_metadata?.full_name || 'Vous',
-            display_name: 'Vous',
+            full_name: user.user_metadata?.full_name || 'You',
+            display_name: 'You',
             user_type: 'creator',
             total_matches: Math.floor(Math.random() * 15) + 5,
             streak_days: Math.floor(Math.random() * 10) + 1,

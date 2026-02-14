@@ -225,7 +225,7 @@ export default function Profile() {
                   <div className="text-center py-8 text-muted-foreground">
                     No objectives defined.
                     <br />
-                    <Button variant="outline" className="mt-2" onClick={() => showSuccess('Cette fonctionnalité sera bientôt disponible!')}>
+                    <Button variant="outline" className="mt-2" onClick={() => showSuccess('This feature will be available soon!')}>
                       Define Objectives
                     </Button>
                   </div>
@@ -291,17 +291,17 @@ export default function Profile() {
       <EditProfileModal 
         isOpen={isEditModalOpen} 
         onClose={() => setIsEditModalOpen(false)}
-        onSave={() => showSuccess('Profil mis à jour avec succès!')}
+        onSave={() => showSuccess('Profile updated successfully!')}
       />
       <AddNetworksModal 
         isOpen={isNetworksModalOpen} 
         onClose={() => setIsNetworksModalOpen(false)}
-        onSave={() => showSuccess('Réseaux sociaux mis à jour!')}
+        onSave={() => showSuccess('Social networks updated!')}
       />
       <AddCategoriesModal 
         isOpen={isCategoriesModalOpen} 
         onClose={() => setIsCategoriesModalOpen(false)}
-        onSave={() => showSuccess('Catégories mises à jour!')}
+        onSave={() => showSuccess('Categories updated!')}
       />
 
       {/* Notifications */}

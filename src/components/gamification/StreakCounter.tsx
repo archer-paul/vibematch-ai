@@ -51,7 +51,7 @@ export function StreakCounter() {
         <div>
           <span className="font-semibold">{getStreakTitle()}</span>
           <p className="text-sm text-muted-foreground">
-            {streakDays} {streakDays === 1 ? 'jour' : 'jours'} consécutifs
+            {streakDays} consecutive {streakDays === 1 ? 'day' : 'days'}
           </p>
         </div>
         
@@ -65,12 +65,12 @@ export function StreakCounter() {
         
         {daysToBonus > 0 && (
           <div className="text-sm text-muted-foreground">
-            Plus que {daysToBonus} jour{daysToBonus > 1 ? 's' : ''} pour le prochain bonus !
+            {daysToBonus} more {daysToBonus > 1 ? 'days' : 'day'} until next bonus!
           </div>
         )}
         
         <div className="border-t pt-2 text-sm">
-          <span className="text-muted-foreground">Plan actuel: </span>
+          <span className="text-muted-foreground">Current plan: </span>
           <Badge variant="outline" className="text-xs">
             {subscription?.plan_type?.toUpperCase() || 'FREE'}
           </Badge>
@@ -96,7 +96,7 @@ export function StreakCounter() {
                 {streakDays}
               </span>
               <span className="text-xs text-muted-foreground hidden sm:inline">
-                {streakDays === 1 ? 'jour' : 'jours'}
+                {streakDays === 1 ? 'day' : 'days'}
               </span>
             </div>
             

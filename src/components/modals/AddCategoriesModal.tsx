@@ -14,7 +14,7 @@ interface AddCategoriesModalProps {
 }
 
 const availableCategories = [
-  'Lifestyle', 'Mode', 'Beauté', 'Fitness', 'Tech', 'Gaming', 'Food', 'Travel',
+  'Lifestyle', 'Fashion', 'Beauty', 'Fitness', 'Tech', 'Gaming', 'Food', 'Travel',
   'Business', 'DIY', 'Education', 'Music', 'Art', 'Photography', 'Sports',
   'Health', 'Parenting', 'Finance', 'Real Estate', 'Automotive', 'Home',
   'Comedy', 'Entertainment', 'News', 'Politics', 'Science', 'Nature',
@@ -67,9 +67,9 @@ export function AddCategoriesModal({ isOpen, onClose, onSave }: AddCategoriesMod
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Gérer vos catégories de contenu</DialogTitle>
+          <DialogTitle>Manage your content categories</DialogTitle>
           <DialogDescription>
-            Sélectionnez les catégories qui correspondent à votre contenu pour améliorer vos matchings.
+            Select the categories that match your content to improve your matchings.
           </DialogDescription>
         </DialogHeader>
 
@@ -77,7 +77,7 @@ export function AddCategoriesModal({ isOpen, onClose, onSave }: AddCategoriesMod
           {/* Selected Categories */}
           {selectedCategories.length > 0 && (
             <div className="space-y-3">
-              <Label>Catégories sélectionnées ({selectedCategories.length})</Label>
+              <Label>Selected categories ({selectedCategories.length})</Label>
               <div className="flex flex-wrap gap-2">
                 {selectedCategories.map((category) => (
                   <Badge 
@@ -96,7 +96,7 @@ export function AddCategoriesModal({ isOpen, onClose, onSave }: AddCategoriesMod
 
           {/* Available Categories */}
           <div className="space-y-3">
-            <Label>Catégories disponibles</Label>
+            <Label>Available categories</Label>
             <div className="flex flex-wrap gap-2">
               {availableCategories
                 .filter(cat => !selectedCategories.includes(cat))
@@ -116,11 +116,11 @@ export function AddCategoriesModal({ isOpen, onClose, onSave }: AddCategoriesMod
 
           {/* Recommendations */}
           <div className="bg-muted/50 p-4 rounded-lg">
-            <h4 className="font-medium mb-2">💡 Conseils</h4>
+            <h4 className="font-medium mb-2">Tips</h4>
             <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Sélectionnez 3-7 catégories pour optimiser vos matchings</li>
-              <li>• Choisissez les catégories où vous êtes le plus actif</li>
-              <li>• Plus vos catégories sont précises, meilleurs seront vos matchings</li>
+              <li>Select 3-7 categories to optimize your matchings</li>
+              <li>Choose the categories where you are most active</li>
+              <li>The more precise your categories, the better your matchings will be</li>
             </ul>
           </div>
 
@@ -128,11 +128,11 @@ export function AddCategoriesModal({ isOpen, onClose, onSave }: AddCategoriesMod
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={onClose}>
               <X className="w-4 h-4 mr-2" />
-              Annuler
+              Cancel
             </Button>
             <Button onClick={handleSave} disabled={isLoading}>
               <Save className="w-4 h-4 mr-2" />
-              {isLoading ? 'Sauvegarde...' : 'Sauvegarder'}
+              {isLoading ? 'Saving...' : 'Save'}
             </Button>
           </div>
         </div>

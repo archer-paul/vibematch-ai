@@ -27,8 +27,8 @@ export function MatchingStats({
           <Bot className={`w-4 h-4 ${analyzing ? 'animate-pulse text-blue-500' : ''}`} />
           <span className="text-sm font-medium">
             {analyzing 
-              ? "Cerebras AI analyzing 100+ profiles..." 
-              : `Powered by Cerebras ultra-fast inference • ${profilesAnalyzed} profiles analyzed`
+              ? "VibeMatch AI analyzing 100+ profiles..."
+              : `Powered by VibeMatch AI • ${profilesAnalyzed} profiles analyzed`
             }
           </span>
         </div>

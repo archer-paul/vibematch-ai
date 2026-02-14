@@ -11,8 +11,8 @@ export function useDataPersistence() {
       full_name: 'Emma Creative',
       email: 'emma.creative@example.com',
       user_type: 'creator' as const,
-      bio: 'Créatrice de contenu lifestyle et mode basée à Paris. Passionnée par la beauté naturelle et les tendances émergentes.',
-      content_categories: ['Lifestyle', 'Mode', 'Beauté'],
+      bio: 'Lifestyle and fashion content creator based in Paris. Passionate about natural beauty and emerging trends.',
+      content_categories: ['Lifestyle', 'Fashion', 'Beauty'],
       follower_counts: { instagram: 45000, tiktok: 32000 },
       engagement_rate: 8.5,
       social_platforms: { instagram: 'emma_creative_paris', tiktok: 'emmacreative' }
@@ -21,7 +21,7 @@ export function useDataPersistence() {
       full_name: 'TechReview FR',
       email: 'contact@techreviewfr.com',
       user_type: 'creator' as const,
-      bio: 'Reviews tech, tests de gadgets et analyses gaming. Chaîne YouTube francophone spécialisée dans les nouvelles technologies.',
+      bio: 'Tech reviews, gadget tests and gaming analysis. YouTube channel specialized in new technologies.',
       content_categories: ['Tech', 'Gaming', 'Reviews'],
       follower_counts: { youtube: 125000, twitter: 58000 },
       engagement_rate: 12.3,
@@ -31,7 +31,7 @@ export function useDataPersistence() {
       full_name: 'Fitness Maxime',
       email: 'maxime.fitness@example.com',
       user_type: 'creator' as const,
-      bio: 'Coach sportif et nutritionniste. Contenus fitness, recettes healthy et motivation quotidienne.',
+      bio: 'Sports coach and nutritionist. Fitness content, healthy recipes and daily motivation.',
       content_categories: ['Fitness', 'Nutrition', 'Motivation'],
       follower_counts: { tiktok: 85000, instagram: 67000 },
       engagement_rate: 15.2,
@@ -47,7 +47,7 @@ export function useDataPersistence() {
       user_type: 'sponsor' as const,
       company_name: 'TechCorp Solutions',
       industry: 'Technology',
-      bio: 'Marketing Director chez TechCorp, spécialisée dans les collaborations avec les créateurs tech.',
+      bio: 'Marketing Director at TechCorp, specialized in collaborations with tech creators.',
       budget_range: '$5,000 - $15,000',
       campaign_objectives: ['Brand Awareness', 'Product Launch', 'Lead Generation'],
       preferred_sectors: ['Tech', 'Gaming', 'Innovation']
@@ -58,7 +58,7 @@ export function useDataPersistence() {
       user_type: 'sponsor' as const,
       company_name: 'EcoLife Brands',
       industry: 'Sustainability',
-      bio: 'Brand Manager passionné par l\'écologie et les partenariats authentiques.',
+      bio: 'Brand Manager passionate about ecology and authentic partnerships.',
       budget_range: '$3,000 - $8,000',
       campaign_objectives: ['Sustainability Messaging', 'Community Building'],
       preferred_sectors: ['Lifestyle', 'Eco-Friendly', 'Health']
@@ -69,7 +69,7 @@ export function useDataPersistence() {
       user_type: 'sponsor' as const,
       company_name: 'FitnessPro',
       industry: 'Health & Fitness',
-      bio: 'Responsable partenariats chez FitnessPro, à la recherche d\'ambassadeurs fitness authentiques.',
+      bio: 'Partnerships Manager at FitnessPro, looking for authentic fitness ambassadors.',
       budget_range: '$2,000 - $6,000',
       campaign_objectives: ['Product Integration', 'Community Engagement'],
       preferred_sectors: ['Fitness', 'Health', 'Lifestyle']
@@ -160,8 +160,8 @@ export function useDataPersistence() {
             platform: 'Instagram',
             followers: 45000,
             engagement_rate: 8.5,
-            niche: ['Lifestyle', 'Mode', 'Beauté'],
-            bio: 'Créatrice de contenu lifestyle et mode basée à Paris. Passionnée par la beauté naturelle et les tendances émergentes.'
+            niche: ['Lifestyle', 'Fashion', 'Beauty'],
+            bio: 'Lifestyle and fashion content creator based in Paris. Passionate about natural beauty and emerging trends.'
           },
           compatibility_scores: {
             overall: 92,
@@ -178,7 +178,7 @@ export function useDataPersistence() {
             followers: 125000,
             engagement_rate: 12.3,
             niche: ['Tech', 'Reviews', 'Gaming'],
-            bio: 'Reviews tech, tests de gadgets et analyses gaming. Chaîne YouTube francophone spécialisée dans les nouvelles technologies.'
+            bio: 'Tech reviews, gadget tests and gaming analysis. YouTube channel specialized in new technologies.'
           },
           compatibility_scores: {
             overall: 89,

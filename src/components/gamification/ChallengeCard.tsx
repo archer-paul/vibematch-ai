@@ -44,7 +44,7 @@ export function ChallengeCard({ challenge, onClaim }: ChallengeCardProps) {
     const expires = new Date(challenge.expires_at);
     const diff = expires.getTime() - now.getTime();
     
-    if (diff <= 0) return 'Expiré';
+    if (diff <= 0) return 'Expired';
     
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -65,7 +65,7 @@ export function ChallengeCard({ challenge, onClaim }: ChallengeCardProps) {
         <div className="absolute top-4 right-4">
           <Badge className="bg-green-500 text-white animate-pulse-glow">
             <Trophy className="w-3 h-3 mr-1" />
-            Terminé
+            Completed
           </Badge>
         </div>
       )}
@@ -92,7 +92,7 @@ export function ChallengeCard({ challenge, onClaim }: ChallengeCardProps) {
         {/* Progress */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span>Progression</span>
+            <span>Progress</span>
             <span className="font-medium">
               {challenge.current_progress} / {challenge.target_value}
             </span>
@@ -106,12 +106,12 @@ export function ChallengeCard({ challenge, onClaim }: ChallengeCardProps) {
         {/* Reward */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-muted-foreground">Récompense:</span>
+            <span className="text-muted-foreground">Reward:</span>
             <div className="flex items-center gap-1 text-primary font-medium">
               {getRewardIcon(challenge.reward_type)}
               <span>
                 {challenge.reward_value} {challenge.reward_type === 'super_likes' ? 'Super Likes' : 
-                 challenge.reward_type === 'streak_bonus' ? 'Jours de bonus' : 'Badge'}
+                 challenge.reward_type === 'streak_bonus' ? 'Bonus Days' : 'Badge'}
               </span>
             </div>
           </div>
@@ -129,7 +129,7 @@ export function ChallengeCard({ challenge, onClaim }: ChallengeCardProps) {
             className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
           >
             <Gift className="w-4 h-4 mr-2" />
-            Récupérer la récompense
+            Claim Reward
           </Button>
         )}
       </CardContent>

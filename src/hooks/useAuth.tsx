@@ -37,6 +37,7 @@ export interface Profile {
   industry?: string;
   budget_range?: string;
   campaign_objectives?: string[];
+  is_admin?: boolean;
   created_at: string;
   updated_at: string;
 }

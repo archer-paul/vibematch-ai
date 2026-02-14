@@ -15,7 +15,7 @@ export function DashboardChallenges() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Target className="w-5 h-5" />
-            Défis Actifs
+            Active Challenges
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -51,10 +51,10 @@ export function DashboardChallenges() {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Target className="w-5 h-5 text-blue-500" />
-            Défis Actifs
+            Active Challenges
           </CardTitle>
           <Badge variant="secondary" className="bg-green-100 text-green-700">
-            {completedToday} terminés aujourd'hui
+            {completedToday} completed today
           </Badge>
         </div>
       </CardHeader>
@@ -101,7 +101,7 @@ export function DashboardChallenges() {
               <Button asChild variant="outline" className="w-full gap-2" size="sm">
                 <Link to="/leaderboard?tab=challenges">
                   <Trophy className="w-4 h-4" />
-                  Voir tous les défis
+                  View all challenges
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </Button>
@@ -111,11 +111,11 @@ export function DashboardChallenges() {
           <div className="text-center py-6">
             <Trophy className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">
-              Tous les défis sont terminés !
+              All challenges completed!
             </p>
             <Button asChild variant="outline" size="sm" className="mt-2">
               <Link to="/leaderboard?tab=challenges">
-                Voir le classement
+                View leaderboard
               </Link>
             </Button>
           </div>

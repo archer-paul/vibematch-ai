@@ -310,7 +310,7 @@ export function SwipeCard({ sponsor, index, isTop, swipeDirection, onSwipe, anal
             </div>
             
             <div className="space-y-2">
-              <span className="font-medium text-sm block">Objectifs de campagne:</span>
+              <span className="font-medium text-sm block">Campaign Objectives:</span>
               <div className="flex flex-wrap gap-1">
                 {sponsor.campaign_objectives?.slice(0, 3).map((obj, index) => (
                   <Badge key={index} variant="secondary" className="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100">
@@ -326,7 +326,7 @@ export function SwipeCard({ sponsor, index, isTop, swipeDirection, onSwipe, anal
             </div>
 
             <div className="space-y-2">
-              <span className="font-medium text-sm block">Secteurs d'intérêt:</span>
+              <span className="font-medium text-sm block">Preferred Sectors:</span>
               <div className="flex flex-wrap gap-1">
                 {sponsor.preferred_sectors?.slice(0, 4).map((sector, index) => (
                   <Badge key={index} variant="outline" className="text-xs bg-purple-50 border-purple-200 text-purple-700">
@@ -340,7 +340,7 @@ export function SwipeCard({ sponsor, index, isTop, swipeDirection, onSwipe, anal
           {/* Swipe hint for top card */}
           {isTop && !isDragging && (
             <div className="text-center text-xs text-muted-foreground mt-4 space-y-1">
-              <p>← Glissez pour passer • ↑ Super Like • Glissez pour liker →</p>
+              <p>← Swipe to pass • ↑ Super Like • Swipe to like →</p>
             </div>
           )}
         </CardContent>
