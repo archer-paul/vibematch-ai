@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import {
   Users, BarChart3, Handshake, Bot, Search, Loader2,
   CheckCircle2, ChevronDown, ChevronUp, Globe, Calendar,
-  Eye, ThumbsUp, MessageSquare, Clock,
+  Eye, ThumbsUp, MessageSquare, Clock, Youtube, ExternalLink, FileText,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { isDemoMode } from '@/data/demoData';
@@ -61,6 +61,7 @@ interface ResearchResult {
     commentCount: number;
     publishedAt: string;
     duration?: number;
+    transcript?: string;
     transcriptSnippet?: string;
   }>;
   metrics: {
@@ -579,24 +580,35 @@ export default function Admin() {
               {/* Latest Videos */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Latest Videos</CardTitle>
+                  <CardTitle className="text-lg">Latest Videos ({result.videos.length})</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {result.videos.map((v) => (
-                    <div key={v.id} className="border rounded-lg p-3">
+                    <div key={v.id} className="border rounded-lg overflow-hidden">
                       <div
-                        className="flex items-center justify-between cursor-pointer"
-                        onClick={() => v.transcriptSnippet && toggleVideo(v.id)}
+                        className="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/50 transition-colors"
+                        onClick={() => (v.transcript || v.transcriptSnippet) && toggleVideo(v.id)}
                       >
+                        <a
+                          href={`https://www.youtube.com/watch?v=${v.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-shrink-0 w-10 h-10 rounded-lg bg-red-100 dark:bg-red-950/30 flex items-center justify-center hover:bg-red-200 dark:hover:bg-red-950/50 transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                          title="Watch on YouTube"
+                        >
+                          <Youtube className="w-5 h-5 text-red-600" />
+                        </a>
                         <div className="flex-1 min-w-0">
                           <a
                             href={`https://www.youtube.com/watch?v=${v.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="font-medium text-sm truncate block hover:underline text-primary"
+                            className="font-medium text-sm hover:underline text-primary flex items-center gap-1"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            {v.title}
+                            <span className="truncate">{v.title}</span>
+                            <ExternalLink className="w-3 h-3 flex-shrink-0 opacity-50" />
                           </a>
                           <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1">
@@ -613,10 +625,15 @@ export default function Admin() {
                                 <Clock className="w-3 h-3" /> {Math.floor(v.duration / 60)}:{String(v.duration % 60).padStart(2, '0')}
                               </span>
                             )}
+                            {(v.transcript || v.transcriptSnippet) && (
+                              <span className="flex items-center gap-1 text-blue-600">
+                                <FileText className="w-3 h-3" /> Transcript
+                              </span>
+                            )}
                           </div>
                         </div>
-                        {v.transcriptSnippet && (
-                          <div className="ml-2">
+                        {(v.transcript || v.transcriptSnippet) && (
+                          <div className="ml-2 flex-shrink-0">
                             {expandedVideos.has(v.id) ? (
                               <ChevronUp className="w-4 h-4 text-muted-foreground" />
                             ) : (
@@ -625,9 +642,15 @@ export default function Admin() {
                           </div>
                         )}
                       </div>
-                      {expandedVideos.has(v.id) && v.transcriptSnippet && (
-                        <div className="mt-2 p-2 bg-muted rounded text-xs text-muted-foreground italic">
-                          "{v.transcriptSnippet}"
+                      {expandedVideos.has(v.id) && (v.transcript || v.transcriptSnippet) && (
+                        <div className="border-t bg-muted/30 p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <FileText className="w-4 h-4 text-blue-600" />
+                            <span className="text-sm font-medium">Full Transcript</span>
+                          </div>
+                          <div className="max-h-64 overflow-y-auto rounded bg-background border p-3 text-sm text-muted-foreground leading-relaxed">
+                            {v.transcript || v.transcriptSnippet}
+                          </div>
                         </div>
                       )}
                     </div>

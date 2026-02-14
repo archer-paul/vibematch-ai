@@ -92,13 +92,14 @@ router.post('/research', async (req, res) => {
 
     const transcriptCount = transcripts.filter((t) => t.transcript).length;
 
-    // Attach transcript snippets to videos
+    // Attach transcripts to videos (full + snippet preview)
     const transcriptMap = {};
     for (const t of transcripts) {
       transcriptMap[t.videoId] = t.transcript;
     }
     for (const video of youtubeData.videos) {
       if (transcriptMap[video.id]) {
+        video.transcript = transcriptMap[video.id];
         video.transcriptSnippet = transcriptMap[video.id]
           .split(/[.!?]\s+/)
           .slice(0, 3)
