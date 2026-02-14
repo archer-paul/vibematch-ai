@@ -319,3 +319,82 @@ Confidence values should be between 0 and 1, reflecting how strongly the channel
     return ldaNiches;
   }
 }
+
+/**
+ * Recommend 5 real YouTube creators for a campaign brief.
+ *
+ * @param {Object} brief - Campaign brief
+ * @param {string} brief.name - Campaign name
+ * @param {number} brief.budget - Campaign budget in USD
+ * @param {string[]} brief.niches - Target niches
+ * @param {string[]} brief.objectives - Campaign objectives
+ * @param {string} brief.audienceDescription - Target audience description
+ * @returns {Array<{ name: string, handle: string, subscribers: string, reason: string, niches: string[] }>}
+ */
+export async function recommendCreatorsForCampaign(brief) {
+  const prompt = `You are a YouTube influencer marketing expert for a platform called VibeMatch.
+
+A sponsor wants to run a campaign. Based on the brief below, recommend exactly 5 real YouTube creators who would be a great fit.
+
+## Campaign Brief
+- Name: ${brief.name}
+- Budget: $${brief.budget?.toLocaleString() || 'N/A'}
+- Target Niches: ${(brief.niches || []).join(', ')}
+- Objectives: ${(brief.objectives || []).join(', ')}
+- Target Audience: ${brief.audienceDescription || 'General audience'}
+
+## Requirements
+- Recommend REAL YouTube creators with their actual YouTube handles (starting with @)
+- Choose creators whose content aligns with the campaign niches and objectives
+- Consider a mix of subscriber counts appropriate for the budget
+- Provide the creator's approximate subscriber count
+
+Return ONLY valid JSON:
+{
+  "creators": [
+    {
+      "name": "Creator Display Name",
+      "handle": "@actualYouTubeHandle",
+      "subscribers": "1.2M",
+      "reason": "Short explanation of why this creator fits the campaign",
+      "niches": ["Niche1", "Niche2"]
+    }
+  ]
+}`;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are a YouTube influencer marketing expert. Always respond with valid JSON only. Only recommend real, well-known YouTube creators with accurate handles.',
+        },
+        { role: 'user', content: prompt },
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0.7,
+      max_tokens: 800,
+    });
+
+    const content = response.choices[0].message.content;
+    const parsed = JSON.parse(content);
+
+    if (parsed.creators && Array.isArray(parsed.creators) && parsed.creators.length > 0) {
+      return parsed.creators.slice(0, 5).map((c) => ({
+        name: c.name || 'Unknown',
+        handle: c.handle || '@unknown',
+        subscribers: c.subscribers || 'N/A',
+        reason: c.reason || '',
+        niches: c.niches || [],
+      }));
+    }
+
+    console.warn('[Campaign recs] Invalid response format');
+    return [];
+  } catch (error) {
+    console.error('[Campaign recs] Error:', error.message);
+    return [];
+  }
+}

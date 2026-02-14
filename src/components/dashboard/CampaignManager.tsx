@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -14,7 +13,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Plus,
   Calendar,
   DollarSign,
   Users,
@@ -26,8 +24,12 @@ import {
   TrendingUp,
   Target,
   Clock,
-  CheckCircle
+  CheckCircle,
+  Sparkles,
 } from "lucide-react";
+import { CreateCampaignDialog } from "./CreateCampaignDialog";
+
+// ── Mock data preserved for demo ──
 
 interface Campaign {
   id: string;
@@ -119,6 +121,7 @@ const campaignTemplates = [
 
 export function CampaignManager() {
   const [selectedTab, setSelectedTab] = useState("active");
+  const [createOpen, setCreateOpen] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -192,9 +195,10 @@ export function CampaignManager() {
                 </div>
               </DialogContent>
             </Dialog>
-            <Button size="sm" className="gap-2">
-              <Plus className="h-4 w-4" />
-              Create Campaign
+
+            <Button size="sm" className="gap-2" onClick={() => setCreateOpen(true)}>
+              <Sparkles className="h-4 w-4" />
+              Find Matching Creators
             </Button>
           </div>
         </div>
@@ -302,11 +306,11 @@ export function CampaignManager() {
                         <span>Budget Progress</span>
                         <span>{Math.round((campaign.spent / campaign.budget) * 100)}% used</span>
                       </div>
-                      <Progress 
-                        value={(campaign.spent / campaign.budget) * 100} 
+                      <Progress
+                        value={(campaign.spent / campaign.budget) * 100}
                         className="h-2"
                       />
-                      
+
                       <div className="flex items-center justify-between text-sm text-corporate-gray mt-3">
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
@@ -336,15 +340,17 @@ export function CampaignManager() {
                 <p className="text-corporate-gray mb-4">
                   Get started by creating your first campaign
                 </p>
-                <Button className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Create Campaign
+                <Button className="gap-2" onClick={() => setCreateOpen(true)}>
+                  <Sparkles className="h-4 w-4" />
+                  Find Matching Creators
                 </Button>
               </div>
             )}
           </TabsContent>
         </Tabs>
       </CardContent>
+
+      <CreateCampaignDialog open={createOpen} onOpenChange={setCreateOpen} />
     </Card>
   );
 }

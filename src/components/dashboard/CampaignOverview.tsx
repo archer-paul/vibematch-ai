@@ -5,19 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { PerformanceChart } from "./PerformanceChart";
 import { useNotifications } from "@/hooks/useNotifications";
-import { CampaignBuilderModal } from "@/components/modals/CampaignBuilderModal";
+import { CreateCampaignDialog } from "./CreateCampaignDialog";
 import { FilterReportModal } from "@/components/modals/FilterReportModal";
 import { ExportDataModal } from "@/components/modals/ExportDataModal";
 import { ReviewBudgetModal } from "@/components/modals/ReviewBudgetModal";
 import { ViewCreatorsModal } from "@/components/modals/ViewCreatorsModal";
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  Users, 
-  Target, 
+import {
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Users,
+  Target,
   AlertTriangle,
-  Plus,
+  Sparkles,
   Filter,
   Download
 } from "lucide-react";
@@ -79,7 +79,7 @@ const alerts = [
 ];
 
 const quickActions = [
-  { label: "Create Campaign", icon: Plus, variant: "default" as const },
+  { label: "Find Matching Creators", icon: Sparkles, variant: "default" as const },
   { label: "Filter Reports", icon: Filter, variant: "outline" as const },
   { label: "Export Data", icon: Download, variant: "outline" as const }
 ];
@@ -94,7 +94,7 @@ export function CampaignOverview() {
 
   const handleQuickAction = (label: string) => {
     switch (label) {
-      case "Create Campaign":
+      case "Find Matching Creators":
         setShowCampaignBuilder(true);
         break;
       case "Filter Reports":
@@ -260,9 +260,9 @@ export function CampaignOverview() {
       </Card>
 
       {/* Modals */}
-      <CampaignBuilderModal 
-        isOpen={showCampaignBuilder}
-        onClose={() => setShowCampaignBuilder(false)}
+      <CreateCampaignDialog
+        open={showCampaignBuilder}
+        onOpenChange={setShowCampaignBuilder}
       />
       
       <FilterReportModal 

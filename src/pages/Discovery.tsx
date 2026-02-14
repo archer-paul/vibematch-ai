@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -204,6 +205,7 @@ const PLATFORM_COLORS: Record<string, string> = {
 
 export default function Discovery() {
   const { profile } = useAuth();
+  const [searchParams] = useSearchParams();
   const [selectedCountry, setSelectedCountry] = useState<string>('all');
 
   // Creator Research state
@@ -213,6 +215,14 @@ export default function Discovery() {
   const [pipelineSteps, setPipelineSteps] = useState<PipelineStep[]>([]);
   const [expandedVideos, setExpandedVideos] = useState<Set<string>>(new Set());
   const [researchError, setResearchError] = useState<string | null>(null);
+
+  // Pre-fill search from URL query param (?handle=@xxx)
+  useEffect(() => {
+    const handle = searchParams.get('handle');
+    if (handle) {
+      setSearchHandle(handle);
+    }
+  }, [searchParams]);
 
   const filteredCreators = FEATURED_CREATORS.filter(
     (c) => selectedCountry === 'all' || c.country === selectedCountry

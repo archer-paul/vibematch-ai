@@ -8,6 +8,7 @@ import youtubeRouter from './server/youtube.js';
 import analyzeRouter from './server/analyze.js';
 import matchRouter from './server/match.js';
 import adminRouter from './server/admin.js';
+import campaignsRouter from './server/campaigns.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,6 +55,7 @@ app.use('/api/youtube', youtubeRouter);
 app.use('/api/analyze', analyzeRouter);
 app.use('/api/match', matchRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/campaigns', campaignsRouter);
 
 // Catch-all for unimplemented API routes (AFTER specific routes)
 app.all('/api/*', (req, res) => {
