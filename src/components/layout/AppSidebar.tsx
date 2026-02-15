@@ -30,7 +30,6 @@ const creatorNavItems = [
   { title: 'AI Matches', url: '/matches', icon: Sparkles, demoId: 'nav-ai-matches' },
   { title: 'My campaigns', url: '/campaigns', icon: Briefcase, demoId: 'nav-campaigns' },
   { title: 'All Campaigns', url: '/market', icon: Target, demoId: 'nav-all-campaigns' },
-  { title: 'Profile', url: '/profile', icon: Users, demoId: 'nav-profile' },
   { title: 'Leaderboard', url: '/leaderboard', icon: Award, demoId: 'nav-leaderboard' },
   { title: 'Analytics', url: '/analytics', icon: BarChart3, demoId: 'nav-analytics' },
   { title: 'Messages', url: '/messages', icon: MessageSquare, demoId: 'nav-messages' },

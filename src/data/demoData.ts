@@ -100,8 +100,8 @@ export const demoAnalytics = {
 export const demoMessages = [
   {
     id: 'msg-1',
-    from: 'TechBrand Inc.',
-    subject: 'Partnership Opportunity - Smart Watch Campaign',
+    from: 'Apple',
+    subject: 'Partnership Opportunity - Creative Workflow Campaign',
     preview: 'Hi Alex! We love your tech content and would like to discuss a partnership...',
     timestamp: '2 hours ago',
     unread: true,
@@ -109,8 +109,8 @@ export const demoMessages = [
   },
   {
     id: 'msg-2',
-    from: 'EcoLife Brand',
-    subject: 'Sustainability Content Collaboration',
+    from: 'Starbucks',
+    subject: 'Coffee Culture Content Collaboration',
     preview: 'Your sustainability content aligns perfectly with our brand values...',
     timestamp: '1 day ago',
     unread: false,
@@ -131,35 +131,35 @@ export const demoMessages = [
 export const demoMatches = [
   {
     id: 'match-1',
-    name: 'TechBrand Inc.',
+    name: 'Apple',
     logo: '/logos/apple.svg',
     industry: 'Technology',
     matchScore: 92,
     campaignType: 'Product Launch',
-    budget: '$2,000 - $5,000',
-    description: 'Looking for tech creators to showcase our latest smart watch.',
-    tags: ['Technology', 'Wearables', 'Innovation']
+    budget: '$75,000 - $1,000,000',
+    description: 'Showcasing how Apple products enhance creativity and productivity in daily life.',
+    tags: ['Technology', 'Creativity', 'Innovation']
   },
   {
     id: 'match-2',
-    name: 'EcoLife',
-    logo: '/logos/wwf.svg',
-    industry: 'Sustainability',
+    name: 'Starbucks',
+    logo: '/logos/starbucks.svg',
+    industry: 'Food & Beverage',
     matchScore: 88,
     campaignType: 'Brand Awareness',
-    budget: '$1,500 - $3,000',
-    description: 'Seeking creators passionate about environmental sustainability.',
-    tags: ['Sustainability', 'Eco-friendly', 'Lifestyle']
+    budget: '$30,000 - $300,000',
+    description: 'Building connections through coffee culture and community experiences.',
+    tags: ['Food & Beverage', 'Community', 'Lifestyle']
   },
   {
     id: 'match-3',
-    name: 'StyleCo',
+    name: 'Zara',
     logo: '/logos/zara.svg',
     industry: 'Fashion',
     matchScore: 76,
     campaignType: 'Seasonal Campaign',
-    budget: '$1,000 - $2,500',
-    description: 'Spring collection campaign for lifestyle creators.',
+    budget: '$20,000 - $200,000',
+    description: 'Spring collection campaign for lifestyle and fashion creators.',
     tags: ['Fashion', 'Lifestyle', 'Seasonal']
   }
 ];

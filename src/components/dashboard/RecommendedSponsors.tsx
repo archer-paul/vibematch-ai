@@ -34,39 +34,39 @@ interface Sponsor {
 const mockSponsors: Sponsor[] = [
   {
     id: '1',
-    name: 'TechFlow',
-    logo: '/placeholder.svg',
+    name: 'Apple',
+    logo: '/logos/apple.svg',
     industry: 'Technology',
-    budgetRange: '$5,000 - $15,000',
+    budgetRange: '$75,000 - $1,000,000',
     compatibilityScore: 94,
-    description: 'Looking for tech creators to showcase our new productivity app',
+    description: 'Showcasing how Apple products enhance creativity and productivity in daily life',
     requirements: ['Tech Content', '50K+ Followers', 'High Engagement'],
     campaignType: 'Product Review',
-    deadline: '2024-02-15'
+    deadline: '2025-03-15'
   },
   {
     id: '2',
-    name: 'EcoLife Brands',
-    logo: '/placeholder.svg',
-    industry: 'Sustainability',
-    budgetRange: '$3,000 - $8,000',
+    name: 'Starbucks',
+    logo: '/logos/starbucks.svg',
+    industry: 'Food & Beverage',
+    budgetRange: '$30,000 - $300,000',
     compatibilityScore: 89,
-    description: 'Sustainable lifestyle brand seeking authentic eco-influencers',
-    requirements: ['Lifestyle Content', 'Eco-Friendly', '25K+ Followers'],
+    description: 'Building connections through coffee culture and community experiences',
+    requirements: ['Lifestyle Content', 'Community', '25K+ Followers'],
     campaignType: 'Brand Partnership',
-    deadline: '2024-02-20'
+    deadline: '2025-03-20'
   },
   {
     id: '3',
-    name: 'FitnessPro',
-    logo: '/placeholder.svg',
-    industry: 'Health & Fitness',
-    budgetRange: '$2,000 - $6,000',
+    name: 'Nike',
+    logo: '/logos/nike.svg',
+    industry: 'Sports & Fitness',
+    budgetRange: '$40,000 - $400,000',
     compatibilityScore: 85,
-    description: 'Fitness equipment company looking for workout content creators',
+    description: 'Building relationships with athletes and creators who inspire others to move and achieve greatness',
     requirements: ['Fitness Content', 'Active Lifestyle', '30K+ Followers'],
     campaignType: 'Product Integration',
-    deadline: '2024-02-25'
+    deadline: '2025-03-25'
   }
 ];
 
