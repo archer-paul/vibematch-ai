@@ -28,3 +28,9 @@ dist-ssr
 .env.local
 .env.development
 .env.production
+
+# Firebase local cache
+.firebase/
+
+# Windows artifacts
+nul

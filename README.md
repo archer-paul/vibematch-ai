@@ -130,7 +130,7 @@ VibeMatch solves this by analyzing actual content (video transcripts, metadata, 
 ### Installation
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/archer-paul/vibematch-ai
 cd vibematch-ai
 npm install
 ```
