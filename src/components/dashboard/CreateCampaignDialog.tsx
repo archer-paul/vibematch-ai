@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,31 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { isDemoMode } from "@/data/demoData";
+
+const DEMO_RECOMMENDATIONS: RecommendedCreator[] = [
+  {
+    name: "MKBHD",
+    handle: "@mkbhd",
+    subscribers: "20.7M",
+    reason: "Top tech reviewer with 20M+ subscribers. Deep, high-quality iPhone reviews reaching a massive tech-savvy audience.",
+    niches: ["Technology", "Reviews"],
+  },
+  {
+    name: "Sara Dietschy",
+    handle: "@saradietschy",
+    subscribers: "820K",
+    reason: "Creative storytelling around tech products. Appeals to a broader lifestyle audience beyond pure tech.",
+    niches: ["Technology", "Lifestyle", "Creativity"],
+  },
+  {
+    name: "iJustine",
+    handle: "@ijustine",
+    subscribers: "7.2M",
+    reason: "Long-standing Apple ecosystem creator. Authentic unboxing and first-impression format ideal for launch content.",
+    niches: ["Technology", "Lifestyle"],
+  },
+];
 
 const AVAILABLE_NICHES = [
   "Technology", "Gaming", "Beauty", "Fitness", "Fashion",
@@ -79,9 +104,35 @@ export function CreateCampaignDialog({ open, onOpenChange }: CreateCampaignDialo
   };
 
   const handleOpenChange = (nextOpen: boolean) => {
+    // Don't let the dialog close during demo (the overlay handles closing it)
+    if (!nextOpen && isDemoMode()) return;
     if (!nextOpen) resetForm();
     onOpenChange(nextOpen);
   };
+
+  // Pre-fill form with demo data (called by DemoOverlay)
+  const demoFillForm = () => {
+    setFormName("iPhone 17 Launch");
+    setFormBudget("50000");
+    setFormNiches(["Technology", "Lifestyle"]);
+    setFormObjectives(["Brand Awareness", "Product Reviews"]);
+    setFormAudience("Tech-savvy 18-34 year olds interested in smartphones and innovation");
+  };
+
+  // Expose for demo auto-fill and close via custom events
+  useEffect(() => {
+    const fillHandler = () => demoFillForm();
+    const closeHandler = () => {
+      resetForm();
+      onOpenChange(false);
+    };
+    window.addEventListener("demo-fill-campaign", fillHandler);
+    window.addEventListener("demo-close-dialog", closeHandler);
+    return () => {
+      window.removeEventListener("demo-fill-campaign", fillHandler);
+      window.removeEventListener("demo-close-dialog", closeHandler);
+    };
+  }, [onOpenChange]);
 
   const handleSubmit = async () => {
     if (!formName.trim()) return;
@@ -89,6 +140,19 @@ export function CreateCampaignDialog({ open, onOpenChange }: CreateCampaignDialo
     setError(null);
 
     try {
+      // In demo mode, return mock recommendations
+      if (isDemoMode()) {
+        await new Promise((r) => setTimeout(r, 1500)); // simulate API delay
+        setRecommendations(DEMO_RECOMMENDATIONS);
+        setShowRecommendations(true);
+        toast({
+          title: "Campaign created!",
+          description: `AI found ${DEMO_RECOMMENDATIONS.length} matching creators for "${formName}"`,
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       const response = await fetch("/api/campaigns", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -140,7 +204,7 @@ export function CreateCampaignDialog({ open, onOpenChange }: CreateCampaignDialo
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" data-demo="campaign-dialog">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-purple-500" />
@@ -246,6 +310,7 @@ export function CreateCampaignDialog({ open, onOpenChange }: CreateCampaignDialo
               onClick={handleSubmit}
               disabled={isSubmitting || !formName.trim()}
               size="lg"
+              data-demo="campaign-submit"
             >
               {isSubmitting ? (
                 <>
@@ -300,7 +365,7 @@ export function CreateCampaignDialog({ open, onOpenChange }: CreateCampaignDialo
                   {recommendations.length} creators matched — click "Analyze" to run our full AI research pipeline
                 </p>
                 {recommendations.map((creator, index) => (
-                  <Card key={index} className="border hover:shadow-md transition-shadow">
+                  <Card key={index} className="border hover:shadow-md transition-shadow" data-demo={index === 0 ? "first-match" : undefined}>
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
@@ -334,8 +399,14 @@ export function CreateCampaignDialog({ open, onOpenChange }: CreateCampaignDialo
                           size="sm"
                           variant="outline"
                           className="flex-shrink-0 gap-1"
+                          data-demo={index === 0 ? "first-match-analyze" : undefined}
+                          data-demo-handle={creator.handle}
                           onClick={() => {
-                            handleOpenChange(false);
+                            if (isDemoMode()) {
+                              window.dispatchEvent(new Event('demo-close-dialog'));
+                            } else {
+                              handleOpenChange(false);
+                            }
                             navigate(`/discover?handle=${encodeURIComponent(creator.handle)}`);
                           }}
                         >

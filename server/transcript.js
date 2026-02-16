@@ -196,8 +196,8 @@ function extractJsonByBraceCounting(str, start) {
 export async function fetchChannelTranscripts(videoIds, max = 10) {
   const ids = videoIds.slice(0, max);
   const results = [];
-  const batchSize = 3;
-  const delayMs = 500;
+  const batchSize = 5;
+  const delayMs = 200;
 
   for (let i = 0; i < ids.length; i += batchSize) {
     const batch = ids.slice(i, i + batchSize);

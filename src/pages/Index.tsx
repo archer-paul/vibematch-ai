@@ -66,7 +66,7 @@ const Index = () => {
     return () => observer.disconnect();
   }, []);
 
-  if (user && !(demoState.isActive && demoState.phase === 'transition')) {
+  if (user && !demoState.isActive) {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -129,27 +129,20 @@ const Index = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.5, duration: 0.8 }}
           >
-            <InteractiveButton 
-              href={demoState.isActive && demoState.phase === 'landing' ? undefined : "/auth"}
-              variant="primary" 
+            <InteractiveButton
+              href={demoState.isActive ? undefined : "/auth"}
+              variant="primary"
               className="text-lg px-8"
               data-demo="creator-button"
-              onClick={demoState.isActive && demoState.phase === 'landing' ? (() => {
-                // Click detected in demo mode, proceed to next step
-                console.log('Creator button clicked in demo mode');
-              }) : undefined}
             >
               <Sparkles className="mr-2 h-5 w-5" />
               Content Creator
             </InteractiveButton>
-            <InteractiveButton 
-              href={demoState.isActive && demoState.phase === 'transition' ? undefined : "/auth"} 
-              variant="secondary" 
+            <InteractiveButton
+              href={demoState.isActive ? undefined : "/auth"}
+              variant="secondary"
               className="text-lg px-8"
               data-demo="sponsor-button"
-              onClick={demoState.isActive && demoState.phase === 'transition' ? (() => {
-                console.log('Brand button clicked in demo mode');
-              }) : undefined}
             >
               <Building2 className="mr-2 h-5 w-5" />
               Sponsor / Brand

@@ -7,7 +7,6 @@ export interface DemoStep {
   description: string;
   target?: string;
   position?: 'top' | 'bottom' | 'left' | 'right';
-  action?: string;
 }
 
 export interface DemoState {
@@ -41,315 +40,232 @@ const initialDemoState: DemoState = {
   demoUser: null
 };
 
+// ---------------------------------------------------------------------------
+// Step definitions
+// ---------------------------------------------------------------------------
+
+const LANDING_STEPS: DemoStep[] = [
+  {
+    id: 'welcome-demo',
+    title: 'Welcome to VibeMatch!',
+    description: 'Let\'s start from the Sponsor side — create a campaign and let AI find the best creators.',
+    target: '[data-demo="sponsor-button"]',
+    position: 'bottom',
+  },
+];
+
+const SPONSOR_TOUR_STEPS: DemoStep[] = [
+  {
+    id: 'sponsor-dashboard',
+    title: 'Sponsor Dashboard',
+    description: 'Your KPIs at a glance: campaigns, matched creators, reach, and ROI.',
+    target: '[data-demo="dashboard"]',
+    position: 'bottom',
+  },
+  {
+    id: 'sponsor-find-creators',
+    title: 'Find Matching Creators',
+    description: 'Click this button to create a campaign and let AI find the ideal YouTube creators.',
+    target: '[data-demo="find-creators"]',
+    position: 'bottom',
+  },
+  {
+    id: 'sponsor-campaign-form',
+    title: 'Create Your Campaign',
+    description: 'Fill in your campaign brief, or click Next and we\'ll auto-fill "iPhone 17 Launch" for you.',
+    target: '[data-demo="campaign-dialog"]',
+    position: 'right',
+  },
+  {
+    id: 'sponsor-campaign-submit',
+    title: 'Launch AI Matching',
+    description: 'Click "Find Matching Creators" to run the matching algorithm.',
+    target: '[data-demo="campaign-submit"]',
+    position: 'top',
+  },
+  {
+    id: 'sponsor-match-result',
+    title: 'Top Match Found',
+    description: 'Click "Analyze" next to the top result to deep-dive into their YouTube content.',
+    target: '[data-demo="first-match"]',
+    position: 'left',
+  },
+  {
+    id: 'sponsor-analyze',
+    title: 'Launch AI Analysis',
+    description: 'Click "Analyze Creator" to run the full pipeline: YouTube data, transcript extraction, niche detection, and GPT-4o scoring.',
+    target: '[data-demo="analyze-button"]',
+    position: 'bottom',
+  },
+  {
+    id: 'sponsor-niches',
+    title: 'Niche Detection',
+    description: 'LDA topic modeling + LLM validation detect the creator\'s primary niches with confidence scores.',
+    target: '[data-demo="niche-results"]',
+    position: 'right',
+  },
+  {
+    id: 'sponsor-transcripts',
+    title: 'Video Transcripts',
+    description: 'Full transcripts extracted via InnerTube API — click any video to read what the AI analyzed.',
+    target: '[data-demo="video-transcripts"]',
+    position: 'top',
+  },
+  {
+    id: 'sponsor-analytics',
+    title: 'Analytics',
+    description: 'Track campaign performance and ROI.',
+    target: '[data-demo="nav-analytics"]',
+    position: 'right',
+  },
+];
+
+const TRANSITION_STEPS: DemoStep[] = [
+  {
+    id: 'sponsor-transition',
+    title: 'Now the Creator Side',
+    description: 'Let\'s see how creators discover brands and manage collaborations.',
+    target: '[data-demo="creator-button"]',
+    position: 'bottom',
+  },
+];
+
+const CREATOR_TOUR_STEPS: DemoStep[] = [
+  {
+    id: 'creator-dashboard',
+    title: 'Creator Dashboard',
+    description: 'Performance metrics, AI score, and recommended sponsors.',
+    target: '[data-demo="dashboard"]',
+    position: 'bottom',
+  },
+  {
+    id: 'creator-ai-score',
+    title: 'AI Profile Score',
+    description: 'YouTube content analyzed across 6 dimensions to generate a creator score.',
+    target: '[data-demo="ai-profile-score"]',
+    position: 'right',
+  },
+  {
+    id: 'creator-matches',
+    title: 'AI Matches',
+    description: 'Tinder-like interface to discover matching brands.',
+    target: '[data-demo="nav-ai-matches"]',
+    position: 'right',
+  },
+  {
+    id: 'creator-swipe',
+    title: 'Swipe to Match',
+    description: 'Swipe right to like, left to pass. Watch the card fly!',
+    target: '[data-demo="swipe-card-top"]',
+    position: 'top',
+  },
+  {
+    id: 'creator-campaigns',
+    title: 'My Campaigns',
+    description: 'Active collaborations, deliverables, and earnings.',
+    target: '[data-demo="nav-campaigns"]',
+    position: 'right',
+  },
+  {
+    id: 'creator-marketplace',
+    title: 'Campaign Marketplace',
+    description: 'Browse campaigns from Nike, Apple, Sephora, and more.',
+    target: '[data-demo="nav-all-campaigns"]',
+    position: 'right',
+  },
+  {
+    id: 'creator-leaderboard',
+    title: 'Leaderboard',
+    description: 'Gamified ranking among creators.',
+    target: '[data-demo="nav-leaderboard"]',
+    position: 'right',
+  },
+  {
+    id: 'creator-analytics',
+    title: 'Analytics',
+    description: 'Detailed performance metrics and engagement trends.',
+    target: '[data-demo="nav-analytics"]',
+    position: 'right',
+  },
+  {
+    id: 'creator-messages',
+    title: 'Messages',
+    description: 'Direct messaging with brands.',
+    target: '[data-demo="nav-messages"]',
+    position: 'right',
+  },
+];
+
+const COMPLETE_STEPS: DemoStep[] = [
+  {
+    id: 'demo-complete',
+    title: 'Demo Complete!',
+    description: 'You\'ve seen both sides of VibeMatch. Ready to try it for real?',
+  },
+];
+
+function getStepsForPhase(phase: DemoState['phase']): { steps: DemoStep[]; totalSteps: number } {
+  switch (phase) {
+    case 'landing':      return { steps: LANDING_STEPS, totalSteps: LANDING_STEPS.length };
+    case 'sponsor-tour': return { steps: SPONSOR_TOUR_STEPS, totalSteps: SPONSOR_TOUR_STEPS.length };
+    case 'transition':   return { steps: TRANSITION_STEPS, totalSteps: TRANSITION_STEPS.length };
+    case 'creator-tour': return { steps: CREATOR_TOUR_STEPS, totalSteps: CREATOR_TOUR_STEPS.length };
+    case 'complete':     return { steps: COMPLETE_STEPS, totalSteps: COMPLETE_STEPS.length };
+    default:             return { steps: [], totalSteps: 0 };
+  }
+}
+
+export const GLOBAL_TOTAL_STEPS =
+  LANDING_STEPS.length + SPONSOR_TOUR_STEPS.length + TRANSITION_STEPS.length + CREATOR_TOUR_STEPS.length + COMPLETE_STEPS.length;
+
+export const PHASE_OFFSETS: Record<string, number> = {
+  landing: 0,
+  'sponsor-tour': LANDING_STEPS.length,
+  transition: LANDING_STEPS.length + SPONSOR_TOUR_STEPS.length,
+  'creator-tour': LANDING_STEPS.length + SPONSOR_TOUR_STEPS.length + TRANSITION_STEPS.length,
+  complete: LANDING_STEPS.length + SPONSOR_TOUR_STEPS.length + TRANSITION_STEPS.length + CREATOR_TOUR_STEPS.length,
+};
+
+export function persistPhaseToStorage(phase: DemoState['phase'], demoUser: 'creator' | 'sponsor') {
+  const { steps, totalSteps } = getStepsForPhase(phase);
+  localStorage.setItem('demo-state', JSON.stringify({
+    isActive: true, currentStep: 0, totalSteps, steps, phase, demoUser,
+  } satisfies DemoState));
+}
+
 export function DemoProvider({ children }: { children: ReactNode }) {
   const [demoState, setDemoState] = useState<DemoState>(() => {
-    // Restore demo state from localStorage if it exists
-    const savedState = localStorage.getItem('demo-state');
-    if (savedState) {
-      try {
-        return JSON.parse(savedState);
-      } catch (e) {
-        return initialDemoState;
-      }
-    }
+    const s = localStorage.getItem('demo-state');
+    if (s) { try { return JSON.parse(s); } catch { /* ignore */ } }
     return initialDemoState;
   });
 
+  const persist = (state: DemoState) => { localStorage.setItem('demo-state', JSON.stringify(state)); return state; };
+
   const startDemo = () => {
-    setDemoState({
-      ...initialDemoState,
-      isActive: true,
-      phase: 'landing',
-      steps: [
-        {
-          id: 'welcome-demo',
-          title: 'Welcome to VibeMatch Demo',
-          description: 'Let us show you how VibeMatch revolutionizes influencer marketing. Click "Content Creator" to start your journey.',
-          target: '[data-demo="creator-button"]',
-          position: 'bottom'
-        }
-      ],
-      totalSteps: 1
-    });
+    const { steps, totalSteps } = getStepsForPhase('landing');
+    setDemoState(persist({ ...initialDemoState, isActive: true, phase: 'landing', steps, totalSteps }));
   };
-
-  const nextStep = () => {
-    setDemoState(prev => {
-      const newStep = Math.min(prev.currentStep + 1, prev.totalSteps - 1);
-      
-      // Handle phase transitions
-      if (newStep >= prev.totalSteps - 1) {
-        console.log('Demo step completed, current phase:', prev.phase);
-        switch (prev.phase) {
-          case 'landing':
-            // Move directly to creator tour and set demo mode immediately
-            console.log('Moving directly to creator-tour phase');
-            setDemoMode(true);
-            setDemoUser('creator');
-            localStorage.setItem('demo-user-type', 'creator');
-            setTimeout(() => setPhase('creator-tour'), 100);
-            break;
-          case 'creator-tour':
-            // Move to transition phase
-            console.log('Moving to transition phase');
-            setTimeout(() => setPhase('transition'), 100);
-            break;
-          case 'transition':
-            // Return to landing page and prepare brand demo
-            console.log('Moving to transition - returning to landing page');
-            setDemoUser('sponsor');
-            localStorage.setItem('demo-user-type', 'sponsor');
-            // Don't navigate here - let the button handle it
-            break;
-          case 'sponsor-tour':
-            // Complete demo
-            console.log('Demo completed');
-            setTimeout(() => setPhase('complete'), 100);
-            break;
-        }
-      }
-      
-      const newState = {
-        ...prev,
-        currentStep: newStep
-      };
-      
-      // Save state to localStorage for persistence
-      localStorage.setItem('demo-state', JSON.stringify(newState));
-      return newState;
-    });
-  };
-
-  const previousStep = () => {
-    setDemoState(prev => ({
-      ...prev,
-      currentStep: Math.max(prev.currentStep - 1, 0)
-    }));
-  };
-
-  const skipStep = () => {
-    nextStep();
-  };
-
+  const nextStep = () => setDemoState(p => p.currentStep + 1 >= p.totalSteps ? p : persist({ ...p, currentStep: p.currentStep + 1 }));
+  const previousStep = () => setDemoState(p => persist({ ...p, currentStep: Math.max(p.currentStep - 1, 0) }));
+  const skipStep = () => nextStep();
   const exitDemo = () => {
-    // Clear demo state and storage
     setDemoState(initialDemoState);
     setDemoMode(false);
     localStorage.removeItem('demo-mode');
     localStorage.removeItem('demo-user-type');
     localStorage.removeItem('demo-state');
     sessionStorage.removeItem('demo-refreshed');
-    // Always navigate to landing page when exiting demo
-    setTimeout(() => {
-      window.location.href = '/';
-    }, 100);
+    window.location.href = '/';
   };
-
   const setPhase = (phase: DemoState['phase']) => {
-    setDemoState(prev => {
-      let newSteps: DemoStep[] = [];
-      let totalSteps = 0;
-
-      switch (phase) {
-        case 'creator-tour':
-          newSteps = [
-            {
-              id: 'dashboard-overview',
-              title: 'Creator Dashboard',
-              description: 'This is your main dashboard where you can see your performance metrics and recommended sponsors.',
-              target: '[data-demo="dashboard"]',
-              position: 'top'
-            },
-            {
-              id: 'ai-profile-score',
-              title: 'AI Profile Score',
-              description: 'Your AI-powered profile score helps brands discover you. Keep improving to get better matches!',
-              target: '[data-demo="ai-profile-score"]',
-              position: 'right'
-            },
-            {
-              id: 'ai-matches-button',
-              title: 'AI Matches',
-              description: 'Click here to discover brands that are perfectly matched to your content and audience. Go ahead and click it!',
-              target: '[data-demo="ai-matches"]',
-              position: 'bottom',
-              action: 'navigate-to-matches'
-            },
-            {
-              id: 'swipe-interaction',
-              title: 'Swipe to Match',
-              description: 'Now swipe right to like a sponsor or left to pass. Try swiping right on the first sponsor!',
-              position: 'top',
-              action: 'swipe-action'
-            },
-            {
-              id: 'back-to-dashboard',
-              title: 'Return to Dashboard',
-              description: 'Great job! Now let\'s return to the dashboard to explore more features.',
-              position: 'top',
-              action: 'navigate-to-dashboard'
-            },
-            {
-              id: 'performance-growth',
-              title: 'Performance Analytics - Growth',
-              description: 'Track your growth metrics and performance over time in the Growth tab.',
-              target: '[data-demo="performance-growth"]',
-              position: 'left'
-            },
-            {
-              id: 'recommended-sponsors',
-              title: 'Recommended Sponsors',
-              description: 'Browse through AI-curated sponsor recommendations and apply to partnerships.',
-              target: '[data-demo="recommended-sponsors"]',
-              position: 'top'
-            },
-            {
-              id: 'apply-now-button',
-              title: 'Apply to Partnerships',
-              description: 'Use the Apply Now button to start collaborations with brands that match your style. Click it now!',
-              target: '[data-demo="apply-now"]',
-              position: 'left',
-              action: 'open-modal'
-            },
-            {
-              id: 'message-modal-overview',
-              title: 'Application Message Ready',
-              description: 'Here is a pre-filled, personalized message with the brand and campaign name to save you time.',
-              target: '[role="dialog"]',
-              position: 'bottom',
-              action: 'modal-opened'
-            },
-            {
-              id: 'message-modal-interaction',
-              title: 'Send Your Application',
-              description: 'Now click the "Send Message" button to submit your application to the sponsor.',
-              target: '[data-demo="send-message"]',
-              position: 'bottom',
-              action: 'modal-interaction'
-            },
-            {
-              id: 'nav-all-campaigns',
-              title: 'All Campaigns',
-              description: 'Now click on "All Campaigns" tab to discover new opportunities.',
-              target: '[data-demo="nav-all-campaigns"]',
-              position: 'bottom',
-              action: 'navigate-all-campaigns'
-            },
-            {
-              id: 'nav-messages',
-              title: 'Messages',
-              description: 'Stay connected with brands through our integrated messaging system.',
-              target: '[data-demo="nav-messages"]',
-              position: 'bottom'
-            },
-            {
-              id: 'nav-analytics',
-              title: 'Analytics',
-              description: 'Access detailed analytics about your performance and engagement.',
-              target: '[data-demo="nav-analytics"]',
-              position: 'bottom'
-            }
-           ];
-           totalSteps = 14;
-          break;
-        case 'transition':
-          newSteps = [
-            {
-              id: 'sponsor-transition',
-              title: 'Now Let\'s See the Sponsor Side',
-              description: 'Experience how brands discover and collaborate with creators like you. Click "Sponsor / Brand" to continue.',
-              target: '[data-demo="sponsor-button"]',
-              position: 'bottom'
-            }
-          ];
-          totalSteps = 1;
-          break;
-        case 'sponsor-tour':
-          newSteps = [
-            {
-              id: 'sponsor-dashboard',
-              title: 'Brand Dashboard',
-              description: 'Brands can track their campaigns and discover new creators here.',
-              target: '[data-demo="dashboard"]',
-              position: 'top'
-            },
-            {
-              id: 'sponsor-campaigns',
-              title: 'Campaign Management',
-              description: 'Create and manage your influencer marketing campaigns efficiently.',
-              target: '[data-demo="nav-campaigns"]',
-              position: 'right'
-            },
-            {
-              id: 'sponsor-discovery',
-              title: 'Creator Discovery',
-              description: 'Find the perfect creators for your campaigns using advanced filters.',
-              target: '[data-demo="nav-discover"]',
-              position: 'right'
-            },
-            {
-              id: 'sponsor-messages',
-              title: 'Communication',
-              description: 'Manage all your creator communications in one place.',
-              target: '[data-demo="nav-messages"]',
-              position: 'right'
-            },
-            {
-              id: 'sponsor-analytics',
-              title: 'Analytics & Reports',
-              description: 'Track your campaign performance and ROI with detailed analytics.',
-              target: '[data-demo="nav-analytics"]',
-              position: 'right'
-            }
-          ];
-          totalSteps = 5;
-          break;
-        case 'complete':
-          newSteps = [
-            {
-              id: 'demo-complete',
-              title: 'Demo Complete!',
-              description: 'You\'ve seen how VibeMatch works for both creators and brands. Ready to get started for real?',
-              position: 'top'
-            }
-          ];
-          totalSteps = 1;
-          break;
-      }
-
-      const newState = {
-        ...prev,
-        isActive: true, // Ensure demo is active when setting phase
-        phase,
-        steps: newSteps,
-        totalSteps,
-        currentStep: 0
-      };
-      
-      // Save state to localStorage for persistence
-      localStorage.setItem('demo-state', JSON.stringify(newState));
-      return newState;
-    });
+    const { steps, totalSteps } = getStepsForPhase(phase);
+    setDemoState(p => persist({ ...p, isActive: true, phase, steps, totalSteps, currentStep: 0 }));
   };
-
-  const setDemoUser = (user: 'creator' | 'sponsor' | null) => {
-    setDemoState(prev => ({
-      ...prev,
-      demoUser: user
-    }));
-  };
+  const setDemoUser = (user: 'creator' | 'sponsor' | null) => setDemoState(p => ({ ...p, demoUser: user }));
 
   return (
-    <DemoContext.Provider value={{
-      demoState,
-      startDemo,
-      nextStep,
-      previousStep,
-      skipStep,
-      exitDemo,
-      setPhase,
-      setDemoUser
-    }}>
+    <DemoContext.Provider value={{ demoState, startDemo, nextStep, previousStep, skipStep, exitDemo, setPhase, setDemoUser }}>
       {children}
     </DemoContext.Provider>
   );
@@ -357,8 +273,6 @@ export function DemoProvider({ children }: { children: ReactNode }) {
 
 export function useDemo() {
   const context = useContext(DemoContext);
-  if (context === undefined) {
-    throw new Error('useDemo must be used within a DemoProvider');
-  }
+  if (!context) throw new Error('useDemo must be used within a DemoProvider');
   return context;
 }

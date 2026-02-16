@@ -344,7 +344,7 @@ export default function Discovery() {
       </div>
 
       {/* ===== CREATOR RESEARCH SECTION ===== */}
-      <Card>
+      <Card data-demo="creator-research">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bot className="w-5 h-5" />
@@ -367,6 +367,7 @@ export default function Discovery() {
               onClick={runResearch}
               disabled={isResearching || !searchHandle.trim()}
               className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 min-w-[160px]"
+              data-demo="analyze-button"
             >
               {isResearching ? (
                 <>
@@ -482,7 +483,7 @@ export default function Discovery() {
           </Card>
 
           {/* Niche Chart + Score Breakdown */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" data-demo="niche-results">
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Detected Niches</CardTitle>
@@ -558,7 +559,7 @@ export default function Discovery() {
           </Card>
 
           {/* Latest Videos */}
-          <Card>
+          <Card data-demo="video-transcripts">
             <CardHeader>
               <CardTitle className="text-lg">Latest Videos ({result.videos.length})</CardTitle>
             </CardHeader>

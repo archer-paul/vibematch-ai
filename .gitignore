@@ -29,8 +29,15 @@ dist-ssr
 .env.development
 .env.production
 
+# Claude Code local settings (may contain secrets)
+.claude/
+
 # Firebase local cache
 .firebase/
 
 # Windows artifacts
 nul
+
+# Interview notes
+INTERVIEW.md
+INTERVIEW.pdf

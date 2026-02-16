@@ -1,582 +1,330 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight, ArrowLeft, SkipForward, Play } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useDemo } from '@/contexts/DemoContext';
+import { useDemo, GLOBAL_TOTAL_STEPS, PHASE_OFFSETS, persistPhaseToStorage } from '@/contexts/DemoContext';
+import { setDemoMode } from '@/data/demoData';
+
+const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+const waitForEl = (sel: string, ms = 5000) =>
+  new Promise<HTMLElement | null>(resolve => {
+    const el = document.querySelector(sel) as HTMLElement | null;
+    if (el) return resolve(el);
+    let elapsed = 0;
+    const iv = setInterval(() => {
+      elapsed += 150;
+      const found = document.querySelector(sel) as HTMLElement | null;
+      if (found || elapsed >= ms) { clearInterval(iv); resolve(found); }
+    }, 150);
+  });
+
+interface CutoutRect { x: number; y: number; w: number; h: number }
 
 export function DemoOverlay() {
-  const { demoState, nextStep, previousStep, skipStep, exitDemo, setPhase } = useDemo();
+  const { demoState, nextStep, previousStep, exitDemo, setPhase, setDemoUser } = useDemo();
   const navigate = useNavigate();
-  const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
-  const [overlayPosition, setOverlayPosition] = useState({ x: 0, y: 0 });
-  const [tooltipDimensions, setTooltipDimensions] = useState({ width: 400, height: 240 });
-  const modalAdvanceRef = useRef(false);
+  const [cutout, setCutout] = useState<CutoutRect | null>(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const [busy, setBusy] = useState(false);
+  const retryRef = useRef<ReturnType<typeof setTimeout>>();
+  const observerRef = useRef<MutationObserver | null>(null);
+  // Flag to suppress the target-click listener when WE click the element programmatically
+  const programmaticClickRef = useRef(false);
 
   const currentStep = demoState.steps[demoState.currentStep];
+  const isCentered = !currentStep?.target;
+
+  // ── Cutout tracking ──
+  const updateCutout = useCallback(() => {
+    if (!currentStep?.target) { setCutout(null); return; }
+    const el = document.querySelector(currentStep.target) as HTMLElement | null;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const pad = 6;
+    setCutout({ x: r.left - pad, y: r.top - pad, w: r.width + pad * 2, h: r.height + pad * 2 });
+  }, [currentStep?.target]);
 
   useEffect(() => {
-    if (!demoState.isActive || !currentStep) {
-      setTargetElement(null);
-      return;
-    }
-
-    // Handle special cases without targets (like transition steps)
-    if (!currentStep.target) {
-      // For sponsor transition, center the tooltip
-      if (currentStep.id === 'sponsor-transition') {
-        const tooltipWidth = 450;
-        const tooltipHeight = 220;
-        setTooltipDimensions({ width: tooltipWidth, height: tooltipHeight });
-        setOverlayPosition({ 
-          x: window.innerWidth / 2 - tooltipWidth / 2, 
-          y: window.innerHeight / 2 - tooltipHeight / 2 
-        });
-        
-        // Find and highlight the sponsor button if on landing page
-        const sponsorButton = document.querySelector('[data-demo="sponsor-button"]') as HTMLElement;
-        if (sponsorButton) {
-          setTargetElement(sponsorButton);
-        }
-      }
-      // For swipe interaction step, position tooltip at top and highlight swipe cards
-      if (currentStep.id === 'swipe-interaction') {
-        const tooltipWidth = 400;
-        const tooltipHeight = 160;
-        setTooltipDimensions({ width: tooltipWidth, height: tooltipHeight });
-        setOverlayPosition({ 
-          x: window.innerWidth / 2 - tooltipWidth / 2, 
-          y: 60 // Position at top
-        });
-        
-        // Try to target the top swipe card; fallback to loading placeholder
-        const topCard = document.querySelector('[data-demo="swipe-card-top"], .swipe-card, [data-testid="swipe-card"]') as HTMLElement;
-        const loadingCard = document.querySelector('[data-demo="swipe-loading"]') as HTMLElement;
-        if (topCard) setTargetElement(topCard);
-        else if (loadingCard) setTargetElement(loadingCard);
-
-        // Observe DOM to retarget when the real card appears after loading
-        const observer = new MutationObserver(() => {
-          const newTop = document.querySelector('[data-demo="swipe-card-top"], .swipe-card, [data-testid="swipe-card"]') as HTMLElement;
-          if (newTop) {
-            setTargetElement(newTop);
-          }
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
-        
-        // Cleanup
-        return () => observer.disconnect();
-      }
-      return;
-    }
-
-    const findTarget = () => {
-      // Handle special modal-opened action for step 9
-      if (currentStep.action === 'modal-opened') {
-        console.log('Demo: Looking for modal for modal-opened step');
-        const modal = document.querySelector('[role="dialog"]') as HTMLElement;
-        if (modal) {
-          console.log('Demo: Modal found for modal-opened step - waiting for user to click Next');
-          setTargetElement(modal);
-          // Wait for user to click Next - no auto advance
-          return;
-        }
-        // If modal not found yet, try again
-        setTimeout(findTarget, 200);
+    if (!demoState.isActive || !currentStep) return;
+    updateCutout();
+    let attempts = 0;
+    const tryFind = () => {
+      if (attempts++ > 30 || !currentStep.target) return;
+      const el = document.querySelector(currentStep.target);
+      if (el) {
+        updateCutout();
+        const r = el.getBoundingClientRect();
+        if (r.bottom > window.innerHeight - 80 || r.top < 80)
+          { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(updateCutout, 500); }
         return;
       }
-
-      // Handle special modal-interaction action for step 10
-      if (currentStep.action === 'modal-interaction') {
-        console.log('Demo: Looking for send button for modal-interaction step');
-        const sendButton = document.querySelector('[data-demo="send-message"]') as HTMLElement;
-        if (sendButton) {
-          console.log('Demo: Send button found for modal-interaction step');
-          setTargetElement(sendButton);
-          
-          // Add click handler for send button to advance demo
-          if (!sendButton.dataset.demoClickHandler) {
-            const handleSendClick = (e: Event) => {
-              console.log('Demo: Send button clicked, advancing to next step');
-              // Let the normal click happen to send the message, then advance
-              setTimeout(() => {
-                nextStep();
-              }, 1000);
-            };
-            sendButton.addEventListener('click', handleSendClick, { once: true });
-            sendButton.dataset.demoClickHandler = 'true';
-          }
-          return;
-        }
-        // If button not found yet, try again
-        setTimeout(findTarget, 200);
-        return;
-      }
-
-      const element = document.querySelector(currentStep.target!) as HTMLElement;
-      if (element) {
-        setTargetElement(element);
-        
-        // Add click event listeners for interactive elements
-        if (currentStep.target === '[data-demo="creator-button"]' || 
-            currentStep.target === '[data-demo="brand-button"]' ||
-            currentStep.target === '[data-demo="ai-matches"]' ||
-            currentStep.target === '[data-demo="apply-now"]' ||
-            currentStep.target === '[data-demo="nav-campaigns"]' ||
-            currentStep.target === '[data-demo="sponsor-button"]') {
-           const handleElementClick = (e: Event) => {
-             const isOpenModal = currentStep.action === 'open-modal';
-             if (!isOpenModal) {
-               e.preventDefault();
-               e.stopPropagation();
-               (e as any).stopImmediatePropagation?.();
-             }
-             console.log(`${currentStep.target} clicked during demo`);
-             
-              // Handle specific actions
-              if (currentStep.action === 'navigate-to-matches') {
-                // Don't prevent default here - we want to advance the step first
-                console.log('Navigating to matches - advancing demo step first');
-                nextStep(); // Advance to swipe step first
-                // Navigate without losing demo state
-                setTimeout(() => {
-                  navigate('/matches');
-                }, 100);
-                return;
-              } else if (currentStep.action === 'navigate-campaigns') {
-                navigate('/campaigns');
-                return;
-              } else if (currentStep.action === 'navigate-to-dashboard') {
-                nextStep(); // Advance step first
-                setTimeout(() => {
-                  navigate('/dashboard');
-                }, 100);
-                return;
-              } else if (currentStep.action === 'navigate-all-campaigns') {
-                // This will be handled by clicking the All Campaigns tab
-                nextStep();
-                return;
-              } else if (currentStep.action === 'open-modal') {
-                // Let the native click open the modal; advance only once when it appears
-                if (modalAdvanceRef.current) return;
-                console.log('Demo: Watching for modal to open...');
-                
-                const observer = new MutationObserver(() => {
-                  if (modalAdvanceRef.current) return;
-                  const modal = document.querySelector('[role="dialog"]') as HTMLElement | null;
-                  if (modal) {
-                    console.log('Demo: Modal detected, advancing to modal-overview step');
-                    modalAdvanceRef.current = true;
-                    observer.disconnect();
-                    // Advance to step 9 (modal-overview)
-                    nextStep();
-                  }
-                });
-                observer.observe(document.body, { childList: true, subtree: true });
-                return; // IMPORTANT: Return here to avoid the nextStep() at the end
-              }
-             
-              // Only advance step if no specific action was handled above
-              nextStep();
-           };
-           if (element.dataset.demoClickHandler !== 'true') {
-             element.addEventListener('click', (ev) => {
-               const isOpenModal = currentStep.action === 'open-modal';
-               if (!isOpenModal) {
-                 (ev as any).stopImmediatePropagation?.();
-               }
-               handleElementClick(ev);
-             }, { once: true });
-             element.dataset.demoClickHandler = 'true';
-           }
-        }
-        
-        // Calculate position for the tooltip
-        const rect = element.getBoundingClientRect();
-        
-        // Auto-scroll to element if not visible
-        const viewportHeight = window.innerHeight;
-        const elementBottom = rect.bottom;
-        const elementTop = rect.top;
-        
-        if (elementBottom > viewportHeight - 100 || elementTop < 100) {
-          element.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center', 
-            inline: 'nearest' 
-          });
-          // Wait for scroll to complete before positioning tooltip
-          setTimeout(() => {
-            const updatedRect = element.getBoundingClientRect();
-            updateTooltipPosition(updatedRect);
-          }, 500);
-          return;
-        }
-        
-        updateTooltipPosition(rect);
-      }
+      retryRef.current = setTimeout(tryFind, 200);
     };
-
-    const updateTooltipPosition = (rect: DOMRect) => {
-      // Dynamic tooltip sizing based on content
-      const baseWidth = 400;
-      const baseHeight = 260;
-      const contentLength = (currentStep.title + currentStep.description).length;
-      const extraHeight = Math.max(0, (contentLength - 100) * 0.8);
-      const tooltipWidth = Math.min(baseWidth + (contentLength > 150 ? 80 : 0), 500);
-      const tooltipHeight = Math.min(baseHeight + extraHeight, 400);
-      
-      setTooltipDimensions({ width: tooltipWidth, height: tooltipHeight });
-      
-      let x = rect.left + rect.width / 2 - tooltipWidth / 2;
-      let y = rect.bottom + 20;
-      
-      // Adjust position based on specified position
-      switch (currentStep.position) {
-        case 'top':
-          // Special handling for dashboard-overview step - position below cutout instead of above
-          if (currentStep.id === 'dashboard-overview') {
-            const cutoutBottom = rect.bottom + 8 + 16;
-            y = cutoutBottom + 10;
-            if (y + tooltipHeight > window.innerHeight - 20) {
-              y = window.innerHeight - tooltipHeight - 40;
-            }
-          } else {
-            y = rect.top - tooltipHeight - 20;
-          }
-          break;
-        case 'left':
-          x = rect.left - tooltipWidth - 20;
-          y = rect.top + rect.height / 2 - tooltipHeight / 2;
-          break;
-        case 'right':
-          x = rect.right + 20;
-          y = rect.top + rect.height / 2 - tooltipHeight / 2;
-          break;
-        default: // bottom
-          // Special positioning for the welcome step
-          if (currentStep.id === 'welcome-demo') {
-            // Calculate the true bottom of the cutout (element + 8px margin + 16px cutout padding)
-            const cutoutBottom = rect.bottom + 8 + 16;
-            // Position tooltip with large gap to ensure it doesn't overlap the Content Creator button
-            y = cutoutBottom + 100;
-            
-            // If tooltip would go below viewport, position it to the side instead
-            if (y + tooltipHeight > window.innerHeight - 20) {
-              // Try positioning to the right of the target
-              if (rect.right + 20 + tooltipWidth < window.innerWidth - 20) {
-                x = rect.right + 20;
-                y = rect.top + rect.height / 2 - tooltipHeight / 2;
-              } else {
-                // Force position at bottom of viewport with safe margin
-                y = window.innerHeight - tooltipHeight - 40;
-              }
-            }
-          } else if (currentStep.id === 'dashboard-overview') {
-            // Calculate the true bottom of the cutout for dashboard
-            const cutoutBottom = rect.bottom + 8 + 16;
-            // Position tooltip just below the cutout with small gap
-            y = cutoutBottom + 10;
-            
-            // If tooltip would go below viewport, position at bottom with safe margin
-            if (y + tooltipHeight > window.innerHeight - 20) {
-              y = window.innerHeight - tooltipHeight - 40;
-            }
-          } else {
-            y = rect.bottom + 20;
-          }
-          break;
-      }
-      
-      // Keep tooltip in viewport - but for special steps, prioritize avoiding overlap over viewport constraints
-      if (currentStep.id !== 'welcome-demo' && currentStep.id !== 'dashboard-overview') {
-        x = Math.max(20, Math.min(x, window.innerWidth - tooltipWidth - 20));
-        y = Math.max(20, Math.min(y, window.innerHeight - tooltipHeight - 20));
-      } else {
-        // For special steps, only constrain horizontally to avoid covering the cutout
-        x = Math.max(20, Math.min(x, window.innerWidth - tooltipWidth - 20));
-        // Don't constrain y to allow positioning below the cutout
-      }
-      
-      setOverlayPosition({ x, y });
-      
-      // Highlight the target element (skip for special cases)
-      if (currentStep.id !== 'sponsor-transition') {
-        const element = document.querySelector(currentStep.target!) as HTMLElement;
-        if (element) {
-          element.style.position = 'relative';
-          element.style.zIndex = '9999';
-          element.style.boxShadow = '0 0 0 4px rgba(139, 92, 246, 0.5), 0 0 0 8px rgba(139, 92, 246, 0.2)';
-          element.style.borderRadius = '8px';
-        }
-      }
+    retryRef.current = setTimeout(tryFind, 200);
+    observerRef.current = new MutationObserver(() => updateCutout());
+    observerRef.current.observe(document.body, { childList: true, subtree: true });
+    window.addEventListener('scroll', updateCutout, true);
+    window.addEventListener('resize', updateCutout);
+    return () => {
+      clearTimeout(retryRef.current);
+      observerRef.current?.disconnect();
+      window.removeEventListener('scroll', updateCutout, true);
+      window.removeEventListener('resize', updateCutout);
     };
+  }, [demoState.isActive, demoState.currentStep, demoState.phase, currentStep, updateCutout]);
 
-    // Try to find the target immediately
-    findTarget();
-    
-    // Observe DOM changes to handle dynamic targets like modals
-    let observer: MutationObserver | null = null;
-    if (currentStep.id === 'message-modal-interaction') {
-      observer = new MutationObserver(() => {
-        const el = document.querySelector(currentStep.target!) as HTMLElement;
-        if (el) {
-          setTargetElement(el);
-          const rect = el.getBoundingClientRect();
-          updateTooltipPosition(rect);
-        }
-      });
-      observer.observe(document.body, { childList: true, subtree: true });
+  // ── Target click listener (user clicks the highlighted element) ──
+  useEffect(() => {
+    if (!demoState.isActive || !currentStep?.target) return;
+    const el = document.querySelector(currentStep.target) as HTMLElement | null;
+    if (!el) return;
+    const handler = () => {
+      // Ignore clicks we triggered ourselves
+      if (programmaticClickRef.current) { programmaticClickRef.current = false; return; }
+      setTimeout(() => handleNext(true), 50);
+    };
+    el.addEventListener('click', handler, { once: true });
+    return () => el.removeEventListener('click', handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demoState.isActive, demoState.currentStep, demoState.phase, currentStep?.target, cutout]);
+
+  // ── Tooltip positioning ──
+  useEffect(() => {
+    const tw = 400; const th = 180;
+    if (isCentered || !cutout) {
+      setTooltipPos({ x: window.innerWidth / 2 - tw / 2, y: window.innerHeight / 2 - th / 2 });
+      return;
     }
-    
-    // If not found, try again after a short delay (for dynamic content)
-    const timeout = setTimeout(findTarget, 100);
-    
-    return () => {
-      clearTimeout(timeout);
-      if (observer) observer.disconnect();
-      // Clean up highlighting and event listeners
-      if (targetElement) {
-        targetElement.style.position = '';
-        targetElement.style.zIndex = '';
-        targetElement.style.boxShadow = '';
-        targetElement.style.borderRadius = '';
-        
-        // Remove click event listener if it was added
-        if (targetElement.dataset.demoClickHandler) {
-          targetElement.removeEventListener('click', () => {});
-          delete targetElement.dataset.demoClickHandler;
+    const pos = currentStep?.position ?? 'bottom';
+    let x = 0, y = 0;
+    switch (pos) {
+      case 'top':    x = cutout.x + cutout.w / 2 - tw / 2; y = cutout.y - th - 16; break;
+      case 'left':   x = cutout.x - tw - 16;               y = cutout.y + cutout.h / 2 - th / 2; break;
+      case 'right':  x = cutout.x + cutout.w + 16;         y = cutout.y + cutout.h / 2 - th / 2; break;
+      default:       x = cutout.x + cutout.w / 2 - tw / 2; y = cutout.y + cutout.h + 16; break;
+    }
+    x = Math.max(16, Math.min(x, window.innerWidth - tw - 16));
+    y = Math.max(16, Math.min(y, window.innerHeight - th - 16));
+    setTooltipPos({ x, y });
+  }, [cutout, isCentered, currentStep?.position]);
+
+  // Helper: programmatic click that won't trigger our own target listener
+  const safeClick = (sel: string) => {
+    const el = document.querySelector(sel) as HTMLElement | null;
+    if (!el) return;
+    programmaticClickRef.current = true;
+    el.click();
+  };
+
+  // ── handleNext ──
+  const handleNext = useCallback(async (userInitiated = false) => {
+    if (busy || !currentStep) return;
+    setBusy(true);
+    try {
+      switch (currentStep.id) {
+
+        // ═══ LANDING ═══
+        case 'welcome-demo': {
+          setDemoMode(true);
+          localStorage.setItem('demo-user-type', 'sponsor');
+          setDemoUser('sponsor');
+          window.dispatchEvent(new CustomEvent('demo-user-changed', { detail: { userType: 'sponsor' } }));
+          persistPhaseToStorage('sponsor-tour', 'sponsor');
+          setPhase('sponsor-tour');
+          await sleep(150);
+          navigate('/dashboard');
+          return;
         }
+
+        // ═══ SPONSOR TOUR ═══
+        case 'sponsor-dashboard': {
+          nextStep();
+          return;
+        }
+
+        case 'sponsor-find-creators': {
+          if (!userInitiated) safeClick('[data-demo="find-creators"]');
+          await waitForEl('[data-demo="campaign-dialog"]');
+          await sleep(300);
+          nextStep();
+          return;
+        }
+
+        case 'sponsor-campaign-form': {
+          window.dispatchEvent(new Event('demo-fill-campaign'));
+          await sleep(600);
+          nextStep();
+          return;
+        }
+
+        case 'sponsor-campaign-submit': {
+          if (!userInitiated) safeClick('[data-demo="campaign-submit"]');
+          await waitForEl('[data-demo="first-match"]', 15000);
+          await sleep(300);
+          nextStep();
+          return;
+        }
+
+        case 'sponsor-match-result': {
+          // Read the handle BEFORE closing (button is inside the dialog)
+          const analyzeBtn = document.querySelector('[data-demo="first-match-analyze"]') as HTMLElement | null;
+          const handle = analyzeBtn?.dataset?.demoHandle || '@mkbhd';
+          // Close dialog, then navigate to discover
+          window.dispatchEvent(new Event('demo-close-dialog'));
+          await sleep(300);
+          navigate(`/discover?handle=${encodeURIComponent(handle)}`);
+          await sleep(400);
+          nextStep();
+          return;
+        }
+
+        case 'sponsor-analyze': {
+          // Click the Analyze Creator button and wait for results
+          if (!userInitiated) safeClick('[data-demo="analyze-button"]');
+          // Wait for real API results (up to 90s)
+          await waitForEl('[data-demo="niche-results"]', 90000);
+          await sleep(300);
+          nextStep();
+          return;
+        }
+
+        case 'sponsor-niches':
+        case 'sponsor-transcripts': {
+          nextStep();
+          return;
+        }
+
+        case 'sponsor-analytics': {
+          persistPhaseToStorage('transition', 'sponsor');
+          setPhase('transition');
+          await sleep(100);
+          navigate('/');
+          return;
+        }
+
+        // ═══ TRANSITION ═══
+        case 'sponsor-transition': {
+          localStorage.setItem('demo-user-type', 'creator');
+          setDemoUser('creator');
+          window.dispatchEvent(new CustomEvent('demo-user-changed', { detail: { userType: 'creator' } }));
+          persistPhaseToStorage('creator-tour', 'creator');
+          setPhase('creator-tour');
+          await sleep(150);
+          navigate('/dashboard');
+          return;
+        }
+
+        // ═══ CREATOR TOUR ═══
+        case 'creator-dashboard':
+        case 'creator-ai-score':
+        case 'creator-campaigns':
+        case 'creator-marketplace':
+        case 'creator-leaderboard':
+        case 'creator-analytics': {
+          nextStep();
+          return;
+        }
+
+        case 'creator-matches': {
+          if (!userInitiated) navigate('/matches');
+          await sleep(300);
+          nextStep();
+          return;
+        }
+
+        case 'creator-swipe': {
+          const card = document.querySelector('[data-demo="swipe-card-top"]') as HTMLElement | null;
+          if (card) {
+            card.style.transition = 'transform 0.8s cubic-bezier(.2,0,0,1), opacity 0.6s';
+            card.style.transform = 'translateX(150%) rotate(20deg)';
+            card.style.opacity = '0';
+          }
+          await sleep(1200);
+          navigate('/dashboard');
+          await sleep(400);
+          nextStep();
+          return;
+        }
+
+        case 'creator-messages': {
+          setPhase('complete');
+          return;
+        }
+
+        case 'demo-complete': {
+          exitDemo();
+          return;
+        }
+
+        default: { nextStep(); return; }
       }
-    };
-  }, [currentStep, demoState.currentStep]);
+    } finally { setBusy(false); }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [busy, currentStep, nextStep, navigate, setPhase, setDemoUser, exitDemo]);
 
-  // Clean up when demo ends
-  useEffect(() => {
-    return () => {
-      if (targetElement) {
-        targetElement.style.position = '';
-        targetElement.style.zIndex = '';
-        targetElement.style.boxShadow = '';
-        targetElement.style.borderRadius = '';
-      }
-    };
-  }, [targetElement]);
-
-  // Reset modal advancement guard on step change
-  useEffect(() => {
-    modalAdvanceRef.current = false;
-  }, [demoState.currentStep]);
-
-  if (!demoState.isActive || !currentStep) {
-    return null;
-  }
-
-  const isFirstStep = demoState.currentStep === 0;
-  const isLastStep = demoState.currentStep === demoState.totalSteps - 1;
-  const isDemoComplete = demoState.phase === 'complete';
+  // ── Render ──
+  if (!demoState.isActive || !currentStep) return null;
+  const isFirstStep = demoState.currentStep === 0 && demoState.phase === 'landing';
+  const isComplete = currentStep.id === 'demo-complete';
+  const globalStep = (PHASE_OFFSETS[demoState.phase] ?? 0) + demoState.currentStep;
 
   return (
     <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 z-[10000] pointer-events-none"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        {/* Dark overlay with cutout for target element */}
-        <div className="absolute inset-0">
-          <svg width="100%" height="100%" className="absolute inset-0">
-            <defs>
-              <mask id="cutout-mask">
-                <rect width="100%" height="100%" fill="white" />
-                {targetElement && (
-                  <rect
-                    x={targetElement.getBoundingClientRect().left - 8}
-                    y={targetElement.getBoundingClientRect().top - 8 + (currentStep?.id === 'sponsor-transition' ? 12 : 0)}
-                    width={targetElement.getBoundingClientRect().width + 16}
-                    height={targetElement.getBoundingClientRect().height + 16}
-                    rx="12"
-                    fill="black"
-                  />
-                )}
-                {/* Special larger cutout for swipe interaction */}
-                {currentStep?.id === 'swipe-interaction' && targetElement && (
-                  <rect
-                    x={targetElement.getBoundingClientRect().left - 40}
-                    y={targetElement.getBoundingClientRect().top - 40}
-                    width={targetElement.getBoundingClientRect().width + 80}
-                    height={targetElement.getBoundingClientRect().height + 80}
-                    rx="20"
-                    fill="black"
-                  />
-                )}
-              </mask>
-            </defs>
-            <rect 
-              width="100%" 
-              height="100%" 
-              fill="rgba(0, 0, 0, 0.7)" 
-              mask={targetElement ? "url(#cutout-mask)" : undefined}
-              style={{ backdropFilter: 'blur(2px)' }}
-            />
-          </svg>
-        </div>
-        
-        {/* Demo tooltip */}
-        <motion.div
-          className="absolute pointer-events-auto"
-          style={{
-            left: overlayPosition.x,
-            top: overlayPosition.y,
-            width: tooltipDimensions.width,
-            maxHeight: tooltipDimensions.height
-          }}
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-        >
-          <Card className="bg-white/95 backdrop-blur-md border border-purple-200 shadow-2xl overflow-hidden">
+      <motion.div className="fixed inset-0 z-[10000]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} style={{ pointerEvents: 'none' }}>
+        <svg width="100%" height="100%" className="absolute inset-0" style={{ pointerEvents: 'none' }}>
+          <defs>
+            <mask id="demo-cutout-mask">
+              <rect width="100%" height="100%" fill="white" />
+              {cutout && <motion.rect animate={{ x: cutout.x, y: cutout.y, width: cutout.w, height: cutout.h }} transition={{ type: 'spring', stiffness: 300, damping: 30 }} rx={12} fill="black" />}
+            </mask>
+          </defs>
+          <rect width="100%" height="100%" fill="rgba(0,0,0,0.7)" mask={cutout ? 'url(#demo-cutout-mask)' : undefined} />
+        </svg>
+
+        {cutout ? (<>
+          <div className="fixed left-0 right-0 top-0" style={{ height: Math.max(0, cutout.y), pointerEvents: 'auto' }} />
+          <div className="fixed left-0 right-0 bottom-0" style={{ top: cutout.y + cutout.h, pointerEvents: 'auto' }} />
+          <div className="fixed left-0" style={{ top: cutout.y, width: Math.max(0, cutout.x), height: cutout.h, pointerEvents: 'auto' }} />
+          <div className="fixed right-0" style={{ top: cutout.y, left: cutout.x + cutout.w, height: cutout.h, pointerEvents: 'auto' }} />
+        </>) : (<div className="fixed inset-0" style={{ pointerEvents: 'auto' }} />)}
+
+        <motion.div className="absolute z-[10001]" style={{ left: tooltipPos.x, top: tooltipPos.y, width: 400, pointerEvents: 'auto' }} initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} key={`${demoState.phase}-${demoState.currentStep}`} transition={{ duration: 0.3, ease: 'easeOut' }}>
+          <Card className="bg-white/95 backdrop-blur-md border border-purple-200 shadow-2xl">
             <CardContent className="p-4">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1 pr-2">
-                  <h3 className="text-base font-semibold text-gray-900 mb-2 leading-tight">
-                    {currentStep.title}
-                  </h3>
-                  <p className="text-gray-700 text-sm leading-relaxed">
-                    {currentStep.description}
-                  </p>
+                  <h3 className="text-base font-semibold text-gray-900 mb-1 leading-tight">{currentStep.title}</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">{currentStep.description}</p>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={exitDemo}
-                  className="ml-2 text-gray-500 hover:text-gray-700"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                <Button variant="ghost" size="sm" onClick={exitDemo} className="ml-2 text-gray-400 hover:text-gray-600 -mt-1 -mr-1"><X className="h-4 w-4" /></Button>
               </div>
-              
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">
-                    {demoState.currentStep + 1} of {demoState.totalSteps}
-                  </span>
-                  <div className="flex gap-1">
-                    {Array.from({ length: demoState.totalSteps }, (_, i) => (
-                      <div
-                        key={i}
-                        className={`w-2 h-2 rounded-full transition-colors ${
-                          i <= demoState.currentStep 
-                            ? 'bg-purple-500' 
-                            : 'bg-gray-300'
-                        }`}
-                      />
+                  <span className="text-xs text-gray-400">{globalStep + 1}/{GLOBAL_TOTAL_STEPS}</span>
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: GLOBAL_TOTAL_STEPS }, (_, i) => (
+                      <div key={i} className={`w-1.5 h-1.5 rounded-full transition-colors ${i <= globalStep ? 'bg-purple-500' : 'bg-gray-300'}`} />
                     ))}
                   </div>
                 </div>
-                
                 <div className="flex items-center gap-2">
-                  {!isFirstStep && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={previousStep}
-                      className="text-xs px-2"
-                    >
-                      <ArrowLeft className="h-3 w-3" />
-                    </Button>
+                  {!isFirstStep && demoState.currentStep > 0 && (
+                    <Button variant="outline" size="sm" onClick={previousStep} className="text-xs px-2" disabled={busy}><ArrowLeft className="h-3 w-3" /></Button>
                   )}
-                  
-                  {/* Allow skipping the swipe step if needed */}
-                  {currentStep.id === 'swipe-interaction' && (
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={nextStep}
-                      className="text-xs px-2"
-                    >
-                      Continuer
-                    </Button>
-                  )}
-                  
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => {
-                      exitDemo();
-                      navigate('/');
-                    }}
-                    className="text-xs px-2"
-                  >
-                    <X className="h-3 w-3" />
+                  <Button size="sm" onClick={() => handleNext(false)} disabled={busy} className="text-xs bg-purple-600 hover:bg-purple-700 px-3">
+                    {busy ? <span className="animate-pulse">...</span> : isComplete ? 'Finish' : <>Next <ArrowRight className="h-3 w-3 ml-1" /></>}
                   </Button>
-                    
-                  {!isDemoComplete && (
-                  <Button
-                    size="sm"
-                    disabled={currentStep.id === 'swipe-interaction'}
-                    onClick={() => {
-                      if (currentStep.id === 'sponsor-transition') {
-                        // Sponsor transition: ensure landing, then start sponsor tour
-                        navigate('/');
-                        setTimeout(() => {
-                          setPhase('sponsor-tour');
-                        }, 300);
-                      } else if (currentStep.action === 'swipe-action') {
-                        // Prevent skipping swipe step via Next
-                        return;
-                      } else if (currentStep.action === 'open-modal') {
-                        // Step 8: Simulate clicking the "Apply Now" button
-                        const applyBtn = document.querySelector(currentStep.target || '[data-demo="apply-now"]') as HTMLElement | null;
-                        if (applyBtn) {
-                          applyBtn.click();
-                        }
-                        // Do NOT call nextStep here; it will advance when the modal opens
-                        return;
-                      } else if (currentStep.action === 'modal-opened') {
-                        // Step 9: Just advance to next step, keep modal open
-                        nextStep();
-                      } else if (currentStep.action === 'modal-interaction') {
-                        // Step 10: Let the user click the send button or Next
-                        nextStep();
-                      } else {
-                        nextStep();
-                      }
-                    }}
-                    className="text-xs bg-purple-600 hover:bg-purple-700 px-3"
-                  >
-                    {currentStep.id === 'swipe-interaction' ? 'Swipe to continue' : (isLastStep && demoState.phase !== 'complete' ? 'Continue' : 'Next')}
-                    <ArrowRight className="h-3 w-3 ml-1" />
-                  </Button>
-                  )}
                 </div>
               </div>
             </CardContent>
           </Card>
         </motion.div>
-        
-        {/* Exit demo button */}
-        <motion.div
-          className="absolute top-4 right-4 pointer-events-auto"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Button
-            variant="secondary"
-            onClick={() => {
-              exitDemo();
-              navigate('/');
-            }}
-            className="bg-white/90 hover:bg-white text-gray-900 shadow-lg"
-          >
-            Exit Demo
-          </Button>
-        </motion.div>
+
+        <div className="absolute top-4 right-4" style={{ pointerEvents: 'auto' }}>
+          <Button variant="secondary" onClick={exitDemo} className="bg-white/90 hover:bg-white text-gray-900 shadow-lg">Exit Demo</Button>
+        </div>
       </motion.div>
     </AnimatePresence>
   );

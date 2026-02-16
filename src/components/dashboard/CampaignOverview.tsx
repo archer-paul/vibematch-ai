@@ -129,12 +129,13 @@ export function CampaignOverview() {
         </div>
         <div className="flex gap-2">
           {quickActions.map((action, index) => (
-            <Button 
-              key={index} 
-              variant={action.variant} 
-              size="sm" 
+            <Button
+              key={index}
+              variant={action.variant}
+              size="sm"
               className="gap-2"
               onClick={() => handleQuickAction(action.label)}
+              data-demo={action.label === "Find Matching Creators" ? "find-creators" : undefined}
             >
               <action.icon className="h-4 w-4" />
               {action.label}
@@ -180,7 +181,7 @@ export function CampaignOverview() {
       {/* Performance Chart and Alerts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Performance Chart */}
-        <Card className="border border-border">
+        <Card className="border border-border" data-demo="campaign-performance">
           <CardHeader>
             <CardTitle className="text-corporate-gray-dark">Campaign Performance</CardTitle>
             <CardDescription>Revenue and engagement over time</CardDescription>

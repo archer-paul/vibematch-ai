@@ -70,7 +70,7 @@ export function AIProfileScore() {
 
   return (
     <TooltipProvider>
-      <Card className="relative overflow-hidden">
+      <Card className="relative overflow-hidden" data-demo="ai-profile-score">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-pink-500/5" />
 
         <CardHeader className="relative">
