@@ -8,14 +8,6 @@
 [![YouTube API](https://img.shields.io/badge/YouTube-Data%20API%20v3-FF0000?style=flat&logo=youtube&logoColor=white)](https://developers.google.com/youtube/v3)
 [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com/)
 
-## Hackathon Project
-
-Built during the **Cerebras x Cline Hackathon** by **[Paul Archer](https://github.com/archer-paul)** and **[Tom Effernelli](https://github.com/tom-effernelli)**.
-
-Demo video:
-
-https://github.com/user-attachments/assets/8d731038-a078-4628-867a-c1bdb1700f8e
-
 ---
 
 Live app: [vibematch.tech](https://vibematch.tech)
@@ -367,49 +359,16 @@ gcloud builds submit --config cloudbuild.yaml
 
 ---
 
-## Demo Mode
-
-Test the full app without any API keys:
-
-- Activate: `localStorage.setItem('demo-mode', 'true')`
-- Mock data is returned instead of live API calls
-- DemoOverlay provides an interactive guided tour of the interface
-
----
-
-## Roadmap
-
-### Done
-- Creator/sponsor matching with swipe interface
-- YouTube Data API v3 integration (real channel data, Shorts filtering)
-- Transcript extraction via InnerTube ANDROID client
-- LDA niche detection from video content + transcripts
-- OpenAI gpt-4o-mini analysis (30 criteria, 6 categories)
-- Deterministic scoring engine
-- Creator Research tool for sponsors (full pipeline with transcript viewer)
-- Discovery page with real featured influencers (US/UK/FR)
-- Gamification (super likes, streaks, achievements, leaderboard)
-- Demo mode with guided walkthrough
-
-### Next
-- Instagram Graph API, TikTok Business API, Twitter/X API integration
-- Cross-platform unified scoring
-- ROI predictor, fake followers detection
-- Outreach automation, contract management
-- CRM integrations, public API
-
----
-
 ## Team
 
-**Paul Archer** — Full-stack Development & AI Integration
-**Tom Effernelli** — Frontend Development & UX Design
+**Paul Archer** — Founder & Lead Engineer
+**Tom Effernelli** — Co-founder & Product Designer
 
 ---
 
 ## License
 
-MIT — see [LICENSE](LICENSE) for details.
+Proprietary — All Rights Reserved. See [LICENSE](LICENSE) for details.
 
 ---
 
